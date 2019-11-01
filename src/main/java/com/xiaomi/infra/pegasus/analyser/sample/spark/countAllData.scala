@@ -1,10 +1,6 @@
 package com.xiaomi.infra.pegasus.analyser.sample.spark
 
-import java.util.concurrent.atomic.AtomicInteger
-
 import com.xiaomi.infra.pegasus.analyser.{Config, FdsService, PegasusClient, PegasusOptions}
-import com.xiaomi.infra.{FdsService, PegasusClient, PegasusOptions}
-import com.xiaomi.infra.pegasus.analyser.sample.local.ScanTool
 import org.apache.commons.logging.LogFactory
 import org.apache.spark.{SparkConf, SparkContext, TaskContext}
 import org.rocksdb.RocksDB
