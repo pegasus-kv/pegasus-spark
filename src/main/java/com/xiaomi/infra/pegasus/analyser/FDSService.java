@@ -20,9 +20,9 @@ import org.apache.hadoop.fs.Path;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class FdsService implements Serializable {
+public class FDSService implements Serializable {
 
-  private static final Log LOG = LogFactory.getLog(FdsService.class);
+  private static final Log LOG = LogFactory.getLog(FDSService.class);
 
   private Config globalConfig;
   private transient Configuration conf = new Configuration();
@@ -31,24 +31,24 @@ public class FdsService implements Serializable {
 
   private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
-  public FdsService() throws ConfigurationException {
+  public FDSService() throws ConfigurationException {
     globalConfig = new Config();
     LOG.info("init fds default config");
   }
 
-  public FdsService(Config config) {
+  public FDSService(Config config) {
     globalConfig = config;
     LOG.info("init fds config");
   }
 
-  public FdsService(Config config, String prefix, int counter) throws FDSException {
+  public FDSService(Config config, String prefix, int counter) throws FDSException {
     globalConfig = config;
     String urlPrefix = globalConfig.DATA_URL + "/" + prefix;
     initCheckpointUrls(urlPrefix, counter);
     LOG.info("init fds default config and get the data urls");
   }
 
-  public FdsService(Config config, String cluster, String table) throws FDSException {
+  public FDSService(Config config, String cluster, String table) throws FDSException {
     globalConfig = config;
     String idPrefix =
         globalConfig.DATA_URL + "/" + cluster + "/" + globalConfig.COLDBK_POLICY + "/";
@@ -65,7 +65,7 @@ public class FdsService implements Serializable {
     LOG.info("init fds default config and get the latest data urls");
   }
 
-  public FdsService(Config config, String cluster, String table, String dataTime)
+  public FDSService(Config config, String cluster, String table, String dataTime)
       throws FDSException {
     globalConfig = config;
     String idPrefix =
