@@ -33,7 +33,9 @@ class RocksDBOptions {
     Logger rocksdbLog =
         new Logger(options) {
           @Override
-          public void log(InfoLogLevel infoLogLevel, String s) {}
+          public void log(InfoLogLevel infoLogLevel, String s) {
+            System.out.println("rocksdb logger:"+s);
+          }
         };
 
     options.setLogger(rocksdbLog);
