@@ -129,7 +129,7 @@ public class FdsService implements Serializable {
       LOG.error("get latest policy id from " + prefix + "failed!");
       throw new FDSException("get latest policy id failed, [url:" + prefix + "]", e);
     }
-    throw new FDSException("Can't match the today time");
+    throw new FDSException("can't match the today time");
   }
 
   private ArrayList<String> getPolicyIdList(FileStatus[] status) {
