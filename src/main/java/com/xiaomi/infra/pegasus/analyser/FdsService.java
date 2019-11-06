@@ -156,7 +156,7 @@ public class FdsService implements Serializable {
       LOG.error("get latest policy id from " + prefix + "failed!");
       throw new FDSException("get latest policy id failed, [url:" + prefix + "]", e);
     }
-    throw new FDSException("Can't match the data time:+" + dateTime);
+    throw new FDSException("can't match the data time:+" + dateTime);
   }
 
   private String getTableNameAndId(String prefix, String tableName) throws FDSException {
