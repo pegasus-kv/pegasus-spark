@@ -39,6 +39,6 @@ object countAllData {
       a + b
     })
 
-    LOG.info("All partition data couner:" + counters)
+    LOG.info("all partition data count:" + counters)
   }
 }

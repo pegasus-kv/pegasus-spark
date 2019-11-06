@@ -42,7 +42,7 @@ object scanAllData {
         rocksdbScanner.next()
       }
       rocksdbScanner.close()
-      LOG.info("partitionID: " + TaskContext.getPartitionId() + "has completed")
+      LOG.info("partitionId: " + TaskContext.getPartitionId() + " has completed")
     })
   }
 

@@ -1,5 +1,6 @@
 package com.xiaomi.infra.pegasus.analyser.sample.local;
 
+import com.xiaomi.infra.pegasus.analyser.FDSException;
 import com.xiaomi.infra.pegasus.analyser.PegasusClient;
 import com.xiaomi.infra.pegasus.analyser.Config;
 import com.xiaomi.infra.pegasus.analyser.FdsService;
@@ -95,7 +96,7 @@ public class ScanTool {
   }
 
   public static void main(String[] arg)
-      throws ParseException, IOException, java.text.ParseException, ConfigurationException {
+      throws ParseException, ConfigurationException, FDSException {
 
     String args[] = {"-s", "-c", "c4tst-perfomance", "-t", "coldbackuptest"};
     Config serviceConfig;
