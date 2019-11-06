@@ -121,15 +121,11 @@ public class FDSService implements Serializable {
       FileStatus[] status = fs.listStatus(Path);
       ArrayList<String> idList = getPolicyIdList(status);
       LOG.info("the policy list:" + idList);
-      String latestPolicyId = idList.get(idList.size() - 1);
-      if (latestPolicyId != null) {
-        return latestPolicyId;
-      }
+      return idList.get(idList.size() - 1);
     } catch (IOException e) {
       LOG.error("get latest policy id from " + prefix + "failed!");
       throw new FDSException("get latest policy id failed, [url:" + prefix + "]", e);
     }
-    throw new FDSException("can't match the today time");
   }
 
   private ArrayList<String> getPolicyIdList(FileStatus[] status) {
