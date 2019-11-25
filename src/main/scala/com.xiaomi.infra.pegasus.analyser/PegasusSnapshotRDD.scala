@@ -61,6 +61,11 @@ class PegasusSnapshotRDD private[analyser] (pegasusContext: PegasusContext,
     fdsService.getPartitionCount
   }
 
+  /**
+    * @param other the other PegasusSnapshotRDD with which to diff against
+    * @return a RDD representing a different set of records in which none of each
+    *         exists in both `this` and `other`.
+    */
   def diff(other: PegasusSnapshotRDD): RDD[PegasusRecord] = {
     subtract(other).union(other.subtract(this))
   }
