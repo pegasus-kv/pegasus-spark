@@ -31,6 +31,7 @@ class PegasusSnapshotRDD private[analyser] (pegasusContext: PegasusContext,
                                             @transient sc: SparkContext)
     extends RDD[PegasusRecord](sc, Nil) {
 
+  // Loads the librocksdb library into jvm.
   RocksDB.loadLibrary()
 
   private val LOG = LogFactory.getLog(classOf[PegasusSnapshotRDD])
