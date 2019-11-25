@@ -25,8 +25,8 @@ class DuplicationVerifierOptions {
   */
 class DuplicationVerifier(opts: DuplicationVerifierOptions) {
 
-  private val options = opts
-  private val LOG = LogFactory.getLog(classOf[PegasusClient])
+  val options: DuplicationVerifierOptions = opts
+  private val LOG = LogFactory.getLog(classOf[DuplicationVerifier])
 
   class Result {
     var differences: Long = 0
@@ -99,9 +99,16 @@ object DuplicationVerifier {
 
 object VerifyDuplication {
   def main(args: Array[String]): Unit = {
-    val result =
-      DuplicationVerifier.loadFromConfiguration(args.apply(0)).verify()
-    println(result.differences)
-    println(result.same)
+    val verifier =
+      DuplicationVerifier.loadFromConfiguration(args.apply(0))
+    val result = verifier.verify()
+    printf(
+      "Verified snapshots of table \"%s\" in cluster1=\"%s\" and cluster2=\"%s\"\n",
+      verifier.options.tableName,
+      verifier.options.cluster1,
+      verifier.options.cluster2
+    )
+    printf("Differences: %d\n", result.differences)
+    printf("Same: %d\n", result.same)
   }
 }

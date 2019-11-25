@@ -1,5 +1,6 @@
 package com.xiaomi.infra.pegasus.analyser
 
+import org.apache.commons.logging.LogFactory
 import org.apache.spark.TaskContext
 import org.rocksdb.{RocksDB, RocksIterator}
 
@@ -8,8 +9,10 @@ import org.rocksdb.{RocksDB, RocksIterator}
   * and sorted by bytes-order.
   */
 private[analyser] class PartitionIterator private (context: TaskContext,
-                                                   pid: Int)
+                                                   val pid: Int)
     extends Iterator[PegasusRecord] {
+
+  private val LOG = LogFactory.getLog(classOf[PartitionIterator])
 
   private var rocksIterator: RocksIterator = _
   private var rocksDB: RocksDB = _
@@ -19,6 +22,9 @@ private[analyser] class PartitionIterator private (context: TaskContext,
   private var thisRecord: PegasusRecord = _
   private var nextRecord: PegasusRecord = _
 
+  private var name: String = _
+  // TODO(wutao1): add metrics for counting the number of iterated records.
+
   def this(context: TaskContext,
            config: Config,
            fdsService: FDSService,
@@ -26,20 +32,17 @@ private[analyser] class PartitionIterator private (context: TaskContext,
     this(context, pid)
 
     rocksDBOptions = new RocksDBOptions(config)
-
     val checkPointUrls = fdsService.getCheckpointUrls
     val dbPath = checkPointUrls.get(pid)
     rocksDB = RocksDB.openReadOnly(rocksDBOptions.options, dbPath)
-
     rocksIterator = rocksDB.newIterator(rocksDBOptions.readOptions)
+    rocksIterator.seekToFirst()
+    assert(rocksIterator.isValid)
+    rocksIterator.next() // skip the first record
     if (rocksIterator.isValid) {
-      thisRecord = new PegasusRecord(rocksIterator)
-
-      rocksIterator.next()
-      if (rocksIterator.isValid) {
-        nextRecord = new PegasusRecord(rocksIterator)
-      }
+      nextRecord = new PegasusRecord(rocksIterator)
     }
+    name = "PartitionIterator[pid=%d]".format(pid)
 
     // Register an on-task-completion callback to release the resources.
     context.addTaskCompletionListener { context =>
@@ -54,6 +57,7 @@ private[analyser] class PartitionIterator private (context: TaskContext,
       rocksDB.close()
       rocksDBOptions.close()
       closed = true
+      LOG.info(toString() + " closed")
     }
   }
 
@@ -70,5 +74,9 @@ private[analyser] class PartitionIterator private (context: TaskContext,
       nextRecord = null
     }
     thisRecord
+  }
+
+  override def toString(): String = {
+    name
   }
 }

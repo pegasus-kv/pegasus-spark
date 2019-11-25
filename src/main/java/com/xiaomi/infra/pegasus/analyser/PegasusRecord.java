@@ -1,14 +1,17 @@
 package com.xiaomi.infra.pegasus.analyser;
 
+import com.google.common.primitives.UnsignedBytes;
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.rocksdb.RocksIterator;
 
+import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.Comparator;
 
-public class PegasusRecord {
+public class PegasusRecord implements Serializable, Comparable {
   private byte[] hashKey;
   private byte[] sortKey;
   private byte[] value;
@@ -23,6 +26,13 @@ public class PegasusRecord {
 
   public byte[] getValue() {
     return value;
+  }
+
+  @Override
+  public String toString() {
+    return String.format(
+        "[HashKey=%s, SortKey=%s, Value=%s]",
+        Arrays.toString(hashKey), Arrays.toString(sortKey), Arrays.toString(value));
   }
 
   PegasusRecord(RocksIterator rocksIterator) {
@@ -44,5 +54,16 @@ public class PegasusRecord {
 
   private static byte[] restoreValue(byte[] value) {
     return Arrays.copyOfRange(value, 4, value.length);
+  }
+
+  @Override
+  public int compareTo(Object o) {
+    PegasusRecord other = (PegasusRecord) o;
+    final Comparator<byte[]> comparator = UnsignedBytes.lexicographicalComparator();
+    int res = comparator.compare(hashKey, other.hashKey);
+    if (res != 0) {
+      return res;
+    }
+    return comparator.compare(sortKey, other.sortKey);
   }
 }
