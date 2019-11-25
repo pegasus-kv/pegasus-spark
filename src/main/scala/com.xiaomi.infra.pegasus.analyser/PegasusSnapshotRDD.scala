@@ -23,6 +23,8 @@ class PegasusContext(private val sc: SparkContext) extends Serializable {
 
 /**
   * A RDD backed by a FDS snapshot of Pegasus.
+  *
+  * To construct a PegasusSnapshotRDD, use [[PegasusContext#pegasusSnapshotRDD]].
   */
 class PegasusSnapshotRDD private[analyser] (pegasusContext: PegasusContext,
                                             clusterName: String,
