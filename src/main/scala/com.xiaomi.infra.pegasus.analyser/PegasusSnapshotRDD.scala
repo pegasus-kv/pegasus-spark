@@ -15,24 +15,25 @@ class PegasusContext(private val sc: SparkContext) extends Serializable {
 
   private val config = new Config("core-site.xml")
 
-  def pegasusRDD(clusterName: String, tableName: String): PegasusRDD = {
-    new PegasusRDD(this, clusterName, tableName, config, sc)
+  def pegasusSnapshotRDD(clusterName: String,
+                         tableName: String): PegasusSnapshotRDD = {
+    new PegasusSnapshotRDD(this, clusterName, tableName, config, sc)
   }
 }
 
 /**
   *
   */
-class PegasusRDD private[analyser] (pegasusContext: PegasusContext,
-                                    clusterName: String,
-                                    tableName: String,
-                                    config: Config,
-                                    @transient sc: SparkContext)
+class PegasusSnapshotRDD private[analyser] (pegasusContext: PegasusContext,
+                                            clusterName: String,
+                                            tableName: String,
+                                            config: Config,
+                                            @transient sc: SparkContext)
     extends RDD[PegasusRecord](sc, Nil) {
 
   RocksDB.loadLibrary()
 
-  private val LOG = LogFactory.getLog(classOf[PegasusRDD])
+  private val LOG = LogFactory.getLog(classOf[PegasusSnapshotRDD])
 
   private val fdsService: FDSService =
     new FDSService(config, clusterName, tableName)

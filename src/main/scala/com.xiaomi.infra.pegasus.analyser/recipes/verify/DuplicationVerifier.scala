@@ -2,6 +2,7 @@ package com.xiaomi.infra.pegasus.analyser.recipes.verify
 
 import com.typesafe.config.{ConfigException, ConfigFactory}
 import com.xiaomi.infra.pegasus.analyser._
+import org.apache.commons.logging.LogFactory
 import org.apache.spark.{SparkConf, SparkContext}
 
 class DuplicationVerifierOptions {
@@ -25,6 +26,7 @@ class DuplicationVerifierOptions {
 class DuplicationVerifier(opts: DuplicationVerifierOptions) {
 
   private val options = opts
+  private val LOG = LogFactory.getLog(classOf[PegasusClient])
 
   class Result {
     var differences: Long = 0
@@ -41,17 +43,17 @@ class DuplicationVerifier(opts: DuplicationVerifierOptions) {
     val sc = new SparkContext(conf)
 
     val pc = new PegasusContext(sc)
-    val rdd1 = pc.pegasusRDD(options.cluster1, options.tableName)
-    val rdd2 = pc.pegasusRDD(options.cluster2, options.tableName)
-    val partitionCount = rdd1.getPartitionCount
+    val rdd1 = pc.pegasusSnapshotRDD(options.cluster1, options.tableName)
+    val rdd2 = pc.pegasusSnapshotRDD(options.cluster2, options.tableName)
+    val partitionCount1 = rdd1.getPartitionCount
     val partitionCount2 = rdd2.getPartitionCount
-    if (partitionCount != partitionCount2) {
+    if (partitionCount1 != partitionCount2) {
       throw new IllegalArgumentException(
         "partition count of the table \"%s\" are different [cluster=\"%s\", partitionCount=\"%d\"] vs [cluster=\"%s\", partitionCount=\"%d\"]"
           .format(
             options.tableName,
             options.cluster1,
-            partitionCount,
+            partitionCount1,
             options.cluster2,
             partitionCount2
           )
@@ -59,7 +61,8 @@ class DuplicationVerifier(opts: DuplicationVerifierOptions) {
     }
 
     val diffSet = rdd1.subtract(rdd2).union(rdd2.subtract(rdd1))
-    if (options.diffSetTextFileLocation != null && options.diffSetTextFileLocation.isEmpty) {
+    if (options.diffSetTextFileLocation != null && !options.diffSetTextFileLocation.isEmpty) {
+      LOG.info("Save diffSet to text file: " + options.diffSetTextFileLocation)
       diffSet.saveAsTextFile(options.diffSetTextFileLocation)
     }
 
