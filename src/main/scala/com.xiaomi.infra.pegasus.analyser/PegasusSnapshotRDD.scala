@@ -33,9 +33,6 @@ class PegasusSnapshotRDD private[analyser] (pegasusContext: PegasusContext,
                                             @transient sc: SparkContext)
     extends RDD[PegasusRecord](sc, Nil) {
 
-  // Loads the librocksdb library into jvm.
-  RocksDB.loadLibrary()
-
   private val LOG = LogFactory.getLog(classOf[PegasusSnapshotRDD])
 
   private val fdsService: FDSService =
@@ -43,6 +40,9 @@ class PegasusSnapshotRDD private[analyser] (pegasusContext: PegasusContext,
 
   override def compute(split: Partition,
                        context: TaskContext): Iterator[PegasusRecord] = {
+    // Loads the librocksdb library into jvm.
+    RocksDB.loadLibrary()
+
     LOG.info(
       "Create iterator for \"%s\" \"%s\" [pid: %d]"
         .format(clusterName, tableName, split.index)
@@ -51,7 +51,7 @@ class PegasusSnapshotRDD private[analyser] (pegasusContext: PegasusContext,
   }
 
   override protected def getPartitions: Array[Partition] = {
-    val indexes = Array.range(0, fdsService.getPartitionCount - 1)
+    val indexes = Array.range(0, fdsService.getPartitionCount)
     indexes.map(i => {
       new PegasusPartition(i)
     })
@@ -59,6 +59,10 @@ class PegasusSnapshotRDD private[analyser] (pegasusContext: PegasusContext,
 
   def getPartitionCount: Int = {
     fdsService.getPartitionCount
+  }
+
+  def diff(other: PegasusSnapshotRDD): RDD[PegasusRecord] = {
+    subtract(other).union(other.subtract(this))
   }
 }
 

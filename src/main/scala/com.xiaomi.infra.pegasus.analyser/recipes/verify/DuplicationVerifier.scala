@@ -10,8 +10,6 @@ class DuplicationVerifierOptions {
   var cluster1: String = ""
   var cluster2: String = ""
 
-  var sparkMaster: String = "local"
-
   /**
     * Where you want to save the different records as text file.
     */
@@ -31,6 +29,8 @@ class DuplicationVerifier(opts: DuplicationVerifierOptions) {
   class Result {
     var differences: Long = 0
     var same: Long = 0
+    var numRdd1: Long = 0
+    var numRdd2: Long = 0
   }
 
   def verify(): Result = {
@@ -39,7 +39,7 @@ class DuplicationVerifier(opts: DuplicationVerifierOptions) {
         "Verification of \"%s\" in clusters \"%s\" and \"%s\""
           .format(options.tableName, options.cluster1, options.cluster2)
       )
-      .setIfMissing("spark.master", options.sparkMaster)
+      .setIfMissing("spark.master", "local[9]")
     val sc = new SparkContext(conf)
 
     val pc = new PegasusContext(sc)
@@ -60,7 +60,7 @@ class DuplicationVerifier(opts: DuplicationVerifierOptions) {
       )
     }
 
-    val diffSet = rdd1.subtract(rdd2).union(rdd2.subtract(rdd1))
+    val diffSet = rdd1.diff(rdd2)
     if (options.diffSetTextFileLocation != null && !options.diffSetTextFileLocation.isEmpty) {
       LOG.info("Save diffSet to text file: " + options.diffSetTextFileLocation)
       diffSet.saveAsTextFile(options.diffSetTextFileLocation)
@@ -68,7 +68,9 @@ class DuplicationVerifier(opts: DuplicationVerifierOptions) {
 
     val res = new Result
     res.differences = diffSet.count()
-    res.same = (rdd1.count() + rdd2.count() - diffSet.count()) / 2
+    res.numRdd1 = rdd1.count()
+    res.numRdd2 = rdd2.count()
+    res.same = (res.numRdd1 + res.numRdd2 - res.differences) / 2
     res
   }
 }
@@ -80,12 +82,6 @@ object DuplicationVerifier {
     options.cluster1 = config.getString("cluster1")
     options.cluster2 = config.getString("cluster2")
     options.tableName = config.getString("table-name")
-    try {
-      options.sparkMaster = config.getString("spark-master")
-    } catch {
-      case e: ConfigException =>
-        println("spark-master is not configured, use local")
-    }
     try {
       options.diffSetTextFileLocation =
         config.getString("diffset-text-file-location")
@@ -110,5 +106,7 @@ object VerifyDuplication {
     )
     printf("Differences: %d\n", result.differences)
     printf("Same: %d\n", result.same)
+    printf("Number of RDD1: %d\n", result.numRdd1)
+    printf("Number of RDD2: %d\n", result.numRdd2)
   }
 }

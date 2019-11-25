@@ -40,7 +40,7 @@ private[analyser] class PartitionIterator private (context: TaskContext,
     assert(rocksIterator.isValid)
     rocksIterator.next() // skip the first record
     if (rocksIterator.isValid) {
-      nextRecord = new PegasusRecord(rocksIterator)
+      nextRecord = PegasusRecord.create(rocksIterator)
     }
     name = "PartitionIterator[pid=%d]".format(pid)
 
@@ -69,7 +69,7 @@ private[analyser] class PartitionIterator private (context: TaskContext,
     thisRecord = nextRecord
     rocksIterator.next()
     if (rocksIterator.isValid) {
-      nextRecord = new PegasusRecord(rocksIterator)
+      nextRecord = PegasusRecord.create(rocksIterator)
     } else {
       nextRecord = null
     }
