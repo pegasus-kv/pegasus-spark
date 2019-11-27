@@ -41,9 +41,9 @@ case class PegasusRecord private (hashKey: Array[Byte],
   override def toString: String =
     String.format(
       "[HashKey=%s, SortKey=%s, Value=%s]",
-      util.Arrays.toString(hashKey),
-      util.Arrays.toString(sortKey),
-      util.Arrays.toString(value)
+      new String(hashKey),
+      new String(sortKey),
+      new String(value)
     )
 
   override def equals(other: Any): Boolean = {
