@@ -37,7 +37,7 @@ private[analyser] class PartitionIterator private (context: TaskContext,
     rocksDB = RocksDB.openReadOnly(rocksDBOptions.options, dbPath)
     rocksIterator = rocksDB.newIterator(rocksDBOptions.readOptions)
     rocksIterator.seekToFirst()
-    assert(rocksIterator.isValid,"the rocksIterator is invalid!")
+    assert(rocksIterator.isValid, "the rocksIterator is invalid!")
     rocksIterator.next() // skip the first record
     if (rocksIterator.isValid) {
       nextRecord = PegasusRecord.create(rocksIterator)

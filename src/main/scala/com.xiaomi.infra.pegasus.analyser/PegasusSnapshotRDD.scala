@@ -17,9 +17,11 @@ class PegasusContext(private val sc: SparkContext) extends Serializable {
 
   def pegasusSnapshotRDD(clusterName: String,
                          tableName: String,
-                         dateTime: String=""): PegasusSnapshotRDD = {
+                         dateTime: String = ""): PegasusSnapshotRDD = {
     //only simple match. if still invalid, it will not be parsed successfully in FDService.parseId()
-    assert(dateTime.equals("") || dateTime.matches("[0-9]{4}-[0-9]{2}-[0-9]{2}"),"the date time format is error!")
+    assert(
+      dateTime.equals("") || dateTime.matches("[0-9]{4}-[0-9]{2}-[0-9]{2}"),
+      "the date time format is error!")
     new PegasusSnapshotRDD(this, config, sc, clusterName, tableName, dateTime)
   }
 }
@@ -39,9 +41,10 @@ class PegasusSnapshotRDD private[analyser] (pegasusContext: PegasusContext,
 
   private val LOG = LogFactory.getLog(classOf[PegasusSnapshotRDD])
 
-  private val fdsService: FDSService = if (dateTime.equals(""))
-    new FDSService(config, clusterName, tableName)
-  else new FDSService(config, clusterName, tableName, dateTime)
+  private val fdsService: FDSService =
+    if (dateTime.equals(""))
+      new FDSService(config, clusterName, tableName)
+    else new FDSService(config, clusterName, tableName, dateTime)
 
   override def compute(split: Partition,
                        context: TaskContext): Iterator[PegasusRecord] = {
