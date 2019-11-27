@@ -13,8 +13,11 @@ object TextFile {
     val pc = new PegasusContext(sc)
 
     val rdd = pc.pegasusSnapshotRDD("alsgsrv-mixin", "mixin_offline_msg")
-    rdd.saveAsTextFile("TextData")
-    //or you can write single file
-    //rdd.repartition(1).saveAsTextFile("TextData")
+    rdd.saveAsTextFile("TextData-multi")
+
+    //or you can write single file:
+    //rdd.repartition(1).saveAsTextFile("TextData-single")
+    //or you can count data:
+    //println(rdd.count())
   }
 }
