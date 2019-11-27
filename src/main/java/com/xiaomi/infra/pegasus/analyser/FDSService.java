@@ -136,7 +136,7 @@ public class FDSService implements Serializable {
   }
 
   //TODO(jiashuo): if the date time such as 2018-09-09, the match may be not accurate, because the different
-  // day may has same "first 5 numbers" of timestamp
+  // day may has same "first 5 digital" of timestamp
   private String getPolicyId(String prefix, String dateTime) throws FDSException {
     try {
       FileSystem fs = FileSystem.get(URI.create(prefix), conf);
@@ -198,7 +198,7 @@ public class FDSService implements Serializable {
     throw new FDSException("get the partition count failed, [url: " + appMetaDataUrl + "]");
   }
 
-  // match first 5 number of timestamp
+  // match first 5 digital of timestamp
   private String parseId(String dateStr) throws ParseException {
     Date date = simpleDateFormat.parse(dateStr);
     long dateTime = date.getTime();
