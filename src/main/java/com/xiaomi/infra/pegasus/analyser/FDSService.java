@@ -7,7 +7,6 @@ import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import org.apache.commons.configuration.ConfigurationException;
@@ -135,21 +134,20 @@ public class FDSService implements Serializable {
     return idList;
   }
 
-  //TODO(jiashuo): if the date time such as 2018-09-09, the match may be not accurate, because the different
-  // day may has same "first 5 digital" of timestamp
   private String getPolicyId(String prefix, String dateTime) throws FDSException {
     try {
       FileSystem fs = FileSystem.get(URI.create(prefix), conf);
       Path Path = new Path(prefix);
       FileStatus[] status = fs.listStatus(Path);
-      String id = parseId(dateTime);
       for (FileStatus s : status) {
         String idPath = s.getPath().toString();
-        if (idPath.contains(id)) {
+        long timestamp = Long.valueOf(idPath.substring(idPath.length() - 13));
+        String date = simpleDateFormat.format(new Date(timestamp));
+        if (date.equals(dateTime)) {
           return idPath;
         }
       }
-    } catch (IOException | ParseException e) {
+    } catch (IOException e) {
       LOG.error("get latest policy id from " + prefix + "failed!");
       throw new FDSException("get latest policy id failed, [url:" + prefix + "]", e);
     }
@@ -196,12 +194,5 @@ public class FDSService implements Serializable {
       throw new FDSException("get the partition count failed, [url: " + appMetaDataUrl + "]" + e);
     }
     throw new FDSException("get the partition count failed, [url: " + appMetaDataUrl + "]");
-  }
-
-  // match first 5 digital of timestamp
-  private String parseId(String dateStr) throws ParseException {
-    Date date = simpleDateFormat.parse(dateStr);
-    long dateTime = date.getTime();
-    return String.valueOf(dateTime).substring(0, 5);
   }
 }
