@@ -40,7 +40,7 @@ public class BulkDataLoader {
     public String bulkLoadMetaDataPath;
 
     public FDSService fdsService;
-    public PegasusService pegasusService;
+    public SSTWriter sstWriter;
 
     Iterator<Tuple2<RocksDBRecord, String>> dataResourceIterator;
 
@@ -58,7 +58,7 @@ public class BulkDataLoader {
         this.dataMetaInfo = new DataMetaInfo();
 
         this.fdsService = new FDSService();
-        this.pegasusService = new PegasusService(new RocksDBOptions(config), config.DBTablePartitionCount, partitionId);
+        this.sstWriter = new SSTWriter(new RocksDBOptions(config), config.DBTablePartitionCount, partitionId);
     }
 
 
@@ -72,7 +72,7 @@ public class BulkDataLoader {
 
     private void createSSTFile(Iterator<Tuple2<RocksDBRecord, String>> iterator) throws RocksDBException {
         String curSSTFileName = curSSTFileIndex + SST_SUFFIX;
-        pegasusService.open(partitionPath + curSSTFileName);
+        sstWriter.open(partitionPath + curSSTFileName);
         while (iterator.hasNext()) {
             RocksDBRecord rocksDBRecord = iterator.next()._1;
             if (curSSTFileSize > 64 * 1024 * 1024) {
@@ -80,18 +80,18 @@ public class BulkDataLoader {
                 curSSTFileIndex++;
                 curSSTFileSize = 0L;
                 curSSTFileName = curSSTFileIndex + SST_SUFFIX;
-                pegasusService.close();
+                sstWriter.close();
                 System.out.println("pid=" + partitionId + ":file=" + curSSTFileName);
-                pegasusService.open(partitionPath + curSSTFileName);
+                sstWriter.open(partitionPath + curSSTFileName);
                 System.out.println("pid=" + partitionId + ":open " + curSSTFileName);
             }
-            curSSTFileSize += pegasusService.write(rocksDBRecord.key(), rocksDBRecord.value());
+            curSSTFileSize += sstWriter.write(rocksDBRecord.key(), rocksDBRecord.value());
         }
         if (curSSTFileSize != 0) {
-            pegasusService.close();
+            sstWriter.close();
         } else {
-            pegasusService.writeNoHashCheck("null", "null");
-            pegasusService.close();
+            sstWriter.writeNoHashCheck("null", "null");
+            sstWriter.close();
         }
         System.out.println("pid=" + partitionId + ":file=" + curSSTFileName);
     }

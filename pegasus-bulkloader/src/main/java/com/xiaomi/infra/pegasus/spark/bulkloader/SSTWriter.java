@@ -7,15 +7,15 @@ import org.rocksdb.RocksDBException;
 import org.rocksdb.SstFileWriter;
 
 import java.util.Stack;
-//TODO: 把Pegasus相关的抽离出来，如迭代器需要写在这里面，确切的说是rocksdbService，并写到core里
-public class PegasusService implements AutoCloseable {
+
+public class SSTWriter implements AutoCloseable {
 
   SstFileWriter sstFileWriter;
   int partitionCount;
   int partitionId;
   RocksDBOptions rocksDBOptions;
 
-  public PegasusService(RocksDBOptions rocksDBOptions, int partitionCount, int partitionId) {
+  public SSTWriter(RocksDBOptions rocksDBOptions, int partitionCount, int partitionId) {
     this.rocksDBOptions = rocksDBOptions;
     this.partitionCount = partitionCount;
     this.partitionId = partitionId;
