@@ -5,7 +5,7 @@ import java.util.ArrayList;
 public class DataMetaInfo {
 
   public ArrayList<FileInfo> files = new ArrayList<>();
-  public int file_total_size;
+  public long file_total_size;
 
   public class FileInfo {
 

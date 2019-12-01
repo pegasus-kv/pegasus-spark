@@ -104,7 +104,7 @@ public class BulkDataLoader {
 
     private void createBulkLoadMetaDataFile() throws IOException, URISyntaxException, FDSException {
         // todo
-        int totalSize = 0;
+        long totalSize = 0;
         BufferedWriter bulkLoadMetaDataWriter = fdsService.getWriter(bulkLoadMetaDataPath);
         FileStatus[] fileStatuses = fdsService.getFileStatus(partitionPath);
         for (FileStatus fileStatus : fileStatuses) {
