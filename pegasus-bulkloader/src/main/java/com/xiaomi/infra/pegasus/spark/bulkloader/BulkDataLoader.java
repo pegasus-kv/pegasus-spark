@@ -49,7 +49,7 @@ public class BulkDataLoader {
         this.dataResourceIterator = iterator;
         this.partitionCount = config.DBTablePartitionCount;
 
-        this.bulkFilePrefix = BULK_LOAD_DATA_ROOT + "/" + config.DBCluster + "/" + config.DBTableName + "/";
+        this.bulkFilePrefix = config.destinationUrl + BULK_LOAD_DATA_ROOT + "/" + config.DBCluster + "/" + config.DBTableName + "/";
         this.partitionPath = bulkFilePrefix + "/" + partitionId + "/";
         this.bulkLoadInfoPath = bulkFilePrefix + "/" + BULK_LOAD_INFO;
         this.bulkLoadMetaDataPath = partitionPath + "/" + BULK_LOAD_METADATA;
