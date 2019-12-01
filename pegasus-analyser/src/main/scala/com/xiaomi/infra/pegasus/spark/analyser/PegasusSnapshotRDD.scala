@@ -36,10 +36,10 @@ class PegasusSnapshotRDD private[analyser] (pegasusContext: PegasusContext,
 
   private val LOG = LogFactory.getLog(classOf[PegasusSnapshotRDD])
 
-  private val coldBackUpData: BackUpData =
+  private val coldDataLoader: ColdDataLoader =
     if (dateTime.equals(""))
-      new BackUpData(config)
-    else new BackUpData(config, dateTime)
+      new ColdDataLoader(config)
+    else new ColdDataLoader(config, dateTime)
 
   override def compute(split: Partition,
                        context: TaskContext): Iterator[PegasusRecord] = {
@@ -50,18 +50,18 @@ class PegasusSnapshotRDD private[analyser] (pegasusContext: PegasusContext,
       "Create iterator for \"%s\" \"%s\" [pid: %d]"
         .format(config.DBCluster, config.DBTableName, split.index)
     )
-    new PartitionIterator(context, config, coldBackUpData, split.index)
+    new PartitionIterator(context, config, coldDataLoader, split.index)
   }
 
   override protected def getPartitions: Array[Partition] = {
-    val indexes = Array.range(0, coldBackUpData.getPartitionCount)
+    val indexes = Array.range(0, coldDataLoader.getPartitionCount)
     indexes.map(i => {
       new PegasusPartition(i)
     })
   }
 
   def getPartitionCount: Int = {
-    coldBackUpData.getPartitionCount
+    coldDataLoader.getPartitionCount
   }
 
   /**

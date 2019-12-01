@@ -21,7 +21,7 @@ class RocksDBRDD(rdd: RDD[(Array[Byte], Array[Byte], Array[Byte])]) {
 
     sstRDD.foreachPartition(i=>{
       RocksDB.loadLibrary()
-      new BulkLoadData(config, i.asJava,TaskContext.getPartitionId()).write()
+      new BulkDataLoader(config, i.asJava,TaskContext.getPartitionId()).write()
     })
   }
 

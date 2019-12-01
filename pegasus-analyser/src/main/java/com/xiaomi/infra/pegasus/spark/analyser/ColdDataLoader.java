@@ -21,8 +21,8 @@ import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-public class BackUpData {
-    private static final Log LOG = LogFactory.getLog(BackUpData.class);
+public class ColdDataLoader {
+    private static final Log LOG = LogFactory.getLog(ColdDataLoader.class);
 
     private FDSService fdsService = new FDSService();
     private Map<Integer, String> checkpointUrls = new HashMap<>();
@@ -30,7 +30,7 @@ public class BackUpData {
     private Config globalConfig;
     private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
-    public BackUpData(Config config) throws FDSException {
+    public ColdDataLoader(Config config) throws FDSException {
         globalConfig = config;
 
         String idPrefix =
@@ -45,7 +45,7 @@ public class BackUpData {
         LOG.info("init fds default config and get the latest data urls");
     }
 
-    public BackUpData(Config config, String dataTime)
+    public ColdDataLoader(Config config, String dataTime)
             throws FDSException {
         globalConfig = config;
         String idPrefix =

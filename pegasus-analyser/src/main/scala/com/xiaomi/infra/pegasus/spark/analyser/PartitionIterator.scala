@@ -28,12 +28,12 @@ private[analyser] class PartitionIterator private(context: TaskContext,
 
   def this(context: TaskContext,
            config: Config,
-           coldBackUpData: BackUpData,
+           coldDataLoader: ColdDataLoader,
            pid: Int) {
     this(context, pid)
 
     rocksDBOptions = new RocksDBOptions(config)
-    val checkPointUrls = coldBackUpData.getCheckpointUrls
+    val checkPointUrls = coldDataLoader.getCheckpointUrls
     val dbPath = checkPointUrls.get(pid)
     rocksDB = RocksDB.openReadOnly(rocksDBOptions.options, dbPath)
     rocksIterator = rocksDB.newIterator(rocksDBOptions.readOptions)

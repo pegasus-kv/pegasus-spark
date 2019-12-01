@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-public class BulkLoadData {
+public class BulkDataLoader {
 
     public static final String BULK_LOAD_INFO = "bulk_load_info";
     public static final String BULK_LOAD_METADATA = "bulk_load_metadata";
@@ -44,7 +44,7 @@ public class BulkLoadData {
 
     Iterator<Tuple2<RocksDBRecord, String>> dataResourceIterator;
 
-    public BulkLoadData(Config config, Iterator<Tuple2<RocksDBRecord, String>> iterator, int partitionId) {
+    public BulkDataLoader(Config config, Iterator<Tuple2<RocksDBRecord, String>> iterator, int partitionId) {
         this.partitionId = partitionId;
         this.dataResourceIterator = iterator;
         this.partitionCount = config.DBTablePartitionCount;
