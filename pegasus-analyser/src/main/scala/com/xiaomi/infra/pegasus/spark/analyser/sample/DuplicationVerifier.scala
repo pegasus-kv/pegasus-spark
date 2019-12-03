@@ -1,21 +1,9 @@
 package com.xiaomi.infra.pegasus.spark.analyser.sample
 
-import com.typesafe.config.{ConfigException, ConfigFactory}
 import com.xiaomi.infra.pegasus.spark.analyser._
 import com.xiaomi.infra.pegasus.spark.core.Config
 import org.apache.commons.logging.LogFactory
 import org.apache.spark.{SparkConf, SparkContext}
-
-class DuplicationVerifierOptions {
-  var tableName: String = ""
-  var cluster1: String = ""
-  var cluster2: String = ""
-
-  /**
-   * Where you want to save the different records as text file.
-   */
-  var diffSetTextFileLocation: String = _
-}
 
 /**
  * Verifies if the user-specified two Pegasus checkpoints contain the identical data set.

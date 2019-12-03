@@ -3,6 +3,7 @@ package com.xiaomi.infra.pegasus.spark.analyser;
 import com.xiaomi.infra.pegasus.spark.core.Config;
 import com.xiaomi.infra.pegasus.spark.core.FDSException;
 import com.xiaomi.infra.pegasus.spark.core.FDSService;
+import java.io.Serializable;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
@@ -21,7 +22,7 @@ import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-public class ColdDataLoader {
+public class ColdDataLoader implements Serializable {
     private static final Log LOG = LogFactory.getLog(ColdDataLoader.class);
 
     private FDSService fdsService = new FDSService();
@@ -93,10 +94,7 @@ public class ColdDataLoader {
     private String getLatestPolicyId(String prefix) throws FDSException {
         try {
             LOG.info("get the " + prefix + " latest id");
-            FileSystem fs = FileSystem.get(URI.create(prefix), new Configuration());
-            Path Path = new Path(prefix);
-            FileStatus[] status = fs.listStatus(Path);
-            ArrayList<String> idList = getPolicyIdList(status);
+            ArrayList<String> idList = getPolicyIdList(fdsService.getFileStatus(prefix));
             LOG.info("the policy list:" + idList);
             if (idList.size() != 0) {
                 return idList.get(idList.size() - 1);
@@ -139,8 +137,7 @@ public class ColdDataLoader {
     private String getTableNameAndId(String prefix, String tableName) throws FDSException {
         String backupInfo;
         String backupInfoUrl = prefix + "/" + "backup_info";
-        try {
-            BufferedReader bufferedReader = fdsService.getReader(backupInfoUrl);
+        try(BufferedReader bufferedReader = fdsService.getReader(backupInfoUrl)) {
             while ((backupInfo = bufferedReader.readLine()) != null) {
                 JSONObject jsonObject = new JSONObject(backupInfo);
                 JSONObject tables = jsonObject.getJSONObject("app_names");
@@ -153,10 +150,10 @@ public class ColdDataLoader {
                 }
             }
         } catch (IOException | JSONException e) {
-            LOG.error("get latest policy id from " + prefix + "failed!");
-            throw new FDSException("get latest policy id failed, [url:" + prefix + "]", e);
+            LOG.error("get name and id from " + prefix + " failed!");
+            throw new FDSException("get name and id failed, [url:" + prefix + "]", e);
         }
-        throw new FDSException("can't get the table id");
+        throw new FDSException("can't get the table name and id");
     }
 
     private int getCount(String prefix) throws FDSException {
