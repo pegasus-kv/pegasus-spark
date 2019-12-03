@@ -3,24 +3,8 @@
 // can be found in the LICENSE file in the root directory of this source tree.
 package com.xiaomi.infra.pegasus.spark.core;
 
-import com.google.common.primitives.Bytes;
-import java.net.Inet6Address;
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.net.SocketException;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.FutureTask;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import org.apache.commons.lang3.Validate;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 
 public class Tools {
@@ -57,7 +41,6 @@ public class Tools {
     }
   }
 
-
   public static int dsn_crc32(byte[] array) {
     return dsn_crc32(array, 0, array.length);
   }
@@ -91,7 +74,6 @@ public class Tools {
       long reminder = (dividend >>> 1) % divisor * 2L + (dividend & 1L);
       return reminder >= 0L && reminder < divisor ? reminder : reminder - divisor;
     }
-
   }
 
   public static int compare(byte[] byteArray1, byte[] byteArray2) {
@@ -156,26 +138,8 @@ public class Tools {
     int hashKeyLen = 0xFFFF & buf.getShort();
     Validate.isTrue(hashKeyLen != 0xFFFF && (2 + hashKeyLen <= pegasusKey.length));
     return hashKeyLen == 0
-            ? Tools.dsn_crc64(pegasusKey, 2, pegasusKey.length - 2)
-            : Tools.dsn_crc64(pegasusKey, 2, hashKeyLen);
-  }
-
-  public static byte[] generatePegasusKey(byte[] hashKey, byte[] sortKey) {
-    int hashKeyLen = hashKey == null ? 0 : hashKey.length;
-    Validate.isTrue(
-            hashKeyLen < 65535, "length of hash key must be less than UINT16_MAX", new Object[0]);
-    int sortKeyLen = sortKey == null ? 0 : sortKey.length;
-    ByteBuffer buf = ByteBuffer.allocate(2 + hashKeyLen + sortKeyLen);
-    buf.putShort((short) hashKeyLen);
-    if (hashKeyLen > 0) {
-      buf.put(hashKey);
-    }
-
-    if (sortKeyLen > 0) {
-      buf.put(sortKey);
-    }
-
-    return buf.array();
+        ? Tools.dsn_crc64(pegasusKey, 2, pegasusKey.length - 2)
+        : Tools.dsn_crc64(pegasusKey, 2, hashKeyLen);
   }
 
   public static int getPartitionCounter(String cluster, String table) {

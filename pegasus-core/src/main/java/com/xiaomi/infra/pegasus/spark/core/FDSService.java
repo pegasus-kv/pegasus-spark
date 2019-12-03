@@ -3,19 +3,14 @@ package com.xiaomi.infra.pegasus.spark.core;
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.text.SimpleDateFormat;
 import java.util.*;
-
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 public class FDSService implements Serializable {
 
@@ -23,8 +18,8 @@ public class FDSService implements Serializable {
 
   public BufferedReader getReader(String filePath) throws FDSException {
     try {
-      InputStream inputStream = FileSystem.get(new URI(filePath), new Configuration())
-          .open(new Path(filePath));
+      InputStream inputStream =
+          FileSystem.get(new URI(filePath), new Configuration()).open(new Path(filePath));
       BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
       return bufferedReader;
     } catch (Exception e) {
@@ -35,8 +30,9 @@ public class FDSService implements Serializable {
 
   public BufferedWriter getWriter(String filePath) throws URISyntaxException, FDSException {
     try {
-      OutputStreamWriter outputStreamWriter = new OutputStreamWriter(
-          FileSystem.get(new URI(filePath), new Configuration()).create(new Path(filePath)));
+      OutputStreamWriter outputStreamWriter =
+          new OutputStreamWriter(
+              FileSystem.get(new URI(filePath), new Configuration()).create(new Path(filePath)));
       BufferedWriter bufferedWriter = new BufferedWriter(outputStreamWriter);
       return bufferedWriter;
     } catch (Exception e) {
@@ -52,9 +48,7 @@ public class FDSService implements Serializable {
   }
 
   public String getMD5(String filePath) throws IOException, URISyntaxException {
-    return DigestUtils.md5Hex(FileSystem.get(new URI(filePath), new Configuration())
-        .open(new Path(filePath)));
+    return DigestUtils.md5Hex(
+        FileSystem.get(new URI(filePath), new Configuration()).open(new Path(filePath)));
   }
-
-
 }

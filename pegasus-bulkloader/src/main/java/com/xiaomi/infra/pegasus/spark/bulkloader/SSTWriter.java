@@ -1,12 +1,10 @@
 package com.xiaomi.infra.pegasus.spark.bulkloader;
 
-import com.xiaomi.infra.pegasus.spark.core.Tools;
 import com.xiaomi.infra.pegasus.spark.core.RocksDBOptions;
 import com.xiaomi.infra.pegasus.spark.core.RocksDBRecord;
+import com.xiaomi.infra.pegasus.spark.core.Tools;
 import org.rocksdb.RocksDBException;
 import org.rocksdb.SstFileWriter;
-
-import java.util.Stack;
 
 public class SSTWriter implements AutoCloseable {
 
@@ -34,11 +32,9 @@ public class SSTWriter implements AutoCloseable {
     return 0;
   }
 
-  void writeNoHashCheck(String sortKey, String value)
-      throws RocksDBException {
+  void writeNoHashCheck(String sortKey, String value) throws RocksDBException {
     byte[] pegasusKey = RocksDBRecord.generateKey("null".getBytes(), sortKey.getBytes());
-    byte[] pegasusValue =RocksDBRecord.generateValue(value.getBytes());
-    // todo spark实际可以先根据自定义的hash算法分配，这里默认每个节点读取所有的数据，手动分片，这其实是不合理的。
+    byte[] pegasusValue = RocksDBRecord.generateValue(value.getBytes());
     sstFileWriter.put(pegasusKey, pegasusValue);
   }
 
@@ -54,5 +50,4 @@ public class SSTWriter implements AutoCloseable {
   private boolean isCurrentPid(byte[] pegasusKey) {
     return Tools.remainderUnsigned(Tools.hash(pegasusKey), partitionCount) == partitionId;
   }
-
 }
