@@ -6,10 +6,14 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.xiaomi.infra</groupId>
-  <artifactId>pegasus-analyser</artifactId>
+  <artifactId>pegasus-spark</artifactId>
+  <packaging>pom</packaging>
   <version>1.0-SNAPSHOT</version>
+  <modules>
+    <module>pegasus-spark-common</module>
+  </modules>
 
-  <name>pegasus analyser</name>
+  <name>pegasus spark</name>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
