@@ -1,61 +1,66 @@
 package com.xiaomi.infra.pegasus.spark;
 
 import java.io.Serializable;
-import java.util.Objects;
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.XMLConfiguration;
 
 public class Config implements Serializable {
 
-  public String DATA_URL;
-  public String DATA_PORT;
-  public String COLDBK_POLICY;
-  public Long READ_AHEAD_SIZE;
-  public int MAX_FILE_OPEN_COUNTER;
+  public String destinationUrl;
+  public String destinationPort = "80";
 
-  public Config() throws ConfigurationException {
-    this.loadDefaultConfig();
+  public String dbClusterName;
+  public String dbTableName;
+  public int dbTableId;
+  public int dbTablePartitionCount;
+
+  public int dbMaxFileOpenCounter = 50;
+  public long dbReadAheadSize = 1024 * 1024L;
+
+  public String dbColdBackUpPolicy = "every_day";
+  public String dbColdBackupDateTime;
+
+  // for bulkloader: whether to distinct source data
+  public boolean isDistinct = true;
+
+  public Config setDestination(String url, String port) {
+    this.destinationUrl = url;
+    this.destinationPort = port;
+    return this;
+  }
+  
+  public Config setDBInfo(
+      String dbClusterName, String dbTableName, int dbTableId, int dbTablePartitionCount) {
+    this.dbClusterName = dbClusterName;
+    this.dbTableName = dbTableName;
+    this.dbTableId = dbTableId;
+    this.dbTablePartitionCount = dbTablePartitionCount;
+    return this;
   }
 
-  public Config(String configPath) throws ConfigurationException {
-    this.loadConfig(configPath);
+  public Config setDBInfo(String dbCluster, String dbTableName) {
+    this.dbClusterName = dbCluster;
+    this.dbTableName = dbTableName;
+    return this;
   }
 
-  private void loadDefaultConfig() throws ConfigurationException {
-    String fileName =
-        Objects.requireNonNull(Config.class.getClassLoader().getResource("core-site.xml"))
-            .getPath();
-    load(fileName);
+  public Config setReadOption(int dbMaxFileOpenCounter, long dbReadAheadSize) {
+    this.dbMaxFileOpenCounter = dbMaxFileOpenCounter;
+    this.dbReadAheadSize = dbReadAheadSize;
+    return this;
   }
 
-  private void loadConfig(String configPath) throws ConfigurationException {
-    load(configPath);
+  public Config setDbColdBackUpPolicy(String dbColdBackUpPolicy) {
+    this.dbColdBackUpPolicy = dbColdBackUpPolicy;
+    return this;
   }
 
-  private void load(String configPath) throws ConfigurationException {
-    XMLConfiguration conf = new XMLConfiguration(configPath);
-    DATA_URL = conf.getString("pegasus.url");
-    DATA_PORT = conf.getString("pegasus.port", "80");
-    READ_AHEAD_SIZE = (int) conf.getDouble("pegasus.readAheadSize", 1) * 1024 * 1024L;
-    COLDBK_POLICY = conf.getString("pegasus.coldBackup", "every_day");
-    MAX_FILE_OPEN_COUNTER = conf.getInt("pegasus.maxFileCount", 50);
+  public Config setDbColdBackupDateTimey(String dbColdBackupDateTime) {
+    this.dbColdBackupDateTime = dbColdBackupDateTime;
+    return this;
   }
 
-  @Override
-  public String toString() {
-    String str =
-        "  DATA_URL:"
-            + DATA_URL.split("@")[1]
-            + ":"
-            + DATA_PORT
-            + "\n"
-            + "  COLDBK_POLICY:"
-            + COLDBK_POLICY
-            + "\n"
-            + "  READ_AHEAD_SIZE:"
-            + READ_AHEAD_SIZE
-            + "MB";
-
-    return str;
+  public Config setDistinct(boolean distinct) {
+    this.isDistinct = distinct;
+    return this;
   }
+
 }

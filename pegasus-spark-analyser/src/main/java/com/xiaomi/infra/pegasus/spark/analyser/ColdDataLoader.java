@@ -26,12 +26,12 @@ public class ColdDataLoader implements Serializable {
 
   private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
-  public ColdDataLoader(Config config, String cluster, String table) throws FDSException {
+  public ColdDataLoader(Config config) throws FDSException {
     globalConfig = config;
     String idPrefix =
-        globalConfig.DATA_URL + "/" + cluster + "/" + globalConfig.COLDBK_POLICY + "/";
+        globalConfig.destinationUrl + "/" + globalConfig.dbClusterName + "/" + globalConfig.dbColdBackUpPolicy + "/";
     String latestIdPath = getLatestPolicyId(idPrefix);
-    String tableNameAndId = getTableNameAndId(latestIdPath, table);
+    String tableNameAndId = getTableNameAndId(latestIdPath, globalConfig.dbTableName);
     String metaPrefix = latestIdPath + "/" + tableNameAndId;
 
     partitionCount = getCount(metaPrefix);
@@ -40,13 +40,13 @@ public class ColdDataLoader implements Serializable {
     LOG.info("init fds default config and get the latest data urls");
   }
 
-  public ColdDataLoader(Config config, String cluster, String table, String dataTime)
+  public ColdDataLoader(Config config, String dataTime)
       throws FDSException {
     globalConfig = config;
     String idPrefix =
-        globalConfig.DATA_URL + "/" + cluster + "/" + globalConfig.COLDBK_POLICY + "/";
+        globalConfig.destinationUrl + "/" + globalConfig.dbClusterName + "/" + globalConfig.dbColdBackUpPolicy + "/";
     String idPath = getPolicyId(idPrefix, dataTime);
-    String tableNameAndId = getTableNameAndId(idPath, table);
+    String tableNameAndId = getTableNameAndId(idPath, globalConfig.dbTableName);
     String metaPrefix = idPath + "/" + tableNameAndId;
 
     partitionCount = getCount(metaPrefix);
@@ -70,7 +70,7 @@ public class ColdDataLoader implements Serializable {
       String currentCheckpointUrl = prefix + "/" + counter + "/" + "current_checkpoint";
       try (BufferedReader bufferedReader = fdsService.getReader(currentCheckpointUrl)) {
         while ((chkpt = bufferedReader.readLine()) != null) {
-          String url = prefix.split(globalConfig.DATA_URL)[1] + "/" + counter + "/" + chkpt;
+          String url = prefix.split(globalConfig.destinationUrl)[1] + "/" + counter + "/" + chkpt;
           checkpointUrls.put(counter, url);
         }
         counter--;
