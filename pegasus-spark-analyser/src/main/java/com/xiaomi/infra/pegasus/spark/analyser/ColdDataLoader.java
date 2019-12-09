@@ -1,6 +1,5 @@
 package com.xiaomi.infra.pegasus.spark.analyser;
 
-import com.xiaomi.infra.pegasus.spark.Config;
 import com.xiaomi.infra.pegasus.spark.FDSException;
 import com.xiaomi.infra.pegasus.spark.FDSService;
 import java.io.BufferedReader;
@@ -19,40 +18,37 @@ public class ColdDataLoader implements Serializable {
 
   private static final Log LOG = LogFactory.getLog(ColdDataLoader.class);
 
-  private Config globalConfig;
+  private ColdDataConfig globalConfig;
   private FDSService fdsService = new FDSService();
   private Map<Integer, String> checkpointUrls = new HashMap<>();
   private int partitionCount;
 
   private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
-  public ColdDataLoader(Config config) throws FDSException {
+  public ColdDataLoader(ColdDataConfig config) throws FDSException {
     globalConfig = config;
     String idPrefix =
-        globalConfig.destinationUrl + "/" + globalConfig.dbClusterName + "/" + globalConfig.dbColdBackUpPolicy + "/";
-    String latestIdPath = getLatestPolicyId(idPrefix);
-    String tableNameAndId = getTableNameAndId(latestIdPath, globalConfig.dbTableName);
-    String metaPrefix = latestIdPath + "/" + tableNameAndId;
+        globalConfig.destinationUrl
+            + "/"
+            + globalConfig.clusterName
+            + "/"
+            + globalConfig.policyName
+            + "/";
 
-    partitionCount = getCount(metaPrefix);
-    initCheckpointUrls(metaPrefix, partitionCount);
+    String idPath;
+    if (!config.coldDataTime.equals("")) {
+      idPath = getPolicyId(idPrefix, config.coldDataTime);
+    } else {
+      idPath = getLatestPolicyId(idPrefix);
+    }
 
-    LOG.info("init fds default config and get the latest data urls");
-  }
-
-  public ColdDataLoader(Config config, String dataTime)
-      throws FDSException {
-    globalConfig = config;
-    String idPrefix =
-        globalConfig.destinationUrl + "/" + globalConfig.dbClusterName + "/" + globalConfig.dbColdBackUpPolicy + "/";
-    String idPath = getPolicyId(idPrefix, dataTime);
-    String tableNameAndId = getTableNameAndId(idPath, globalConfig.dbTableName);
+    String tableNameAndId = getTableNameAndId(idPath, globalConfig.tableName);
     String metaPrefix = idPath + "/" + tableNameAndId;
 
     partitionCount = getCount(metaPrefix);
     initCheckpointUrls(metaPrefix, partitionCount);
 
-    LOG.info("init fds default config and get the " + dataTime + " data urls");
+    LOG.info("init fds default config and get the data urls");
   }
 
   public int getPartitionCount() {

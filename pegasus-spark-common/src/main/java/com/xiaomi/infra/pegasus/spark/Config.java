@@ -4,63 +4,48 @@ import java.io.Serializable;
 
 public class Config implements Serializable {
 
-  public String destinationUrl;
-  public String destinationPort = "80";
+  private static final long UNIT = 1024 * 1024L;
 
-  public String dbClusterName;
-  public String dbTableName;
-  public int dbTableId;
-  public int dbTablePartitionCount;
+  public String destinationUrl;
+  public String destinationPort;
+
+  public String clusterName;
+  public String tableName;
+  public int tableId;
+  public int tablePartitionCount;
 
   public int dbMaxFileOpenCounter = 50;
   public long dbReadAheadSize = 1024 * 1024L;
-
-  public String dbColdBackUpPolicy = "every_day";
-  public String dbColdBackupDateTime;
-
-  // for bulkloader: whether to distinct source data
-  public boolean isDistinct = true;
 
   public Config setDestination(String url, String port) {
     this.destinationUrl = url;
     this.destinationPort = port;
     return this;
   }
-  
-  public Config setDBInfo(
-      String dbClusterName, String dbTableName, int dbTableId, int dbTablePartitionCount) {
-    this.dbClusterName = dbClusterName;
-    this.dbTableName = dbTableName;
-    this.dbTableId = dbTableId;
-    this.dbTablePartitionCount = dbTablePartitionCount;
+
+  public Config setDbInfo(String clusterName, String tableName) {
+    this.clusterName = clusterName;
+    this.tableName = tableName;
     return this;
   }
 
-  public Config setDBInfo(String dbCluster, String dbTableName) {
-    this.dbClusterName = dbCluster;
-    this.dbTableName = dbTableName;
+  public Config setTableId(int tableId) {
+    this.tableId = tableId;
     return this;
   }
 
-  public Config setReadOption(int dbMaxFileOpenCounter, long dbReadAheadSize) {
+  public Config setTablePartitionCount(int tablePartitionCount) {
+    this.tablePartitionCount = tablePartitionCount;
+    return this;
+  }
+
+  public Config setDbMaxFileOpenCounter(int dbMaxFileOpenCounter) {
     this.dbMaxFileOpenCounter = dbMaxFileOpenCounter;
-    this.dbReadAheadSize = dbReadAheadSize;
     return this;
   }
 
-  public Config setDbColdBackUpPolicy(String dbColdBackUpPolicy) {
-    this.dbColdBackUpPolicy = dbColdBackUpPolicy;
+  public Config setDbReadAheadSize(long dbReadAheadSize) {
+    this.dbReadAheadSize = dbReadAheadSize * UNIT;
     return this;
   }
-
-  public Config setDbColdBackupDateTimey(String dbColdBackupDateTime) {
-    this.dbColdBackupDateTime = dbColdBackupDateTime;
-    return this;
-  }
-
-  public Config setDistinct(boolean distinct) {
-    this.isDistinct = distinct;
-    return this;
-  }
-
 }

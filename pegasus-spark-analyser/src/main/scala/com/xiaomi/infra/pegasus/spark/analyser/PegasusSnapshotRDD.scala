@@ -14,11 +14,12 @@ import org.rocksdb.RocksDB
   */
 class PegasusContext(private val sc: SparkContext) extends Serializable {
 
-  private val config = new Config("core-site.xml")
-
-  def pegasusSnapshotRDD(clusterName: String,
-                         tableName: String): PegasusSnapshotRDD = {
-    new PegasusSnapshotRDD(this, clusterName, tableName, config, sc)
+  def pegasusSnapshotRDD(config: ColdDataConfig): PegasusSnapshotRDD = {
+    //only simple match. if still invalid, it will not be matched successfully in ColdDataLoader
+    assert(config.coldDataTime.equals("") || config.coldDataTime.matches(
+             "[0-9]{4}-[0-9]{2}-[0-9]{2}"),
+           "the date time format is error!")
+    new PegasusSnapshotRDD(this, config, sc)
   }
 }
 
@@ -28,16 +29,13 @@ class PegasusContext(private val sc: SparkContext) extends Serializable {
   * To construct a PegasusSnapshotRDD, use [[PegasusContext#pegasusSnapshotRDD]].
   */
 class PegasusSnapshotRDD private[analyser] (pegasusContext: PegasusContext,
-                                            clusterName: String,
-                                            tableName: String,
-                                            config: Config,
+                                            config: ColdDataConfig,
                                             @transient sc: SparkContext)
     extends RDD[PegasusRecord](sc, Nil) {
 
   private val LOG = LogFactory.getLog(classOf[PegasusSnapshotRDD])
 
-  private val coldDataLoader: ColdDataLoader =
-    new ColdDataLoader(config, clusterName, tableName)
+  private val coldDataLoader: ColdDataLoader = new ColdDataLoader(config)
 
   override def compute(split: Partition,
                        context: TaskContext): Iterator[PegasusRecord] = {
@@ -46,7 +44,7 @@ class PegasusSnapshotRDD private[analyser] (pegasusContext: PegasusContext,
 
     LOG.info(
       "Create iterator for \"%s\" \"%s\" [pid: %d]"
-        .format(clusterName, tableName, split.index)
+        .format(config.clusterName, config.tableName, split.index)
     )
     new PartitionIterator(context, config, coldDataLoader, split.index)
   }
