@@ -8,7 +8,7 @@ object ConvertParquet {
   def main(args: Array[String]): Unit = {
     val spark = SparkSession
       .builder()
-      .appName("SparkStatCleanJob")
+      .appName("convertParquet")
       .master("local[1]")
       .getOrCreate()
 
