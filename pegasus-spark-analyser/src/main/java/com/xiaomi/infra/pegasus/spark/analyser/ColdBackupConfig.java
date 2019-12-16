@@ -2,7 +2,7 @@ package com.xiaomi.infra.pegasus.spark.analyser;
 
 import com.xiaomi.infra.pegasus.spark.Config;
 
-public class PegasusConfig extends Config {
+public class ColdBackupConfig extends Config {
 
   public String policyName = "every_day";
   public String coldDataTime = "";

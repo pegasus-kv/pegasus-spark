@@ -28,7 +28,7 @@ private[analyser] class PartitionIterator private (context: TaskContext,
   // TODO(wutao1): add metrics for counting the number of iterated records.
 
   def this(context: TaskContext,
-           config: PegasusConfig,
+           config: ColdBackupConfig,
            snapshotLoader: PegasusLoader,
            pid: Int) {
     this(context, pid)

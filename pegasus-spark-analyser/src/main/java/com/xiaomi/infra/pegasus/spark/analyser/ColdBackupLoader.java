@@ -17,14 +17,14 @@ public class ColdBackupLoader implements PegasusLoader {
 
   private static final Log LOG = LogFactory.getLog(ColdBackupLoader.class);
 
-  private PegasusConfig globalConfig;
+  private ColdBackupConfig globalConfig;
   private FDSService fdsService = new FDSService();
   private Map<Integer, String> checkpointUrls = new HashMap<>();
   private int partitionCount;
 
   private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
-  public ColdBackupLoader(PegasusConfig config) throws FDSException {
+  public ColdBackupLoader(ColdBackupConfig config) throws FDSException {
     globalConfig = config;
     String idPrefix =
         globalConfig.remoteFsUrl
