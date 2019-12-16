@@ -6,6 +6,11 @@ public class Config implements Serializable {
 
   private static final long UNIT = 1024 * 1024L;
 
+  public String remoteFsAccessKey;
+  public String remoteFsAccessSecret;
+  public String remoteFsBucketName;
+  public String remoteFsEndPoint;
+
   public String remoteFsUrl;
   public String remoteFsPort;
 
@@ -19,6 +24,19 @@ public class Config implements Serializable {
 
   public Config setRemote(String url, String port) {
     this.remoteFsUrl = url;
+    this.remoteFsPort = port;
+    return this;
+  }
+
+  public Config setRemote(
+      String accessKey, String accessSecret, String bucketName, String endPoint, String port) {
+    this.remoteFsAccessKey = accessKey;
+    this.remoteFsAccessSecret = accessSecret;
+    this.remoteFsBucketName = bucketName;
+    this.remoteFsEndPoint = endPoint;
+
+    this.remoteFsUrl =
+        "fds://" + accessKey + ":" + accessSecret + "@" + bucketName + "." + endPoint;
     this.remoteFsPort = port;
     return this;
   }

@@ -1,5 +1,12 @@
 package com.xiaomi.infra.pegasus.spark;
 
+import com.xiaomi.infra.galaxy.fds.client.FDSClientConfiguration;
+import com.xiaomi.infra.galaxy.fds.client.GalaxyFDS;
+import com.xiaomi.infra.galaxy.fds.client.GalaxyFDSClient;
+import com.xiaomi.infra.galaxy.fds.client.credential.BasicFDSCredential;
+import com.xiaomi.infra.galaxy.fds.client.exception.GalaxyFDSClientException;
+import com.xiaomi.infra.galaxy.fds.client.model.FDSObject;
+import com.xiaomi.infra.galaxy.fds.model.FDSObjectMetadata;
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -15,25 +22,31 @@ public class FDSService implements Serializable {
 
   private static final Log LOG = LogFactory.getLog(FDSService.class);
 
+  public Config config;
+
+  public FDSService() {}
+
+  public FDSService(Config config) {
+    this.config = config;
+  }
+
   public BufferedReader getReader(String filePath) throws FDSException {
     try {
       InputStream inputStream =
           FileSystem.get(new URI(filePath), new Configuration()).open(new Path(filePath));
-      BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-      return bufferedReader;
+      return new BufferedReader(new InputStreamReader(inputStream));
     } catch (Exception e) {
       LOG.error("get filePath reader failed from " + filePath, e);
       throw new FDSException("get filePath reader failed, [url: " + filePath + "]" + e);
     }
   }
 
-  public BufferedWriter getWriter(String filePath) throws URISyntaxException, FDSException {
+  public BufferedWriter getWriter(String filePath) throws FDSException {
     try {
       OutputStreamWriter outputStreamWriter =
           new OutputStreamWriter(
               FileSystem.get(new URI(filePath), new Configuration()).create(new Path(filePath)));
-      BufferedWriter bufferedWriter = new BufferedWriter(outputStreamWriter);
-      return bufferedWriter;
+      return new BufferedWriter(outputStreamWriter);
     } catch (Exception e) {
       LOG.error("get filePath writer failed from " + filePath, e);
       throw new FDSException("get filePath writer failed, [url: " + filePath + "]" + e);
@@ -46,8 +59,41 @@ public class FDSService implements Serializable {
     return fs.listStatus(Path);
   }
 
-  public String getMD5(String filePath) throws IOException, URISyntaxException {
+  public String getFileMD5(String filePath)
+      throws GalaxyFDSClientException, IOException, URISyntaxException {
+    if (filePath.contains("fds")) {
+      return getMD5(filePath);
+    } else {
+      return calculateMD5(filePath);
+    }
+  }
+
+  private String calculateMD5(String filePath) throws IOException, URISyntaxException {
     return DigestUtils.md5Hex(
         FileSystem.get(new URI(filePath), new Configuration()).open(new Path(filePath)));
+  }
+
+  private String getMD5(String filePath)
+      throws GalaxyFDSClientException, IOException, URISyntaxException {
+
+    if (config != null && config.remoteFsEndPoint != null) {
+      FDSClientConfiguration fdsClientConfiguration =
+          new FDSClientConfiguration(config.remoteFsEndPoint);
+      fdsClientConfiguration.enableCdnForDownload(false);
+      fdsClientConfiguration.enableCdnForUpload(false);
+
+      GalaxyFDS fdsClient =
+          new GalaxyFDSClient(
+              new BasicFDSCredential(config.remoteFsAccessKey, config.remoteFsAccessSecret),
+              fdsClientConfiguration);
+      FDSObject fdsObject =
+          fdsClient.getObject(
+              config.remoteFsBucketName, filePath.split(config.remoteFsEndPoint + "/")[1]);
+      FDSObjectMetadata metaData = fdsObject.getObjectMetadata();
+      return metaData.getContentMD5();
+    } else {
+      LOG.warn("you now use calculateMD5 get md5 value!");
+      return calculateMD5(filePath);
+    }
   }
 }

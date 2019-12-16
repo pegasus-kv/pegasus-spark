@@ -16,6 +16,7 @@ public class RocksDBOptions {
   public Options options;
   public ReadOptions readOptions;
   private Env env;
+  public EnvOptions envOptions;
 
   public RocksDBOptions(Config config) {
     if (config.remoteFsUrl.contains("fds")) {
@@ -33,6 +34,7 @@ public class RocksDBOptions {
             .setMaxOpenFiles(config.dbMaxFileOpenCount);
 
     readOptions = new ReadOptions().setReadaheadSize(config.dbReadAheadSize);
+    envOptions = new EnvOptions();
 
     Logger rocksDBLog =
         new Logger(options) {
