@@ -17,7 +17,7 @@ public class Config implements Serializable {
   public int dbMaxFileOpenCount = 50;
   public long dbReadAheadSize = 1024 * 1024L;
 
-  public Config setDestination(String url, String port) {
+  public Config setRemote(String url, String port) {
     this.remoteFsUrl = url;
     this.remoteFsPort = port;
     return this;
