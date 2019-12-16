@@ -27,13 +27,10 @@ private[analyser] class PartitionIterator private (context: TaskContext,
   private var name: String = _
   // TODO(wutao1): add metrics for counting the number of iterated records.
 
-  def this(context: TaskContext,
-           config: ColdBackupConfig,
-           snapshotLoader: PegasusLoader,
-           pid: Int) {
+  def this(context: TaskContext, snapshotLoader: PegasusLoader, pid: Int) {
     this(context, pid)
 
-    rocksDBOptions = new RocksDBOptions(config)
+    rocksDBOptions = new RocksDBOptions(snapshotLoader.getConfig)
     val checkPointUrls = snapshotLoader.getCheckpointUrls
     val dbPath = checkPointUrls.get(pid)
     rocksDB = RocksDB.openReadOnly(rocksDBOptions.options, dbPath)
