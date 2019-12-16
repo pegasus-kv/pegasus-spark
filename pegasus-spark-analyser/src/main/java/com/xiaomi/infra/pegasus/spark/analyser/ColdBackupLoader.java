@@ -35,8 +35,8 @@ public class ColdBackupLoader implements PegasusLoader {
             + "/";
 
     String idPath;
-    if (!config.coldDataTime.equals("")) {
-      idPath = getPolicyId(idPrefix, config.coldDataTime);
+    if (!config.coldBackupTime.equals("")) {
+      idPath = getPolicyId(idPrefix, config.coldBackupTime);
     } else {
       idPath = getLatestPolicyId(idPrefix);
     }

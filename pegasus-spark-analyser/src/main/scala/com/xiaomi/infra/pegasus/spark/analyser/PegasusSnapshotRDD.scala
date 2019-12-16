@@ -15,8 +15,8 @@ import org.rocksdb.RocksDB
 class PegasusContext(private val sc: SparkContext) extends Serializable {
 
   def pegasusSnapshotRDD(config: ColdBackupConfig): PegasusSnapshotRDD = {
-    //only simple match. if still invalid, it will not be matched successfully in ColdDataLoader
-    assert(config.coldDataTime.equals("") || config.coldDataTime.matches(
+    //only simple match. if still invalid, it will not be matched successfully in ColdBackupLoader
+    assert(config.coldBackupTime.equals("") || config.coldBackupTime.matches(
              "[0-9]{4}-[0-9]{2}-[0-9]{2}"),
            "the date time format is error!")
     new PegasusSnapshotRDD(this, config, sc)
@@ -35,7 +35,7 @@ class PegasusSnapshotRDD private[analyser] (pegasusContext: PegasusContext,
 
   private val LOG = LogFactory.getLog(classOf[PegasusSnapshotRDD])
 
-  private val coldDataLoader: ColdBackupLoader = new ColdBackupLoader(config)
+  private val coldBackupLoader: ColdBackupLoader = new ColdBackupLoader(config)
 
   override def compute(split: Partition,
                        context: TaskContext): Iterator[PegasusRecord] = {
@@ -46,18 +46,18 @@ class PegasusSnapshotRDD private[analyser] (pegasusContext: PegasusContext,
       "Create iterator for \"%s\" \"%s\" [pid: %d]"
         .format(config.clusterName, config.tableName, split.index)
     )
-    new PartitionIterator(context, config, coldDataLoader, split.index)
+    new PartitionIterator(context, config, coldBackupLoader, split.index)
   }
 
   override protected def getPartitions: Array[Partition] = {
-    val indexes = Array.range(0, coldDataLoader.getPartitionCount)
+    val indexes = Array.range(0, coldBackupLoader.getPartitionCount)
     indexes.map(i => {
       new PegasusPartition(i)
     })
   }
 
   def getPartitionCount: Int = {
-    coldDataLoader.getPartitionCount
+    coldBackupLoader.getPartitionCount
   }
 
   /**

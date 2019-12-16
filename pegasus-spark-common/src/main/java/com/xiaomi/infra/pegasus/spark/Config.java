@@ -23,7 +23,7 @@ public class Config implements Serializable {
     return this;
   }
 
-  public Config setDbInfo(String clusterName, String tableName) {
+  public Config setTableInfo(String clusterName, String tableName) {
     this.clusterName = clusterName;
     this.tableName = tableName;
     return this;
