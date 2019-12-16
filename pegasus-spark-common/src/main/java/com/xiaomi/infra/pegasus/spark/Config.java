@@ -6,20 +6,20 @@ public class Config implements Serializable {
 
   private static final long UNIT = 1024 * 1024L;
 
-  public String destinationUrl;
-  public String destinationPort;
+  public String remoteFsUrl;
+  public String remoteFsPort;
 
   public String clusterName;
   public String tableName;
   public int tableId;
   public int tablePartitionCount;
 
-  public int dbMaxFileOpenCounter = 50;
+  public int dbMaxFileOpenCount = 50;
   public long dbReadAheadSize = 1024 * 1024L;
 
   public Config setDestination(String url, String port) {
-    this.destinationUrl = url;
-    this.destinationPort = port;
+    this.remoteFsUrl = url;
+    this.remoteFsPort = port;
     return this;
   }
 
@@ -39,8 +39,8 @@ public class Config implements Serializable {
     return this;
   }
 
-  public Config setDbMaxFileOpenCounter(int dbMaxFileOpenCounter) {
-    this.dbMaxFileOpenCounter = dbMaxFileOpenCounter;
+  public Config setDbMaxFileOpenCount(int dbMaxFileOpenCount) {
+    this.dbMaxFileOpenCount = dbMaxFileOpenCount;
     return this;
   }
 

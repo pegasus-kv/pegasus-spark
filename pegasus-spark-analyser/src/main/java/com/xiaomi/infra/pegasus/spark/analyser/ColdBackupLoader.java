@@ -4,7 +4,6 @@ import com.xiaomi.infra.pegasus.spark.FDSException;
 import com.xiaomi.infra.pegasus.spark.FDSService;
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -14,21 +13,21 @@ import org.apache.hadoop.fs.FileStatus;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class ColdDataLoader implements Serializable {
+public class ColdBackupLoader implements PegasusLoader {
 
-  private static final Log LOG = LogFactory.getLog(ColdDataLoader.class);
+  private static final Log LOG = LogFactory.getLog(ColdBackupLoader.class);
 
-  private ColdDataConfig globalConfig;
+  private PegasusConfig globalConfig;
   private FDSService fdsService = new FDSService();
   private Map<Integer, String> checkpointUrls = new HashMap<>();
   private int partitionCount;
 
   private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
-  public ColdDataLoader(ColdDataConfig config) throws FDSException {
+  public ColdBackupLoader(PegasusConfig config) throws FDSException {
     globalConfig = config;
     String idPrefix =
-        globalConfig.destinationUrl
+        globalConfig.remoteFsUrl
             + "/"
             + globalConfig.clusterName
             + "/"
@@ -51,10 +50,12 @@ public class ColdDataLoader implements Serializable {
     LOG.info("init fds default config and get the data urls");
   }
 
+  @Override
   public int getPartitionCount() {
     return partitionCount;
   }
 
+  @Override
   public Map<Integer, String> getCheckpointUrls() {
     return checkpointUrls;
   }
@@ -66,7 +67,7 @@ public class ColdDataLoader implements Serializable {
       String currentCheckpointUrl = prefix + "/" + counter + "/" + "current_checkpoint";
       try (BufferedReader bufferedReader = fdsService.getReader(currentCheckpointUrl)) {
         while ((chkpt = bufferedReader.readLine()) != null) {
-          String url = prefix.split(globalConfig.destinationUrl)[1] + "/" + counter + "/" + chkpt;
+          String url = prefix.split(globalConfig.remoteFsUrl)[1] + "/" + counter + "/" + chkpt;
           checkpointUrls.put(counter, url);
         }
         counter--;
@@ -146,7 +147,7 @@ public class ColdDataLoader implements Serializable {
     String appMetaData;
     String appMetaDataUrl = prefix + "/" + "meta" + "/" + "app_metadata";
     try (BufferedReader bufferedReader = fdsService.getReader(appMetaDataUrl)) {
-      while ((appMetaData = bufferedReader.readLine()) != null) {
+      if ((appMetaData = bufferedReader.readLine()) != null) {
         JSONObject jsonObject = new JSONObject(appMetaData);
         String partitionCount = jsonObject.getString("partition_count");
         return Integer.valueOf(partitionCount);

@@ -2,7 +2,7 @@ package com.xiaomi.infra.pegasus.spark.analyser;
 
 import com.xiaomi.infra.pegasus.spark.Config;
 
-public class ColdDataConfig extends Config {
+public class PegasusConfig extends Config {
 
   public String policyName = "every_day";
   public String coldDataTime = "";
@@ -16,5 +16,4 @@ public class ColdDataConfig extends Config {
     this.coldDataTime = coldDataTime;
     return this;
   }
-
 }

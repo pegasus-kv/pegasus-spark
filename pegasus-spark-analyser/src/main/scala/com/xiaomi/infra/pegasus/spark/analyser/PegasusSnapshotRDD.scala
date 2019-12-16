@@ -1,6 +1,5 @@
 package com.xiaomi.infra.pegasus.spark.analyser
 
-import com.xiaomi.infra.pegasus.spark.Config
 import org.apache.commons.logging.LogFactory
 import org.apache.spark.rdd.RDD
 import org.apache.spark.{Partition, SparkContext, TaskContext}
@@ -12,14 +11,16 @@ import org.rocksdb.RocksDB
   * [[PegasusContext]] should be created in the driver, and shared with executors
   * as a serializable field.
   */
+// TODO(jiashuo1) refactor rdd/iterator for adding pegasus online data
 class PegasusContext(private val sc: SparkContext) extends Serializable {
 
-  def pegasusSnapshotRDD(config: ColdDataConfig): PegasusSnapshotRDD = {
-    //only simple match. if still invalid, it will not be matched successfully in ColdDataLoader
+  def pegasusSnapshotRDD(config: PegasusConfig,
+                         snapshotLoader: PegasusLoader): PegasusSnapshotRDD = {
+    //only simple match. if still invalid, it will not be matched successfully in ColdBackupLoader
     assert(config.coldDataTime.equals("") || config.coldDataTime.matches(
              "[0-9]{4}-[0-9]{2}-[0-9]{2}"),
            "the date time format is error!")
-    new PegasusSnapshotRDD(this, config, sc)
+    new PegasusSnapshotRDD(this, config, snapshotLoader, sc)
   }
 }
 
@@ -29,13 +30,12 @@ class PegasusContext(private val sc: SparkContext) extends Serializable {
   * To construct a PegasusSnapshotRDD, use [[PegasusContext#pegasusSnapshotRDD]].
   */
 class PegasusSnapshotRDD private[analyser] (pegasusContext: PegasusContext,
-                                            config: ColdDataConfig,
+                                            config: PegasusConfig,
+                                            snapshotLoader: PegasusLoader,
                                             @transient sc: SparkContext)
     extends RDD[PegasusRecord](sc, Nil) {
 
   private val LOG = LogFactory.getLog(classOf[PegasusSnapshotRDD])
-
-  private val coldDataLoader: ColdDataLoader = new ColdDataLoader(config)
 
   override def compute(split: Partition,
                        context: TaskContext): Iterator[PegasusRecord] = {
@@ -46,18 +46,18 @@ class PegasusSnapshotRDD private[analyser] (pegasusContext: PegasusContext,
       "Create iterator for \"%s\" \"%s\" [pid: %d]"
         .format(config.clusterName, config.tableName, split.index)
     )
-    new PartitionIterator(context, config, coldDataLoader, split.index)
+    new PartitionIterator(context, config, snapshotLoader, split.index)
   }
 
   override protected def getPartitions: Array[Partition] = {
-    val indexes = Array.range(0, coldDataLoader.getPartitionCount)
+    val indexes = Array.range(0, snapshotLoader.getPartitionCount)
     indexes.map(i => {
       new PegasusPartition(i)
     })
   }
 
   def getPartitionCount: Int = {
-    coldDataLoader.getPartitionCount
+    snapshotLoader.getPartitionCount
   }
 
   /**

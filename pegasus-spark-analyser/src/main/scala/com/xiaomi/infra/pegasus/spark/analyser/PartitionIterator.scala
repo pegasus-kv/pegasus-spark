@@ -1,5 +1,6 @@
 package com.xiaomi.infra.pegasus.spark.analyser
 
+import com.xiaomi.infra.pegasus.spark
 import com.xiaomi.infra.pegasus.spark.{Config, RocksDBOptions}
 import org.apache.commons.logging.LogFactory
 import org.apache.spark.TaskContext
@@ -27,13 +28,13 @@ private[analyser] class PartitionIterator private (context: TaskContext,
   // TODO(wutao1): add metrics for counting the number of iterated records.
 
   def this(context: TaskContext,
-           config: Config,
-           coldDataLoader: ColdDataLoader,
+           config: PegasusConfig,
+           snapshotLoader: PegasusLoader,
            pid: Int) {
     this(context, pid)
 
     rocksDBOptions = new RocksDBOptions(config)
-    val checkPointUrls = coldDataLoader.getCheckpointUrls
+    val checkPointUrls = snapshotLoader.getCheckpointUrls
     val dbPath = checkPointUrls.get(pid)
     rocksDB = RocksDB.openReadOnly(rocksDBOptions.options, dbPath)
     rocksIterator = rocksDB.newIterator(rocksDBOptions.readOptions)
