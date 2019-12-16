@@ -1,5 +1,6 @@
 package com.xiaomi.infra.pegasus.spark.analyser;
 
+import com.xiaomi.infra.pegasus.spark.Config;
 import com.xiaomi.infra.pegasus.spark.FDSException;
 import com.xiaomi.infra.pegasus.spark.FDSService;
 import java.io.BufferedReader;
@@ -50,7 +51,7 @@ public class ColdBackupLoader implements PegasusLoader {
   }
 
   @Override
-  public ColdBackupConfig getConfig() {
+  public Config getConfig() {
     return globalConfig;
   }
 
