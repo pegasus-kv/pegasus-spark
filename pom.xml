@@ -20,7 +20,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
-    <pegasus.shade.name>com.xiaomi.infra.pegasus.bulkloader.thirdparty</pegasus.shade.name>
+    <pegasus.shade.name>com.xiaomi.infra.pegasus.spark.thirdparty</pegasus.shade.name>
   </properties>
 
   <dependencies>
