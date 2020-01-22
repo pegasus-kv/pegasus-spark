@@ -18,15 +18,15 @@ import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 
-public class FSService implements Serializable {
+public class FDSService implements Serializable {
 
-  private static final Log LOG = LogFactory.getLog(FSService.class);
+  private static final Log LOG = LogFactory.getLog(FDSService.class);
 
   public Config config;
 
-  public FSService() {}
+  public FDSService() {}
 
-  public FSService(Config config) {
+  public FDSService(Config config) {
     this.config = config;
   }
 

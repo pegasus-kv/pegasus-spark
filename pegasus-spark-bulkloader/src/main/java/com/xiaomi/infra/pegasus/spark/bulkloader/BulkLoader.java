@@ -3,7 +3,7 @@ package com.xiaomi.infra.pegasus.spark.bulkloader;
 import com.alibaba.fastjson.JSON;
 import com.github.rholder.retry.RetryException;
 import com.xiaomi.infra.galaxy.fds.client.exception.GalaxyFDSClientException;
-import com.xiaomi.infra.pegasus.spark.FSService;
+import com.xiaomi.infra.pegasus.spark.FDSService;
 import com.xiaomi.infra.pegasus.spark.PegasusException;
 import com.xiaomi.infra.pegasus.spark.RocksDBOptions;
 import com.xiaomi.infra.pegasus.spark.Tools;
@@ -47,7 +47,7 @@ public class BulkLoader {
   private String bulkLoadInfoPath;
   private String bulkLoadMetaDataPath;
 
-  private FSService FSService;
+  private FDSService FDSService;
   private DataWriter dataWriter;
 
   private Iterator<Tuple2<RocksDBRecord, String>> dataResourceIterator;
@@ -76,7 +76,7 @@ public class BulkLoader {
             config.clusterName, config.tableName, config.tableId, config.tablePartitionCount);
     this.dataMetaInfo = new DataMetaInfo();
 
-    this.FSService = new FSService(config);
+    this.FDSService = new FDSService(config);
     this.dataWriter = new DataWriter(new RocksDBOptions(config));
   }
 
@@ -92,7 +92,7 @@ public class BulkLoader {
 
   private void createBulkLoadInfoFile() throws PegasusException {
     if (partitionId == 0) {
-      try (BufferedWriter bulkLoadInfoWriter = FSService.getWriter(bulkLoadInfoPath)) {
+      try (BufferedWriter bulkLoadInfoWriter = FDSService.getWriter(bulkLoadInfoPath)) {
         bulkLoadInfoWriter.write(JSON.toJSONString(bulkLoadInfo));
         LOG.info("The bulkLoadInfo file is created successful by partition 0.");
       } catch (IOException e) {
@@ -148,7 +148,7 @@ public class BulkLoader {
     List<Future> taskList = new ArrayList<>();
     AtomicBoolean isSuccess = new AtomicBoolean(true);
 
-    FileStatus[] fileStatuses = FSService.getFileStatus(partitionPath);
+    FileStatus[] fileStatuses = FDSService.getFileStatus(partitionPath);
     for (FileStatus fileStatus : fileStatuses) {
       taskList.add(
           metaInfoCreateTask.submit(
@@ -175,7 +175,7 @@ public class BulkLoader {
     }
 
     dataMetaInfo.file_total_size = totalSize.get();
-    BufferedWriter bulkLoadMetaDataWriter = FSService.getWriter(bulkLoadMetaDataPath);
+    BufferedWriter bulkLoadMetaDataWriter = FDSService.getWriter(bulkLoadMetaDataPath);
     bulkLoadMetaDataWriter.write(JSON.toJSONString(dataMetaInfo));
     bulkLoadMetaDataWriter.close();
     LOG.info("create meta info successfully, time used is " + (System.currentTimeMillis() - start));
@@ -187,7 +187,7 @@ public class BulkLoader {
 
     String fileName = fileStatus.getPath().getName();
     long fileSize = fileStatus.getLen();
-    String fileMD5 = FSService.getFileMD5(filePath);
+    String fileMD5 = FDSService.getFileMD5(filePath);
 
     FileInfo fileInfo = dataMetaInfo.new FileInfo(fileName, fileSize, fileMD5);
     dataMetaInfo.files.add(fileInfo);
