@@ -4,14 +4,14 @@ import java.util.ArrayList;
 
 public class DataMetaInfo {
 
-  public ArrayList<FileInfo> files = new ArrayList<>();
-  public long file_total_size;
+  ArrayList<FileInfo> files = new ArrayList<>();
+  long file_total_size;
 
-  public class FileInfo {
+  class FileInfo {
 
-    public String name;
-    public long size;
-    public String md5;
+    String name;
+    long size;
+    String md5;
 
     public FileInfo(String name, long size, String md5) {
       this.name = name;

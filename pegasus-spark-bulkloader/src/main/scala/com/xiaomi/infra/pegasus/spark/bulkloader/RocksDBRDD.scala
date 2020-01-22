@@ -9,7 +9,7 @@ import scala.collection.JavaConverters._
 
 class RocksDBRDD(rdd: RDD[(RocksDBRecord, String)]) {
 
-  def saveAsSSTFile(config: BulkLoaderConfig): Unit = {
+  def saveAsPegasusFile(config: BulkLoaderConfig): Unit = {
 
     val sstRDD = if (config.isDistinct) {
       rdd
@@ -22,7 +22,7 @@ class RocksDBRDD(rdd: RDD[(RocksDBRecord, String)]) {
 
     sstRDD.foreachPartition(i => {
       RocksDB.loadLibrary()
-      new BulkLoader(config, i.asJava, TaskContext.getPartitionId()).write()
+      new BulkLoader(config, i.asJava, TaskContext.getPartitionId()).start()
     })
   }
 

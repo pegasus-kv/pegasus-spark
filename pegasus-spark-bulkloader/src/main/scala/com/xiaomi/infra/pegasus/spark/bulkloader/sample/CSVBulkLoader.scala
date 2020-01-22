@@ -37,7 +37,7 @@ object CSVBulkLoader {
           .create(lines(0), lines(1), lines(2)),
           "")
       })
-      .saveAsSSTFile(config)
+      .saveAsPegasusFile(config)
   }
 
 }

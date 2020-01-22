@@ -1,6 +1,11 @@
 package com.xiaomi.infra.pegasus.spark;
 
+import com.github.rholder.retry.Retryer;
+import com.github.rholder.retry.RetryerBuilder;
+import com.github.rholder.retry.StopStrategies;
+import com.github.rholder.retry.WaitStrategies;
 import java.nio.ByteBuffer;
+import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 
@@ -137,5 +142,13 @@ public class Tools {
     return hashKeyLen == 0
         ? Tools.dsn_crc64(pegasusKey, 2, pegasusKey.length - 2)
         : Tools.dsn_crc64(pegasusKey, 2, hashKeyLen);
+  }
+
+  public static <T> Retryer<T> getDefaultRetryer() {
+    return RetryerBuilder.<T>newBuilder()
+        .retryIfException()
+        .withWaitStrategy(WaitStrategies.fixedWait(3, TimeUnit.SECONDS))
+        .withStopStrategy(StopStrategies.stopAfterAttempt(3))
+        .build();
   }
 }

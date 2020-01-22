@@ -18,30 +18,30 @@ import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 
-public class FDSService implements Serializable {
+public class FSService implements Serializable {
 
-  private static final Log LOG = LogFactory.getLog(FDSService.class);
+  private static final Log LOG = LogFactory.getLog(FSService.class);
 
   public Config config;
 
-  public FDSService() {}
+  public FSService() {}
 
-  public FDSService(Config config) {
+  public FSService(Config config) {
     this.config = config;
   }
 
-  public BufferedReader getReader(String filePath) throws FDSException {
+  public BufferedReader getReader(String filePath) throws PegasusException {
     try {
       InputStream inputStream =
           FileSystem.get(new URI(filePath), new Configuration()).open(new Path(filePath));
       return new BufferedReader(new InputStreamReader(inputStream));
     } catch (Exception e) {
       LOG.error("get filePath reader failed from " + filePath, e);
-      throw new FDSException("get filePath reader failed, [url: " + filePath + "]" + e);
+      throw new PegasusException("get filePath reader failed, [url: " + filePath + "]" + e);
     }
   }
 
-  public BufferedWriter getWriter(String filePath) throws FDSException {
+  public BufferedWriter getWriter(String filePath) throws PegasusException {
     try {
       OutputStreamWriter outputStreamWriter =
           new OutputStreamWriter(
@@ -49,7 +49,7 @@ public class FDSService implements Serializable {
       return new BufferedWriter(outputStreamWriter);
     } catch (Exception e) {
       LOG.error("get filePath writer failed from " + filePath, e);
-      throw new FDSException("get filePath writer failed, [url: " + filePath + "]" + e);
+      throw new PegasusException("get filePath writer failed, [url: " + filePath + "]" + e);
     }
   }
 
