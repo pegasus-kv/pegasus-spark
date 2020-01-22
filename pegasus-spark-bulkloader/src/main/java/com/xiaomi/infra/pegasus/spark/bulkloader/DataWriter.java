@@ -10,6 +10,10 @@ import org.apache.commons.logging.LogFactory;
 import org.rocksdb.RocksDBException;
 import org.rocksdb.SstFileWriter;
 
+/**
+ * The wrapper of sstFileWriter of rocksdbjava
+ *
+ */
 public class DataWriter {
 
   private static final Log LOG = LogFactory.getLog(DataWriter.class);
@@ -23,11 +27,6 @@ public class DataWriter {
 
   private SstFileWriter sstFileWriter;
 
-  /**
-   * The wrapper of sstFileWriter of rocksdbjava
-   *
-   * @param rocksDBOptions rocksDBOptions
-   */
   public DataWriter(RocksDBOptions rocksDBOptions) {
     this.sstFileWriter = new SstFileWriter(rocksDBOptions.envOptions, rocksDBOptions.options);
   }

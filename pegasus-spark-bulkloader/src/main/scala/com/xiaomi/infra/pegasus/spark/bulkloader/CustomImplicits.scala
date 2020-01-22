@@ -24,7 +24,7 @@ object CustomImplicits {
     }
 
   /**
-    * the implicit method of converting RDD[(RocksDBRecord,String) to RocksDBRDD
+    * The implicit method of converting RDD[(RocksDBRecord,String) to RocksDBRDD
     * @param rdd
     * @return
     */

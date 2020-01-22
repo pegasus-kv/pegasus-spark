@@ -28,7 +28,7 @@ object CSVBulkLoader {
       .setTableId(20)
       .setTablePartitionCount(32)
 
-    // Note(jiashuo1): if the partition size > 2G before "saveAsSSTFile", you need
+    // Note(jiashuo1): if the partition size > 2G before "saveAsPegasusFile", you need
     // sc.textFile("data.csv").repartition(n), and let the partition size < 2G
     sc.textFile("data.csv")
       .map(i => {
