@@ -18,7 +18,7 @@ public class ColdBackupLoader implements PegasusLoader {
   private static final Log LOG = LogFactory.getLog(ColdBackupLoader.class);
 
   private ColdBackupConfig globalConfig;
-  private FDSService FDSService = new FDSService();
+  private FDSService fdsService = new FDSService();
   private Map<Integer, String> checkpointUrls = new HashMap<>();
   private int partitionCount;
 
@@ -70,7 +70,7 @@ public class ColdBackupLoader implements PegasusLoader {
     counter--;
     while (counter >= 0) {
       String currentCheckpointUrl = prefix + "/" + counter + "/" + "current_checkpoint";
-      try (BufferedReader bufferedReader = FDSService.getReader(currentCheckpointUrl)) {
+      try (BufferedReader bufferedReader = fdsService.getReader(currentCheckpointUrl)) {
         while ((chkpt = bufferedReader.readLine()) != null) {
           String url = prefix.split(globalConfig.remoteFsUrl)[1] + "/" + counter + "/" + chkpt;
           checkpointUrls.put(counter, url);
@@ -87,7 +87,7 @@ public class ColdBackupLoader implements PegasusLoader {
   private String getLatestPolicyId(String prefix) throws PegasusException {
     try {
       LOG.info("get the " + prefix + " latest id");
-      ArrayList<String> idList = getPolicyIdList(FDSService.getFileStatus(prefix));
+      ArrayList<String> idList = getPolicyIdList(fdsService.getFileStatus(prefix));
       LOG.info("the policy list:" + idList);
       if (idList.size() != 0) {
         return idList.get(idList.size() - 1);
@@ -111,7 +111,7 @@ public class ColdBackupLoader implements PegasusLoader {
 
   private String getPolicyId(String prefix, String dateTime) throws PegasusException {
     try {
-      FileStatus[] fileStatuses = FDSService.getFileStatus(prefix);
+      FileStatus[] fileStatuses = fdsService.getFileStatus(prefix);
       for (FileStatus s : fileStatuses) {
         String idPath = s.getPath().toString();
         long timestamp = Long.parseLong(idPath.substring(idPath.length() - 13));
@@ -130,7 +130,7 @@ public class ColdBackupLoader implements PegasusLoader {
   private String getTableNameAndId(String prefix, String tableName) throws PegasusException {
     String backupInfo;
     String backupInfoUrl = prefix + "/" + "backup_info";
-    try (BufferedReader bufferedReader = FDSService.getReader(backupInfoUrl)) {
+    try (BufferedReader bufferedReader = fdsService.getReader(backupInfoUrl)) {
       while ((backupInfo = bufferedReader.readLine()) != null) {
         JSONObject jsonObject = new JSONObject(backupInfo);
         JSONObject tables = jsonObject.getJSONObject("app_names");
@@ -152,7 +152,7 @@ public class ColdBackupLoader implements PegasusLoader {
   private int getCount(String prefix) throws PegasusException {
     String appMetaData;
     String appMetaDataUrl = prefix + "/" + "meta" + "/" + "app_metadata";
-    try (BufferedReader bufferedReader = FDSService.getReader(appMetaDataUrl)) {
+    try (BufferedReader bufferedReader = fdsService.getReader(appMetaDataUrl)) {
       if ((appMetaData = bufferedReader.readLine()) != null) {
         JSONObject jsonObject = new JSONObject(appMetaData);
         String partitionCount = jsonObject.getString("partition_count");
