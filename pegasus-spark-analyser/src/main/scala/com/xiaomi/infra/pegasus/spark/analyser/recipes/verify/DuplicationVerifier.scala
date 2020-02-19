@@ -1,10 +1,7 @@
 package com.xiaomi.infra.pegasus.spark.analyser.recipes.verify
 
 import com.typesafe.config.{ConfigException, ConfigFactory}
-import com.xiaomi.infra.pegasus.spark.analyser.{
-  ColdBackupConfig,
-  PegasusContext
-}
+import com.xiaomi.infra.pegasus.spark.analyser.{ColdBackupConfig, ColdBackupLoader, PegasusContext}
 import org.apache.commons.logging.LogFactory
 import org.apache.spark.{SparkConf, SparkContext}
 
@@ -46,9 +43,21 @@ class DuplicationVerifier(opts: DuplicationVerifierOptions) {
       .setIfMissing("spark.master", "local[9]")
     val sc = new SparkContext(conf)
 
+    val coldBackupConfig1 = new ColdBackupConfig()
+    coldBackupConfig1.setRemote(
+      "",
+      "80")
+      .setTableInfo(options.cluster1, options.tableName)
+
+    val coldBackupConfig2 = new ColdBackupConfig()
+    coldBackupConfig2.setRemote(
+      "",
+      "80")
+      .setTableInfo(options.cluster2, options.tableName)
+
     val pc = new PegasusContext(sc)
-    val rdd1 = pc.pegasusSnapshotRDD(options.cluster1, options.tableName)
-    val rdd2 = pc.pegasusSnapshotRDD(options.cluster2, options.tableName)
+    val rdd1 = pc.pegasusSnapshotRDD(new ColdBackupLoader(coldBackupConfig1))
+    val rdd2 = pc.pegasusSnapshotRDD(new ColdBackupLoader(coldBackupConfig2))
     val partitionCount1 = rdd1.getPartitionCount
     val partitionCount2 = rdd2.getPartitionCount
     if (partitionCount1 != partitionCount2) {
