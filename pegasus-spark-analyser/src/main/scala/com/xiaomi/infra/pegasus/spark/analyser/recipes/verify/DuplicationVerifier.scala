@@ -5,7 +5,6 @@ import com.xiaomi.infra.pegasus.spark.analyser.{ColdBackupConfig, ColdBackupLoad
 import org.apache.commons.logging.LogFactory
 import org.apache.spark.{SparkConf, SparkContext}
 
-//TODO(wutao1): refactor "verify" based new "ColdBackupConfig.class"
 class DuplicationVerifierOptions {
   var tableName: String = ""
   var cluster1: String = ""
