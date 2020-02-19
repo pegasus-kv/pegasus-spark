@@ -25,6 +25,8 @@ class DuplicationVerifier(opts: DuplicationVerifierOptions) {
 
   val options: DuplicationVerifierOptions = opts
   private val LOG = LogFactory.getLog(classOf[DuplicationVerifier])
+  private val FS_URL = ""
+  private val FS_PORT = "80"
 
   class Result {
     var differences: Long = 0
@@ -44,14 +46,14 @@ class DuplicationVerifier(opts: DuplicationVerifierOptions) {
 
     val coldBackupConfig1 = new ColdBackupConfig()
     coldBackupConfig1.setRemote(
-      "",
-      "80")
+      FS_URL,
+      FS_PORT)
       .setTableInfo(options.cluster1, options.tableName)
 
     val coldBackupConfig2 = new ColdBackupConfig()
     coldBackupConfig2.setRemote(
-      "",
-      "80")
+      FS_URL,
+      FS_PORT)
       .setTableInfo(options.cluster2, options.tableName)
 
     val pc = new PegasusContext(sc)
