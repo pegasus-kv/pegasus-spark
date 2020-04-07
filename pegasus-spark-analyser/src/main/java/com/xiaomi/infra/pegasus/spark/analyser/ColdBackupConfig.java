@@ -20,7 +20,7 @@ public class ColdBackupConfig extends Config {
     return this;
   }
 
-  public Config setRecordRestore(DataVersion dataVersion) {
+  public Config setDataVersion(DataVersion dataVersion) {
     this.dataVersion = dataVersion;
     return this;
   }
