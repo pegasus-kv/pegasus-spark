@@ -21,14 +21,20 @@ abstract class DataVersion {
     )
   }
 
+  def restoreExpireTs(value: Array[Byte]): Int = {
+    val bytes = util.Arrays.copyOfRange(value, 0, 4)
+    ByteBuffer.wrap(bytes).getInt()
+  }
+
   def restoreValue(value: Array[Byte]): Array[Byte]
 
   def getPegasusRecord(rocksIterator: RocksIterator): PegasusRecord = {
     val keyPair = restoreKey(rocksIterator.key)
-    new PegasusRecord(
+    PegasusRecord(
       keyPair.getLeft,
       keyPair.getRight,
-      restoreValue(rocksIterator.value)
+      restoreValue(rocksIterator.value),
+      restoreExpireTs(rocksIterator.value)
     )
   }
 }
@@ -42,23 +48,24 @@ class DataVersion1 extends DataVersion {
 
 class DataVersion2 extends DataVersion {
 
-  // TODO(jiashuo1) refactor the method
   def restoreValue(value: Array[Byte]): Array[Byte] =
-    util.Arrays.copyOfRange(value, 4, value.length)
+    util.Arrays.copyOfRange(value, 12, value.length)
 
 }
 
 case class PegasusRecord(
     hashKey: Array[Byte],
     sortKey: Array[Byte],
-    value: Array[Byte]
+    value: Array[Byte],
+    expireTs: Int
 ) {
   override def toString: String =
     String.format(
-      "[HashKey=%s, SortKey=%s, Value=%s]",
+      "[HashKey=%s, SortKey=%s, Value=%s, ExpireTs=%s]",
       util.Arrays.toString(hashKey),
       util.Arrays.toString(sortKey),
-      util.Arrays.toString(value)
+      util.Arrays.toString(value),
+      expireTs
     )
 
   override def equals(other: Any): Boolean = {
@@ -67,7 +74,8 @@ case class PegasusRecord(
         (that canEqual this) &&
           hashKey.sameElements(that.hashKey) &&
           sortKey.sameElements(that.sortKey) &&
-          value.sameElements(that.value)
+          value.sameElements(that.value) &&
+          expireTs == that.expireTs
       case _ => false
     }
   }
@@ -77,6 +85,7 @@ case class PegasusRecord(
       .append(hashKey)
       .append(sortKey)
       .append(value)
+      .append(expireTs)
       .hashCode()
   }
 }
