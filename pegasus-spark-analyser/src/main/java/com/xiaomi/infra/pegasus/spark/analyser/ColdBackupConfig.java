@@ -20,6 +20,7 @@ public class ColdBackupConfig extends Config {
     return this;
   }
 
+  // TODO(wutao1): we can support auto detection of the data version.
   public Config setDataVersion(DataVersion dataVersion) {
     this.dataVersion = dataVersion;
     return this;
