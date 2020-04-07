@@ -24,7 +24,6 @@ object ConvertOnlineData {
 
   def main(args: Array[String]): Unit = {
     val coldBackupConfig: ColdBackupConfig = new ColdBackupConfig()
-
     coldBackupConfig
       .setRemote(COLD_BACKUP_FS_URL, COLD_BACKUP_FS_PORT)
       .setTableInfo(COLD_BACKUP_CLUSTER_NAME, COLD_BACKUP_TABLE_NAME)
@@ -51,5 +50,4 @@ object ConvertOnlineData {
       })
       .saveAsOnlineData(onlineConfig)
   }
-
 }

@@ -6,6 +6,6 @@ import org.apache.spark.rdd.RDD
 
 object CustomImplicits {
 
-  implicit def convertFromByte(rdd: RDD[SetItem]): PegasusOnlineRDD =
+  implicit def convertFromSetItem(rdd: RDD[SetItem]): PegasusOnlineRDD =
     new PegasusOnlineRDD(rdd)
 }
