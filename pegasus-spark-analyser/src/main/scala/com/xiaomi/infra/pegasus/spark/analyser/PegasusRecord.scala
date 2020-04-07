@@ -8,10 +8,9 @@ import org.apache.commons.lang3.Validate
 import org.apache.commons.lang3.tuple.ImmutablePair
 import org.rocksdb.RocksIterator
 
-object PegasusRecord {
-  private def restoreKey(
-      key: Array[Byte]
-  ): ImmutablePair[Array[Byte], Array[Byte]] = {
+abstract class RecordRestore {
+
+  def restoreKey(key: Array[Byte]): ImmutablePair[Array[Byte], Array[Byte]] = {
     Validate.isTrue(key != null && key.length >= 2)
     val buf = ByteBuffer.wrap(key)
     val hashKeyLen = 0xFFFF & buf.getShort
@@ -22,20 +21,34 @@ object PegasusRecord {
     )
   }
 
-  private def restoreValue(value: Array[Byte]): Array[Byte] =
-    util.Arrays.copyOfRange(value, 4, value.length)
+  def restoreValue(value: Array[Byte]): Array[Byte]
 
-  def create(rocksIterator: RocksIterator): PegasusRecord = {
-    val keyPair = PegasusRecord.restoreKey(rocksIterator.key)
+  def getPegasusRecord(rocksIterator: RocksIterator): PegasusRecord = {
+    val keyPair = restoreKey(rocksIterator.key)
     new PegasusRecord(
       keyPair.getLeft,
       keyPair.getRight,
-      PegasusRecord.restoreValue(rocksIterator.value)
+      restoreValue(rocksIterator.value)
     )
   }
 }
 
-case class PegasusRecord private (
+class RecordRestoreV1 extends RecordRestore {
+
+  def restoreValue(value: Array[Byte]): Array[Byte] =
+    util.Arrays.copyOfRange(value, 4, value.length)
+
+}
+
+class RecordRestoreV2 extends RecordRestore {
+
+  // TODO(jiashuo1) refactor the method
+  def restoreValue(value: Array[Byte]): Array[Byte] =
+    util.Arrays.copyOfRange(value, 4, value.length)
+
+}
+
+case class PegasusRecord(
     hashKey: Array[Byte],
     sortKey: Array[Byte],
     value: Array[Byte]
