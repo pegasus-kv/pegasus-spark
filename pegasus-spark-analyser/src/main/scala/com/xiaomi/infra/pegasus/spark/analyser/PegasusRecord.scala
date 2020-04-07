@@ -8,7 +8,7 @@ import org.apache.commons.lang3.Validate
 import org.apache.commons.lang3.tuple.ImmutablePair
 import org.rocksdb.RocksIterator
 
-abstract class RecordRestore {
+abstract class RecordRestorer {
 
   def restoreKey(key: Array[Byte]): ImmutablePair[Array[Byte], Array[Byte]] = {
     Validate.isTrue(key != null && key.length >= 2)
@@ -33,14 +33,14 @@ abstract class RecordRestore {
   }
 }
 
-class RecordRestoreV1 extends RecordRestore {
+class RecordRestorerV1 extends RecordRestorer {
 
   def restoreValue(value: Array[Byte]): Array[Byte] =
     util.Arrays.copyOfRange(value, 4, value.length)
 
 }
 
-class RecordRestoreV2 extends RecordRestore {
+class RecordRestorerV2 extends RecordRestorer {
 
   // TODO(jiashuo1) refactor the method
   def restoreValue(value: Array[Byte]): Array[Byte] =

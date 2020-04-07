@@ -68,7 +68,7 @@ public class ColdBackupLoader implements PegasusLoader {
 
   @Override
   public PegasusRecord restoreRecord(RocksIterator rocksIterator) {
-    return globalConfig.recordRestore.getPegasusRecord(rocksIterator);
+    return globalConfig.recordRestorer.getPegasusRecord(rocksIterator);
   }
 
   private void initCheckpointUrls(String prefix, int counter) throws FDSException {
