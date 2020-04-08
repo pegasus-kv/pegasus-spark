@@ -8,6 +8,7 @@ import com.xiaomi.infra.pegasus.spark.analyser.{
   ColdBackupLoader,
   PegasusContext
 }
+import com.xiaomi.infra.pegasus.tools.Tools
 
 object ConvertOnlineData {
 
@@ -15,6 +16,7 @@ object ConvertOnlineData {
   private final val COLD_BACKUP_FS_PORT = "80"
   private final val COLD_BACKUP_CLUSTER_NAME = ""
   private final val COLD_BACKUP_TABLE_NAME = ""
+  private final val COLD_BACKUP_POLICY_NAME = ""
 
   private final val ONLINE_META_SERVER = ""
   private final val ONLINE_CLUSTER_NAME = ""
@@ -25,6 +27,7 @@ object ConvertOnlineData {
   def main(args: Array[String]): Unit = {
     val coldBackupConfig: ColdBackupConfig = new ColdBackupConfig()
     coldBackupConfig
+      .setPolicyName(COLD_BACKUP_POLICY_NAME)
       .setRemote(COLD_BACKUP_FS_URL, COLD_BACKUP_FS_PORT)
       .setTableInfo(COLD_BACKUP_CLUSTER_NAME, COLD_BACKUP_TABLE_NAME)
 
@@ -46,7 +49,12 @@ object ConvertOnlineData {
     new PegasusContext(sc)
       .pegasusSnapshotRDD(new ColdBackupLoader(coldBackupConfig))
       .map(i => {
-        new SetItem(i.hashKey, i.sortKey, i.value)
+        new SetItem(
+          i.hashKey,
+          i.sortKey,
+          i.value,
+          (i.expireTs - Tools.epoch_now()).toInt
+        )
       })
       .saveAsOnlineData(onlineConfig)
   }

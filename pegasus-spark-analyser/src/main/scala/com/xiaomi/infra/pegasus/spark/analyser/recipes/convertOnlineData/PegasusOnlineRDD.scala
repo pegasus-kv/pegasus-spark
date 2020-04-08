@@ -1,10 +1,12 @@
 package com.xiaomi.infra.pegasus.spark.analyser.recipes.convertOnlineData
 
 import java.time.Duration
-import com.xiaomi.infra.pegasus.tools.FlowController
+
+import com.xiaomi.infra.pegasus.tools.{FlowController, Tools}
 import org.apache.spark.TaskContext
 import org.apache.spark.rdd.RDD
 import org.slf4j.LoggerFactory
+
 import scala.collection.JavaConverters._
 import com.xiaomi.infra.pegasus.client.{
   ClientOptions,
@@ -86,10 +88,11 @@ class PegasusOnlineRDD(resource: RDD[SetItem]) extends Serializable {
       i.sliding(onlineConfig.bulkNum, onlineConfig.bulkNum)
         .foreach(slice => {
           flowController.getToken()
+          val validData = slice.filter(i => i.ttlSeconds > 0)
           var success = false
           while (!success) {
             try {
-              client.batchSet(onlineConfig.table, slice.asJava)
+              client.batchSet(onlineConfig.table, validData.asJava)
               success = true
             } catch {
               case ex: PException =>
