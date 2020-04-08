@@ -8,7 +8,7 @@ import org.apache.commons.lang3.Validate
 import org.apache.commons.lang3.tuple.ImmutablePair
 import org.rocksdb.RocksIterator
 
-abstract class DataVersion {
+abstract class DataVersion extends Serializable {
 
   def restoreKey(key: Array[Byte]): ImmutablePair[Array[Byte], Array[Byte]] = {
     Validate.isTrue(key != null && key.length >= 2)
@@ -65,7 +65,7 @@ case class PegasusRecord(
       util.Arrays.toString(hashKey),
       util.Arrays.toString(sortKey),
       util.Arrays.toString(value),
-      expireTs
+      String.valueOf(expireTs)
     )
 
   override def equals(other: Any): Boolean = {
