@@ -16,7 +16,7 @@ public class ColdBackupConfig extends Config {
    *     "every_day", you may need change it base your pegasus server config
    * @return this
    */
-  public Config setPolicyName(String policyName) {
+  public ColdBackupConfig setPolicyName(String policyName) {
     this.policyName = policyName;
     return this;
   }
@@ -28,7 +28,7 @@ public class ColdBackupConfig extends Config {
    *     2019-09-11, default is "", means choose the latest data
    * @return this
    */
-  public Config setColdBackupTime(String coldBackupTime) {
+  public ColdBackupConfig setColdBackupTime(String coldBackupTime) {
     this.coldBackupTime = coldBackupTime;
     return this;
   }
@@ -40,7 +40,7 @@ public class ColdBackupConfig extends Config {
    * @return this
    */
   // TODO(wutao1): we can support auto detection of the data version.
-  public Config setDataVersion(DataVersion dataVersion) {
+  public ColdBackupConfig setDataVersion(DataVersion dataVersion) {
     this.dataVersion = dataVersion;
     return this;
   }
