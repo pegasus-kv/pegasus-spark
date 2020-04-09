@@ -1,12 +1,23 @@
 package com.xiaomi.infra.pegasus.spark.analyser;
 
 import com.xiaomi.infra.pegasus.spark.Config;
+import com.xiaomi.infra.pegasus.spark.FDSException;
 
 public class ColdBackupConfig extends Config {
+
+  private static final long UNIT = 1024 * 1024L;
 
   public String policyName = "every_day";
   public String coldBackupTime = "";
   public DataVersion dataVersion = new DataVersion1();
+  public int dbMaxFileOpenCount = 50;
+  public long dbReadAheadSize = 1024 * 1024L;
+
+  public ColdBackupConfig(
+      String remoteFsUrl, String remoteFsPort, String clusterName, String tableName)
+      throws FDSException {
+    super(remoteFsUrl, remoteFsPort, clusterName, tableName);
+  }
 
   /**
    * cold backup policy name
@@ -42,6 +53,30 @@ public class ColdBackupConfig extends Config {
   // TODO(wutao1): we can support auto detection of the data version.
   public ColdBackupConfig setDataVersion(DataVersion dataVersion) {
     this.dataVersion = dataVersion;
+    return this;
+  }
+
+  /**
+   * todo(jiashuo1)
+   *
+   * @param dbMaxFileOpenCount
+   * @return
+   */
+  public ColdBackupConfig setDbMaxFileOpenCount(int dbMaxFileOpenCount) {
+    this.dbMaxFileOpenCount = dbMaxFileOpenCount;
+    rocksDBOptions.options.setMaxOpenFiles(dbMaxFileOpenCount);
+    return this;
+  }
+
+  /**
+   * todo(jiashuo1)
+   *
+   * @param dbReadAheadSize
+   * @return
+   */
+  public ColdBackupConfig setDbReadAheadSize(long dbReadAheadSize) {
+    this.dbReadAheadSize = dbReadAheadSize;
+    rocksDBOptions.readOptions.setReadaheadSize(dbReadAheadSize * UNIT);
     return this;
   }
 }
