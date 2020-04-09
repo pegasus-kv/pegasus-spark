@@ -1,4 +1,4 @@
-package com.xiaomi.infra.pegasus.spark.analyser.recipes.convertOnlineData
+package com.xiaomi.infra.pegasus.spark.analyser
 
 import java.time.Duration
 
@@ -15,14 +15,16 @@ import com.xiaomi.infra.pegasus.client.{
   SetItem
 }
 
-case class OnlineConfig() extends Serializable {
+case class WriteConfig() extends Serializable {
   var metaServer: String = _
-  var timeout: Long = _
-  var asyncWorks: Int = _
+  var timeout: Long = 1000
+  var asyncWorks: Int = 4
 
   var cluster: String = _
   var table: String = _
 
+  // less than the threshold won't be write, default is 0
+  var ttlThreshold: Int = 0
   // flow control：
   // single_qps = flowControl * bulkNum
   // total_qps = single_qps * partitionNum(here partitionNum equal count of partition in
@@ -30,69 +32,75 @@ case class OnlineConfig() extends Serializable {
   var bulkNum: Int = 10
   var flowControl: Int = 5
 
-  def setMetaServer(metaServer: String): OnlineConfig = {
+  def setMetaServer(metaServer: String): WriteConfig = {
     this.metaServer = metaServer
     this
   }
 
-  def setTimeout(timeout: Long): OnlineConfig = {
+  def setTimeout(timeout: Long): WriteConfig = {
     this.timeout = timeout
     this
   }
 
-  def setAsyncWorks(asyncWorks: Int): OnlineConfig = {
+  def setAsyncWorks(asyncWorks: Int): WriteConfig = {
     this.asyncWorks = asyncWorks
     this
   }
 
-  def setCluster(cluster: String): OnlineConfig = {
+  def setCluster(cluster: String): WriteConfig = {
     this.cluster = cluster
     this
   }
 
-  def setTable(table: String): OnlineConfig = {
+  def setTable(table: String): WriteConfig = {
     this.table = table
     this
   }
 
-  def setBulkNum(bulkNum: Int): OnlineConfig = {
+  def setBulkNum(bulkNum: Int): WriteConfig = {
     this.bulkNum = bulkNum
     this
   }
 
-  def setFlowControl(flowControl: Int): OnlineConfig = {
+  def setFlowControl(flowControl: Int): WriteConfig = {
     this.bulkNum = bulkNum
+    this
+  }
+
+  def setTTL(ttl: Int): WriteConfig = {
+    this.ttlThreshold = ttl
     this
   }
 
 }
 
-class PegasusOnlineRDD(resource: RDD[SetItem]) extends Serializable {
+class PegasusWriter(resource: RDD[SetItem]) extends Serializable {
 
-  private val logger = LoggerFactory.getLogger(classOf[PegasusOnlineRDD])
+  private val logger = LoggerFactory.getLogger(classOf[PegasusWriter])
 
-  def saveAsOnlineData(onlineConfig: OnlineConfig): Unit = {
+  def saveAsOnlineData(writeConfig: WriteConfig): Unit = {
     resource.foreachPartition(i => {
       var count = 0
 
       val client = PegasusClientFactory.getSingletonClient(
         ClientOptions
           .builder()
-          .metaServers(onlineConfig.metaServer)
-          .operationTimeout(Duration.ofMillis(onlineConfig.timeout))
+          .metaServers(writeConfig.metaServer)
+          .asyncWorkers(writeConfig.asyncWorks)
+          .operationTimeout(Duration.ofMillis(writeConfig.timeout))
           .build()
       )
 
-      val flowController = new FlowController(onlineConfig.flowControl)
+      val flowController = new FlowController(writeConfig.flowControl)
       val index = TaskContext.getPartitionId()
-      i.sliding(onlineConfig.bulkNum, onlineConfig.bulkNum)
+      i.sliding(writeConfig.bulkNum, writeConfig.bulkNum)
         .foreach(slice => {
           flowController.getToken()
           val validData = slice.filter(i => i.ttlSeconds > 0)
           var success = false
           while (!success) {
             try {
-              client.batchSet(onlineConfig.table, validData.asJava)
+              client.batchSet(writeConfig.table, validData.asJava)
               success = true
             } catch {
               case ex: PException =>
