@@ -23,7 +23,7 @@ case class WriteConfig() extends Serializable {
   var cluster: String = _
   var table: String = _
 
-  // less than the threshold won't be write, default is 0
+  // less than the threshold won't be write, default is 0, unit is seconds.
   var ttlThreshold: Int = 0
   // flow control：
   // single_qps = flowControl * bulkNum
