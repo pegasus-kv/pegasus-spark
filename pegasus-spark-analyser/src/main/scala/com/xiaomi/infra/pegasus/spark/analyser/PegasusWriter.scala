@@ -67,7 +67,7 @@ case class WriteConfig() extends Serializable {
     this
   }
 
-  def setTTL(ttl: Int): WriteConfig = {
+  def setTTLThreshold(ttl: Int): WriteConfig = {
     this.ttlThreshold = ttl
     this
   }
@@ -80,7 +80,9 @@ class PegasusWriter(resource: RDD[SetItem]) extends Serializable {
 
   def saveAsOnlineData(writeConfig: WriteConfig): Unit = {
     resource.foreachPartition(i => {
-      var count = 0
+      var totalCount = 0
+      var validCount = 0
+      var expireCount = 0
 
       val client = PegasusClientFactory.getSingletonClient(
         ClientOptions
@@ -96,7 +98,8 @@ class PegasusWriter(resource: RDD[SetItem]) extends Serializable {
       i.sliding(writeConfig.bulkNum, writeConfig.bulkNum)
         .foreach(slice => {
           flowController.getToken()
-          val validData = slice.filter(i => i.ttlSeconds > 0)
+          val validData =
+            slice.filter(i => i.ttlSeconds >= writeConfig.ttlThreshold)
           var success = false
           while (!success) {
             try {
@@ -108,16 +111,28 @@ class PegasusWriter(resource: RDD[SetItem]) extends Serializable {
                   .info("partition index " + index + ": batchSet error:" + ex)
                 Thread.sleep(10)
             }
-            count += slice.size
-            if (count % 10000 == 0) {
+            totalCount += slice.size
+            validCount += validData.size
+            expireCount = totalCount - validCount
+            if (totalCount % 10000 == 0) {
               logger
-                .info("partition index " + index + ": batchSet count:" + count)
+                .info(
+                  "partition index " + index + " is running: totalCount = " + totalCount +
+                    ", validCount:" + validCount + ", expireCount:" + expireCount +
+                    ", expireRatio:" + (expireCount.toDouble / totalCount)
+                    .formatted("%.2f")
+                )
             }
           }
         })
-      logger.info(
-        "partition index " + index + ": total batchSet count:" + count
-      )
+      logger
+        .info(
+          "partition index " + index + " has completed: totalCount = " + totalCount +
+            ", validCount:" + validCount + ", expireCount:" + expireCount +
+            ", expireRatio:" + (expireCount.toDouble / totalCount)
+            .formatted("%.2f")
+        )
+
       flowController.stop()
       client.close()
     })
