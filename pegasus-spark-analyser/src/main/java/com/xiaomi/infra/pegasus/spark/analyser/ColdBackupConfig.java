@@ -57,10 +57,11 @@ public class ColdBackupConfig extends Config {
   }
 
   /**
-   * todo(jiashuo1)
+   * dbMaxFileOpenCount is rocksdb concept which can control the max file open count, default is 50.
+   * detail see https://github.com/facebook/rocksdb/wiki/RocksDB-Tuning-Guide#general-options
    *
    * @param dbMaxFileOpenCount
-   * @return
+   * @return this
    */
   public ColdBackupConfig setDbMaxFileOpenCount(int dbMaxFileOpenCount) {
     this.dbMaxFileOpenCount = dbMaxFileOpenCount;
@@ -69,10 +70,11 @@ public class ColdBackupConfig extends Config {
   }
 
   /**
-   * todo(jiashuo1)
+   * dbReadAheadSize is rocksdb concept which can control the readHeadSize, default is 1MB, detail
+   * see https://github.com/facebook/rocksdb/wiki/Iterator#read-ahead
    *
    * @param dbReadAheadSize
-   * @return
+   * @return this
    */
   public ColdBackupConfig setDbReadAheadSize(long dbReadAheadSize) {
     this.dbReadAheadSize = dbReadAheadSize;
