@@ -17,6 +17,8 @@ public class ColdBackupConfig extends Config {
       String remoteFsUrl, String remoteFsPort, String clusterName, String tableName)
       throws FDSException {
     super(remoteFsUrl, remoteFsPort, clusterName, tableName);
+    rocksDBOptions.options.setMaxOpenFiles(dbMaxFileOpenCount);
+    rocksDBOptions.readOptions.setReadaheadSize(dbReadAheadSize);
   }
 
   /**
@@ -57,10 +59,11 @@ public class ColdBackupConfig extends Config {
   }
 
   /**
-   * dbMaxFileOpenCount is rocksdb concept which can control the max file open count, default is 50.
-   * detail see https://github.com/facebook/rocksdb/wiki/RocksDB-Tuning-Guide#general-options
+   * the max file open count
    *
-   * @param dbMaxFileOpenCount
+   * @param dbMaxFileOpenCount dbMaxFileOpenCount is rocksdb concept which can control the max file
+   *     open count, default is 50. detail see
+   *     https://github.com/facebook/rocksdb/wiki/RocksDB-Tuning-Guide#general-options
    * @return this
    */
   public ColdBackupConfig setDbMaxFileOpenCount(int dbMaxFileOpenCount) {
@@ -70,10 +73,10 @@ public class ColdBackupConfig extends Config {
   }
 
   /**
-   * dbReadAheadSize is rocksdb concept which can control the readHeadSize, default is 1MB, detail
-   * see https://github.com/facebook/rocksdb/wiki/Iterator#read-ahead
+   * readAhead size
    *
-   * @param dbReadAheadSize
+   * @param dbReadAheadSize dbReadAheadSize is rocksdb concept which can control the readAheadSize,
+   *     default is 1MB, detail see https://github.com/facebook/rocksdb/wiki/Iterator#read-ahead
    * @return this
    */
   public ColdBackupConfig setDbReadAheadSize(long dbReadAheadSize) {

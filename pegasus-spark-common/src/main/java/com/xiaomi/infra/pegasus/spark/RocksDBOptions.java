@@ -33,8 +33,7 @@ public class RocksDBOptions {
             LOG.info("[rocksDB native log info]" + s);
           }
         };
-    options.setCreateIfMissing(true).setEnv(env).setLogger(rocksDBLog).setMaxOpenFiles(200);
-    readOptions.setReadaheadSize(1024);
+    options.setCreateIfMissing(true).setEnv(env).setLogger(rocksDBLog);
   }
 
   public void close() {
