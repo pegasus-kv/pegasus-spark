@@ -2,11 +2,11 @@ package com.xiaomi.infra.pegasus.spark.analyser.recipes.load
 
 import com.xiaomi.infra.pegasus.client.SetItem
 import org.apache.spark.{SparkConf, SparkContext}
-import com.xiaomi.infra.pegasus.spark.analyser.CustomImplicits._
+import com.xiaomi.infra.pegasus.spark.CustomImplicits._
+import com.xiaomi.infra.pegasus.spark.OnlineWriteConfig
 import com.xiaomi.infra.pegasus.spark.analyser.{
   ColdBackupConfig,
   ColdBackupLoader,
-  WriteConfig,
   PegasusContext
 }
 import com.xiaomi.infra.pegasus.tools.Tools
@@ -34,13 +34,13 @@ object Load2Online {
       .setRemote(COLD_BACKUP_FS_URL, COLD_BACKUP_FS_PORT)
       .setTableInfo(COLD_BACKUP_CLUSTER_NAME, COLD_BACKUP_TABLE_NAME)
 
-    val writeConfig: WriteConfig = WriteConfig()
-      .setMetaServer(WRITE_META_SERVER)
-      .setCluster(WRITE_CLUSTER_NAME)
-      .setTable(WRITE_TABLE_NAME)
-      .setTimeout(WRITE_TIMEOUT)
-      .setBulkNum(WRITE_BULK_NUM)
-      .setTTLThreshold(WRITE_TTL_THRESHOLD)
+    val writeConfig: OnlineWriteConfig = OnlineWriteConfig()
+      .metaServer(WRITE_META_SERVER)
+      .clusterName(WRITE_CLUSTER_NAME)
+      .tableName(WRITE_TABLE_NAME)
+      .timeout(WRITE_TIMEOUT)
+      .bulkNum(WRITE_BULK_NUM)
+      .TTLThreshold(WRITE_TTL_THRESHOLD)
 
     val conf: SparkConf = new SparkConf()
       .setAppName(

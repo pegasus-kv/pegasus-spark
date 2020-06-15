@@ -1,4 +1,4 @@
-package com.xiaomi.infra.pegasus.spark.analyser
+package com.xiaomi.infra.pegasus.spark
 
 import java.time.Duration
 
@@ -15,7 +15,7 @@ import com.xiaomi.infra.pegasus.client.{
   SetItem
 }
 
-case class WriteConfig() extends Serializable {
+case class OnlineWriteConfig() extends Serializable {
   var metaServer: String = _
   var timeout: Long = 1000
   var asyncWorks: Int = 4
@@ -33,53 +33,53 @@ case class WriteConfig() extends Serializable {
   var bulkNum: Int = 10
   var flowControl: Int = 5
 
-  def setMetaServer(metaServer: String): WriteConfig = {
+  def metaServer(metaServer: String): OnlineWriteConfig = {
     this.metaServer = metaServer
     this
   }
 
-  def setTimeout(timeout: Long): WriteConfig = {
+  def timeout(timeout: Long): OnlineWriteConfig = {
     this.timeout = timeout
     this
   }
 
-  def setAsyncWorks(asyncWorks: Int): WriteConfig = {
+  def asyncWorks(asyncWorks: Int): OnlineWriteConfig = {
     this.asyncWorks = asyncWorks
     this
   }
 
-  def setCluster(cluster: String): WriteConfig = {
+  def clusterName(cluster: String): OnlineWriteConfig = {
     this.cluster = cluster
     this
   }
 
-  def setTable(table: String): WriteConfig = {
+  def tableName(table: String): OnlineWriteConfig = {
     this.table = table
     this
   }
 
-  def setBulkNum(bulkNum: Int): WriteConfig = {
+  def bulkNum(bulkNum: Int): OnlineWriteConfig = {
     this.bulkNum = bulkNum
     this
   }
 
-  def setFlowControl(flowControl: Int): WriteConfig = {
-    this.bulkNum = bulkNum
+  def flowControl(flowControl: Int): OnlineWriteConfig = {
+    this.flowControl = flowControl
     this
   }
 
-  def setTTLThreshold(ttl: Int): WriteConfig = {
+  def TTLThreshold(ttl: Int): OnlineWriteConfig = {
     this.ttlThreshold = ttl
     this
   }
 
 }
 
-class PegasusWriter(resource: RDD[SetItem]) extends Serializable {
+class PegasusOnlineWriter(resource: RDD[SetItem]) extends Serializable {
 
-  private val logger = LoggerFactory.getLogger(classOf[PegasusWriter])
+  private val logger = LoggerFactory.getLogger(classOf[PegasusOnlineWriter])
 
-  def saveAsOnlineData(writeConfig: WriteConfig): Unit = {
+  def saveAsOnlineData(writeConfig: OnlineWriteConfig): Unit = {
     resource.foreachPartition(i => {
       var totalCount = 0
       var validCount = 0
@@ -135,7 +135,7 @@ class PegasusWriter(resource: RDD[SetItem]) extends Serializable {
         )
 
       flowController.stop()
-      client.close()
+      PegasusClientFactory.closeSingletonClient()
     })
   }
 }
