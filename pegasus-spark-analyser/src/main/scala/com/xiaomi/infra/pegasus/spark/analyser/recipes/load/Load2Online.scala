@@ -45,7 +45,7 @@ object Load2Online {
     val conf: SparkConf = new SparkConf()
       .setAppName(
         "Convert to Online data into \"%s\" in clusters \"%s\""
-          .format(writeConfig.cluster, writeConfig.table)
+          .format(writeConfig.clusterName, writeConfig.tableName)
       )
       .setIfMissing("spark.master", "local[1]")
     val sc = new SparkContext(conf)

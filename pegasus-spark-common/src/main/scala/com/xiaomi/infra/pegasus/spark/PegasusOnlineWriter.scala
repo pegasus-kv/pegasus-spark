@@ -20,8 +20,8 @@ case class OnlineWriteConfig() extends Serializable {
   var timeout: Long = 1000
   var asyncWorks: Int = 4
 
-  var cluster: String = _
-  var table: String = _
+  var clusterName: String = _
+  var tableName: String = _
 
   // ttlThreshold(unit is seconds) must not be negative. less than the threshold won't be write,
   // default is 0.
@@ -48,13 +48,13 @@ case class OnlineWriteConfig() extends Serializable {
     this
   }
 
-  def clusterName(cluster: String): OnlineWriteConfig = {
-    this.cluster = cluster
+  def clusterName(clusterName: String): OnlineWriteConfig = {
+    this.clusterName = clusterName
     this
   }
 
   def tableName(table: String): OnlineWriteConfig = {
-    this.table = table
+    this.tableName = table
     this
   }
 
@@ -100,11 +100,11 @@ class PegasusOnlineWriter(resource: RDD[SetItem]) extends Serializable {
         .foreach(slice => {
           flowController.getToken()
           val validData =
-            slice.filter(i => i.ttlSeconds >= writeConfig.ttlThreshold)
+            slice.filter(i => i.ttlSeconds > writeConfig.ttlThreshold)
           var success = false
           while (!success) {
             try {
-              client.batchSet(writeConfig.table, validData.asJava)
+              client.batchSet(writeConfig.tableName, validData.asJava)
               success = true
             } catch {
               case ex: PException =>
