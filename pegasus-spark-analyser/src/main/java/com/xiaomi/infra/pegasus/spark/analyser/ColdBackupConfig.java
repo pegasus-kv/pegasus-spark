@@ -10,15 +10,15 @@ public class ColdBackupConfig extends Config {
   public String policyName = "every_day";
   public String coldBackupTime = "";
   public DataVersion dataVersion = new DataVersion1();
-  public int dbMaxFileOpenCount = 50;
-  public long dbReadAheadSize = 1 * MB_UNIT;
+  public int maxFileOpenCount = 50;
+  public long readAheadSize = 1 * MB_UNIT;
 
   public ColdBackupConfig(
       String remoteFsUrl, String remoteFsPort, String clusterName, String tableName)
       throws FDSException {
     super(remoteFsUrl, remoteFsPort, clusterName, tableName);
-    setMaxFileOpenCount(dbMaxFileOpenCount);
-    setReadAheadSize(dbReadAheadSize);
+    setMaxFileOpenCount(maxFileOpenCount);
+    setReadAheadSize(readAheadSize);
   }
 
   /**
@@ -68,7 +68,7 @@ public class ColdBackupConfig extends Config {
    * @return this
    */
   public ColdBackupConfig setMaxFileOpenCount(int maxFileOpenCount) {
-    this.dbMaxFileOpenCount = maxFileOpenCount;
+    this.maxFileOpenCount = maxFileOpenCount;
     rocksDBOptions.options.setMaxOpenFiles(maxFileOpenCount);
     return this;
   }
@@ -76,13 +76,13 @@ public class ColdBackupConfig extends Config {
   /**
    * readAhead size
    *
-   * @param dbReadAheadSize dbReadAheadSize is rocksdb concept which can control the readAheadSize,
+   * @param readAheadSize readAheadSize is rocksdb concept which can control the readAheadSize,
    *     default is 1MB, detail see https://github.com/facebook/rocksdb/wiki/Iterator#read-ahead
    * @return this
    */
-  public ColdBackupConfig setReadAheadSize(long dbReadAheadSize) {
-    this.dbReadAheadSize = dbReadAheadSize;
-    rocksDBOptions.readOptions.setReadaheadSize(dbReadAheadSize * MB_UNIT);
+  public ColdBackupConfig setReadAheadSize(long readAheadSize) {
+    this.readAheadSize = readAheadSize;
+    rocksDBOptions.readOptions.setReadaheadSize(this.readAheadSize * MB_UNIT);
     return this;
   }
 }
