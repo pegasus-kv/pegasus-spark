@@ -23,7 +23,7 @@ public class RocksDBOptions {
     } else if (remoteFsUrl.startsWith("hdfs://")) {
       env = new HdfsEnv(remoteFsUrl + ":" + remoteFsPort);
     } else {
-      throw new FDSException("the url is illegal!");
+      throw new FDSException("the URL must start with 'fds://' or 'hdfs://'");
     }
 
     Logger rocksDBLog =

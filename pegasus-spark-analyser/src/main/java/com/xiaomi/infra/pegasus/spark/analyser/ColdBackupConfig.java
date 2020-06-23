@@ -5,20 +5,20 @@ import com.xiaomi.infra.pegasus.spark.FDSException;
 
 public class ColdBackupConfig extends Config {
 
-  private static final long UNIT = 1024 * 1024L;
+  private static final long MB_UNIT = 1024 * 1024L;
 
   public String policyName = "every_day";
   public String coldBackupTime = "";
   public DataVersion dataVersion = new DataVersion1();
   public int dbMaxFileOpenCount = 50;
-  public long dbReadAheadSize = 1024 * 1024L;
+  public long dbReadAheadSize = 1 * MB_UNIT;
 
   public ColdBackupConfig(
       String remoteFsUrl, String remoteFsPort, String clusterName, String tableName)
       throws FDSException {
     super(remoteFsUrl, remoteFsPort, clusterName, tableName);
-    rocksDBOptions.options.setMaxOpenFiles(dbMaxFileOpenCount);
-    rocksDBOptions.readOptions.setReadaheadSize(dbReadAheadSize);
+    setMaxFileOpenCount(dbMaxFileOpenCount);
+    setReadAheadSize(dbReadAheadSize);
   }
 
   /**
@@ -49,7 +49,8 @@ public class ColdBackupConfig extends Config {
   /**
    * pegasus data version
    *
-   * @param dataVersion pegasus has different data versions, default is {@linkplain DataVersion1}
+   * @param dataVersion pegasus data has different data versions, default is {@linkplain
+   *     DataVersion1}
    * @return this
    */
   // TODO(wutao1): we can support auto detection of the data version.
@@ -61,14 +62,14 @@ public class ColdBackupConfig extends Config {
   /**
    * the max file open count
    *
-   * @param dbMaxFileOpenCount dbMaxFileOpenCount is rocksdb concept which can control the max file
-   *     open count, default is 50. detail see
+   * @param maxFileOpenCount maxFileOpenCount is rocksdb concept which can control the max file open
+   *     count, default is 50. detail see
    *     https://github.com/facebook/rocksdb/wiki/RocksDB-Tuning-Guide#general-options
    * @return this
    */
-  public ColdBackupConfig setDbMaxFileOpenCount(int dbMaxFileOpenCount) {
-    this.dbMaxFileOpenCount = dbMaxFileOpenCount;
-    rocksDBOptions.options.setMaxOpenFiles(dbMaxFileOpenCount);
+  public ColdBackupConfig setMaxFileOpenCount(int maxFileOpenCount) {
+    this.dbMaxFileOpenCount = maxFileOpenCount;
+    rocksDBOptions.options.setMaxOpenFiles(maxFileOpenCount);
     return this;
   }
 
@@ -79,9 +80,9 @@ public class ColdBackupConfig extends Config {
    *     default is 1MB, detail see https://github.com/facebook/rocksdb/wiki/Iterator#read-ahead
    * @return this
    */
-  public ColdBackupConfig setDbReadAheadSize(long dbReadAheadSize) {
+  public ColdBackupConfig setReadAheadSize(long dbReadAheadSize) {
     this.dbReadAheadSize = dbReadAheadSize;
-    rocksDBOptions.readOptions.setReadaheadSize(dbReadAheadSize * UNIT);
+    rocksDBOptions.readOptions.setReadaheadSize(dbReadAheadSize * MB_UNIT);
     return this;
   }
 }
