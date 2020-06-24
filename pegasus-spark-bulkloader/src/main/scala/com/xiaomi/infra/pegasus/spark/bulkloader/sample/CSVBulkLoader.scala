@@ -21,10 +21,10 @@ object CSVBulkLoader {
     val config = new BulkLoaderConfig()
 
     config
-      .setDistinct(false)
-      .setRemote("", "","","","")
+      .enableDistinct(false)
+      .setRemote("", "", "", "", "")
       .setTableInfo("C2", "T2")
-      // TODO tableId and partitionCount should be get just by clusterName and tableName
+      // TODO tableId and tablePartitionCount should be get just by clusterName and tableName
       .setTableId(20)
       .setTablePartitionCount(32)
 
@@ -33,9 +33,11 @@ object CSVBulkLoader {
     sc.textFile("data.csv")
       .map(i => {
         val lines = i.split(",")
-        (RocksDBRecord
-          .create(lines(0), lines(1), lines(2)),
-          "")
+        (
+          RocksDBRecord
+            .create(lines(0), lines(1), lines(2)),
+          ""
+        )
       })
       .saveAsPegasusFile(config)
   }

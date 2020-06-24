@@ -14,9 +14,11 @@ object RocksDBRecord {
     val hashKeyLen =
       if (hashKey == null) 0
       else hashKey.length
-    Validate.isTrue(hashKeyLen < 65535,
-                    "length of hash key must be less than UINT16_MAX",
-                    new Array[AnyRef](0))
+    Validate.isTrue(
+      hashKeyLen < 65535,
+      "length of hash key must be less than UINT16_MAX",
+      new Array[AnyRef](0)
+    )
     val sortKeyLen =
       if (sortKey == null) 0
       else sortKey.length
@@ -49,13 +51,17 @@ object RocksDBRecord {
   }
 
   def create(hashKey: String, sortKey: String, value: String): RocksDBRecord = {
-    new RocksDBRecord(generateKey(hashKey.getBytes, sortKey.getBytes),
-                      generateValue(value.getBytes))
+    new RocksDBRecord(
+      generateKey(hashKey.getBytes, sortKey.getBytes),
+      generateValue(value.getBytes)
+    )
   }
 
-  def create(hashKey: Array[Byte],
-             sortKey: Array[Byte],
-             value: Array[Byte]): RocksDBRecord = {
+  def create(
+      hashKey: Array[Byte],
+      sortKey: Array[Byte],
+      value: Array[Byte]
+  ): RocksDBRecord = {
     new RocksDBRecord(generateKey(hashKey, sortKey), generateValue(value))
   }
 

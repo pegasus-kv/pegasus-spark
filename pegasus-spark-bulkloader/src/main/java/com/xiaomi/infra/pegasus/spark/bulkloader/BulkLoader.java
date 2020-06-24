@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.github.rholder.retry.RetryException;
 import com.xiaomi.infra.galaxy.fds.client.exception.GalaxyFDSClientException;
 import com.xiaomi.infra.pegasus.spark.FDSService;
-import com.xiaomi.infra.pegasus.spark.PegasusException;
+import com.xiaomi.infra.pegasus.spark.PegasusSparkException;
 import com.xiaomi.infra.pegasus.spark.RocksDBOptions;
 import com.xiaomi.infra.pegasus.spark.Tools;
 import com.xiaomi.infra.pegasus.spark.bulkloader.DataMetaInfo.FileInfo;
@@ -53,7 +53,8 @@ public class BulkLoader {
   private Iterator<Tuple2<RocksDBRecord, String>> dataResourceIterator;
 
   public BulkLoader(
-      BulkLoaderConfig config, Iterator<Tuple2<RocksDBRecord, String>> iterator, int partitionId) {
+      BulkLoaderConfig config, Iterator<Tuple2<RocksDBRecord, String>> iterator, int partitionId)
+      throws PegasusSparkException {
 
     String dataPathPrefix =
         config.remoteFsUrl
@@ -77,27 +78,27 @@ public class BulkLoader {
     this.dataMetaInfo = new DataMetaInfo();
 
     this.fdsService = new FDSService(config);
-    this.dataWriter = new DataWriter(new RocksDBOptions(config));
+    this.dataWriter = new DataWriter(new RocksDBOptions(config.remoteFsUrl, config.remoteFsPort));
   }
 
-  void start() throws PegasusException {
+  void start() throws PegasusSparkException {
     try {
       createBulkLoadInfoFile();
       createDataFile(dataResourceIterator);
       createBulkLoadMetaDataFile();
     } catch (Exception e) {
-      throw new PegasusException("generated bulkloader data failed, please check and retry!");
+      throw new PegasusSparkException("generated bulkloader data failed, please check and retry!");
     }
   }
 
-  private void createBulkLoadInfoFile() throws PegasusException {
+  private void createBulkLoadInfoFile() throws PegasusSparkException {
     if (partitionId == 0) {
       try (BufferedWriter bulkLoadInfoWriter = fdsService.getWriter(bulkLoadInfoPath)) {
         bulkLoadInfoWriter.write(JSON.toJSONString(bulkLoadInfo));
         LOG.info("The bulkLoadInfo file is created successful by partition 0.");
       } catch (IOException e) {
         LOG.warn("The bulkLoadInfo file is created failed by partition 0 failed");
-        throw new PegasusException("create bulkLoadInfo failed!", e);
+        throw new PegasusSparkException("create bulkLoadInfo failed!", e);
       }
     } else {
       LOG.info("The bulkLoadInfo file is created only by partition 0.");
@@ -105,7 +106,7 @@ public class BulkLoader {
   }
 
   private void createDataFile(Iterator<Tuple2<RocksDBRecord, String>> iterator)
-      throws PegasusException {
+      throws PegasusSparkException {
     long start = System.currentTimeMillis();
     long count = 0;
 
@@ -129,7 +130,7 @@ public class BulkLoader {
     if (curFileSize != 0) {
       dataWriter.closeWithRetry();
     } else {
-      // dataWriter will be throw exception when closed if dataWriter don't start any kv,
+      // dataWriter will be throw exception when closed if dataWriter don't write any kv,
       dataWriter.writeDefaultKV();
       dataWriter.closeWithRetry();
     }
@@ -143,7 +144,7 @@ public class BulkLoader {
             + curFileIndex);
   }
 
-  private void createBulkLoadMetaDataFile() throws IOException, PegasusException {
+  private void createBulkLoadMetaDataFile() throws IOException, PegasusSparkException {
     long start = System.currentTimeMillis();
     List<Future> taskList = new ArrayList<>();
     AtomicBoolean isSuccess = new AtomicBoolean(true);
@@ -166,12 +167,12 @@ public class BulkLoader {
       try {
         task.get();
       } catch (InterruptedException | ExecutionException e) {
-        throw new PegasusException("create metaDataInfo failed!", e);
+        throw new PegasusSparkException("create metaDataInfo failed!", e);
       }
     }
 
     if (!isSuccess.get()) {
-      throw new PegasusException("create metaDataInfo failed!");
+      throw new PegasusSparkException("create metaDataInfo failed!");
     }
 
     dataMetaInfo.file_total_size = totalSize.get();

@@ -1,12 +1,45 @@
 package com.xiaomi.infra.pegasus.spark.bulkloader;
 
 import com.xiaomi.infra.pegasus.spark.Config;
+import com.xiaomi.infra.pegasus.spark.PegasusSparkException;
 
 public class BulkLoaderConfig extends Config {
 
   public String dataPathRoot = "/pegasus-bulkloader";
+  // todo(jiashuo): tableId, tablePartitionCount should be automatically get by clusterName and
+  // tableName
+  public int tableId;
+  public int tablePartitionCount;
   public boolean isDistinct = false;
   public boolean isSort = true;
+
+  public BulkLoaderConfig(
+      String remoteFsUrl, String remoteFsPort, String clusterName, String tableName)
+      throws PegasusSparkException {
+    super(remoteFsUrl, remoteFsPort, clusterName, tableName);
+  }
+
+  /**
+   * table id
+   *
+   * @param tableId
+   * @return this
+   */
+  public BulkLoaderConfig setTableId(int tableId) {
+    this.tableId = tableId;
+    return this;
+  }
+
+  /**
+   * table partition count
+   *
+   * @param tablePartitionCount
+   * @return this
+   */
+  public BulkLoaderConfig setTablePartitionCount(int tablePartitionCount) {
+    this.tablePartitionCount = tablePartitionCount;
+    return this;
+  }
 
   /**
    * set the bulkloader data root path, default is "/pegasus-bulkloader"
@@ -25,7 +58,7 @@ public class BulkLoaderConfig extends Config {
    * @param distinct true or false, default is "false"
    * @return this
    */
-  public BulkLoaderConfig setDistinct(boolean distinct) {
+  public BulkLoaderConfig enableDistinct(boolean distinct) {
     isDistinct = distinct;
     return this;
   }
@@ -36,7 +69,7 @@ public class BulkLoaderConfig extends Config {
    * @param sort true or false, default is "true"
    * @return this
    */
-  public BulkLoaderConfig setSort(boolean sort) {
+  public BulkLoaderConfig enableSort(boolean sort) {
     isSort = sort;
     return this;
   }

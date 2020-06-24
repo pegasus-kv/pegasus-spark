@@ -4,66 +4,27 @@ import java.io.Serializable;
 
 public class Config implements Serializable {
 
-  private static final long UNIT = 1024 * 1024L;
-
-  public String remoteFsAccessKey;
-  public String remoteFsAccessSecret;
-  public String remoteFsBucketName;
-  public String remoteFsEndPoint;
-
   public String remoteFsUrl;
   public String remoteFsPort;
 
   public String clusterName;
   public String tableName;
-  public int tableId;
-  public int tablePartitionCount;
 
-  public int dbMaxFileOpenCount = 50;
-  public long dbReadAheadSize = 1024 * 1024L;
+  public RocksDBOptions rocksDBOptions;
 
-  public Config setRemote(String url, String port) {
-    this.remoteFsUrl = url;
-    this.remoteFsPort = port;
-    return this;
-  }
+  // todo(jiashuo): the FDS options will be refactored
+  public String remoteFsAccessKey;
+  public String remoteFsAccessSecret;
+  public String remoteFsBucketName;
+  public String remoteFsEndPoint;
 
-  public Config setRemote(
-      String accessKey, String accessSecret, String bucketName, String endPoint, String port) {
-    this.remoteFsAccessKey = accessKey;
-    this.remoteFsAccessSecret = accessSecret;
-    this.remoteFsBucketName = bucketName;
-    this.remoteFsEndPoint = endPoint;
-
-    this.remoteFsUrl =
-        "fds://" + accessKey + ":" + accessSecret + "@" + bucketName + "." + endPoint;
-    this.remoteFsPort = port;
-    return this;
-  }
-
-  public Config setTableInfo(String clusterName, String tableName) {
+  public Config(String remoteFsUrl, String remoteFsPort, String clusterName, String tableName)
+      throws PegasusSparkException {
+    this.remoteFsUrl = remoteFsUrl;
+    this.remoteFsPort = remoteFsPort;
     this.clusterName = clusterName;
     this.tableName = tableName;
-    return this;
-  }
 
-  public Config setTableId(int tableId) {
-    this.tableId = tableId;
-    return this;
-  }
-
-  public Config setTablePartitionCount(int tablePartitionCount) {
-    this.tablePartitionCount = tablePartitionCount;
-    return this;
-  }
-
-  public Config setDbMaxFileOpenCount(int dbMaxFileOpenCount) {
-    this.dbMaxFileOpenCount = dbMaxFileOpenCount;
-    return this;
-  }
-
-  public Config setDbReadAheadSize(long dbReadAheadSize) {
-    this.dbReadAheadSize = dbReadAheadSize * UNIT;
-    return this;
+    this.rocksDBOptions = new RocksDBOptions(remoteFsUrl, remoteFsPort);
   }
 }

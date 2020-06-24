@@ -28,5 +28,6 @@ object CustomImplicits {
     * @param rdd
     * @return
     */
-  implicit def convertFromByte(rdd: RDD[(RocksDBRecord,String)]): RocksDBRDD = new RocksDBRDD(rdd)
+  implicit def convertFromByte(rdd: RDD[(RocksDBRecord, String)]): RocksDBRDD =
+    new RocksDBRDD(rdd)
 }

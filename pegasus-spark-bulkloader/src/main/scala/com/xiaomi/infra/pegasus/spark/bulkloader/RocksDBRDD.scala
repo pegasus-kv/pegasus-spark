@@ -15,10 +15,12 @@ class RocksDBRDD(rdd: RDD[(RocksDBRecord, String)]) {
       rdd
         .distinct()
         .repartitionAndSortWithinPartitions(
-          new PegasusHashPartitioner(config.tablePartitionCount))
+          new PegasusHashPartitioner(config.tablePartitionCount)
+        )
     } else
       rdd.repartitionAndSortWithinPartitions(
-        new PegasusHashPartitioner(config.tablePartitionCount))
+        new PegasusHashPartitioner(config.tablePartitionCount)
+      )
 
     sstRDD.foreachPartition(i => {
       RocksDB.loadLibrary()

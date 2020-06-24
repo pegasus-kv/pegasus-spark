@@ -30,18 +30,18 @@ public class FDSService implements Serializable {
     this.config = config;
   }
 
-  public BufferedReader getReader(String filePath) throws PegasusException {
+  public BufferedReader getReader(String filePath) throws PegasusSparkException {
     try {
       InputStream inputStream =
           FileSystem.get(new URI(filePath), new Configuration()).open(new Path(filePath));
       return new BufferedReader(new InputStreamReader(inputStream));
     } catch (Exception e) {
       LOG.error("get filePath reader failed from " + filePath, e);
-      throw new PegasusException("get filePath reader failed, [url: " + filePath + "]" + e);
+      throw new PegasusSparkException("get filePath reader failed, [url: " + filePath + "]" + e);
     }
   }
 
-  public BufferedWriter getWriter(String filePath) throws PegasusException {
+  public BufferedWriter getWriter(String filePath) throws PegasusSparkException {
     try {
       OutputStreamWriter outputStreamWriter =
           new OutputStreamWriter(
@@ -49,7 +49,7 @@ public class FDSService implements Serializable {
       return new BufferedWriter(outputStreamWriter);
     } catch (Exception e) {
       LOG.error("get filePath writer failed from " + filePath, e);
-      throw new PegasusException("get filePath writer failed, [url: " + filePath + "]" + e);
+      throw new PegasusSparkException("get filePath writer failed, [url: " + filePath + "]" + e);
     }
   }
 

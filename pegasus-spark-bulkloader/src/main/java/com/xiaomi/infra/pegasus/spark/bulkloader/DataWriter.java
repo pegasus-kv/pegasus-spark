@@ -1,7 +1,7 @@
 package com.xiaomi.infra.pegasus.spark.bulkloader;
 
 import com.github.rholder.retry.RetryException;
-import com.xiaomi.infra.pegasus.spark.PegasusException;
+import com.xiaomi.infra.pegasus.spark.PegasusSparkException;
 import com.xiaomi.infra.pegasus.spark.RocksDBOptions;
 import com.xiaomi.infra.pegasus.spark.Tools;
 import java.util.concurrent.ExecutionException;
@@ -10,10 +10,7 @@ import org.apache.commons.logging.LogFactory;
 import org.rocksdb.RocksDBException;
 import org.rocksdb.SstFileWriter;
 
-/**
- * The wrapper of sstFileWriter of rocksdbjava
- *
- */
+/** The wrapper of sstFileWriter of rocksdbjava */
 public class DataWriter {
 
   private static final Log LOG = LogFactory.getLog(DataWriter.class);
@@ -31,12 +28,12 @@ public class DataWriter {
     this.sstFileWriter = new SstFileWriter(rocksDBOptions.envOptions, rocksDBOptions.options);
   }
 
-  public int writeWithRetry(byte[] key, byte[] value) throws PegasusException {
+  public int writeWithRetry(byte[] key, byte[] value) throws PegasusSparkException {
     try {
       return Tools.<Integer>getDefaultRetryer().call(() -> write(key, value));
     } catch (ExecutionException | RetryException e) {
       LOG.warn("sstFileWriter put key-value[key=" + new String(key) + "] failed!");
-      throw new PegasusException(
+      throw new PegasusSparkException(
           "sstFileWriter put key-value[key=" + new String(key) + "] failed!", e);
     }
   }
@@ -47,16 +44,16 @@ public class DataWriter {
   }
 
   /** only for writing "NULL-NULL" kv, see {@link BulkLoader} createDataFile method */
-  public void writeDefaultKV() throws PegasusException {
+  public void writeDefaultKV() throws PegasusSparkException {
     writeWithRetry(PEGASUS_NULL_KEY, PEGASUS_NULL_VALUE);
   }
 
-  public void openWithRetry(String path) throws PegasusException {
+  public void openWithRetry(String path) throws PegasusSparkException {
     try {
       Tools.<Boolean>getDefaultRetryer().call(() -> open(path));
     } catch (ExecutionException | RetryException e) {
       LOG.warn("sstFileWriter open [" + path + "] failed!");
-      throw new PegasusException("sstFileWriter open [" + path + "] failed!", e);
+      throw new PegasusSparkException("sstFileWriter open [" + path + "] failed!", e);
     }
   }
 
@@ -65,12 +62,12 @@ public class DataWriter {
     return true;
   }
 
-  public void closeWithRetry() throws PegasusException {
+  public void closeWithRetry() throws PegasusSparkException {
     try {
       Tools.<Boolean>getDefaultRetryer().call(this::close);
     } catch (ExecutionException | RetryException e) {
       LOG.warn("sstFileWriter close failed!");
-      throw new PegasusException("sstFileWriter close failed!", e);
+      throw new PegasusSparkException("sstFileWriter close failed!", e);
     }
   }
 
