@@ -1,6 +1,5 @@
 package com.xiaomi.infra.pegasus.spark.analyser;
 
-import com.xiaomi.infra.pegasus.spark.FSConfig;
 import java.io.Serializable;
 import java.util.Map;
 import org.rocksdb.RocksIterator;
@@ -11,7 +10,7 @@ public interface PegasusLoader extends Serializable {
 
   Map<Integer, String> getCheckpointUrls();
 
-  FSConfig getConfig();
+  ColdBackupConfig getConfig();
 
   PegasusRecord restoreRecord(RocksIterator rocksIterator);
 }

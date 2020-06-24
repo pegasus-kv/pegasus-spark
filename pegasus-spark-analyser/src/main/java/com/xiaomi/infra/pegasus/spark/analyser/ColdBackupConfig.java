@@ -1,63 +1,48 @@
 package com.xiaomi.infra.pegasus.spark.analyser;
 
-import com.xiaomi.infra.pegasus.spark.FSConfig;
-import com.xiaomi.infra.pegasus.spark.PegasusSparkException;
+import com.xiaomi.infra.pegasus.spark.FDSConfig;
+import com.xiaomi.infra.pegasus.spark.FDSFileSystem;
+import com.xiaomi.infra.pegasus.spark.HDFSConfig;
+import com.xiaomi.infra.pegasus.spark.HDFSFileSystem;
+import com.xiaomi.infra.pegasus.spark.RemoteFileSystem;
+import java.io.Serializable;
 
-public class ColdBackupConfig extends FSConfig {
-
+public class ColdBackupConfig implements Serializable {
   private static final long MB_UNIT = 1024 * 1024L;
 
-  public String policyName = "every_day";
-  public String coldBackupTime = "";
+  private static final int DEFAULT_FILE_OPEN_COUNT = 50;
+  private static final long DEFAULT_READ_AHEAD_SIZE = 1 * MB_UNIT;
+
+  public String remoteFileSystemURL;
+  public String remoteFileSystemPort;
+
+  public long readAheadSize;
+  public int fileOpenCount;
+
   public String clusterName;
   public String tableName;
+  public String policyName;
+  public String coldBackupTime;
 
   public DataVersion dataVersion = new DataVersion1();
-  public int maxFileOpenCount = 50;
-  public long readAheadSize = 1 * MB_UNIT;
 
-  /**
-   * the constructor can be used for fds and hdfs
-   *
-   * @param remoteFsUrl
-   * @param remoteFsPort
-   * @throws PegasusSparkException
-   */
-  public ColdBackupConfig(String remoteFsUrl, String remoteFsPort) throws PegasusSparkException {
-    super(remoteFsUrl, remoteFsPort);
-    setMaxFileOpenCount(maxFileOpenCount);
-    setReadAheadSize(readAheadSize);
+  public RemoteFileSystem remoteFileSystem;
+
+  public ColdBackupConfig(HDFSConfig hdfsConfig, String clusterName, String tableName) {
+    initConfig(hdfsConfig, clusterName, tableName);
+    this.remoteFileSystem = new HDFSFileSystem();
   }
 
-  /**
-   * the contructor only be used for fds
-   *
-   * @param accessKey
-   * @param accessSecret
-   * @param bucketName
-   * @param endPoint
-   * @param port
-   * @throws PegasusSparkException
-   */
-  public ColdBackupConfig(
-      String accessKey, String accessSecret, String bucketName, String endPoint, String port)
-      throws PegasusSparkException {
-    super(accessKey, accessSecret, bucketName, endPoint, port);
-    setMaxFileOpenCount(maxFileOpenCount);
-    setReadAheadSize(readAheadSize);
+  public ColdBackupConfig(FDSConfig fdsConfig, String clusterName, String tableName) {
+    initConfig(fdsConfig, clusterName, tableName);
+    this.remoteFileSystem = new FDSFileSystem(fdsConfig);
   }
 
-  /**
-   * the cluster name and table name of target data
-   *
-   * @param clusterName
-   * @param tableName
-   * @return
-   */
-  public ColdBackupConfig setTableInfo(String clusterName, String tableName) {
+  private void initConfig(HDFSConfig config, String clusterName, String tableName) {
+    this.remoteFileSystemURL = config.remoteFsUrl;
     this.clusterName = clusterName;
     this.tableName = tableName;
-    return this;
+    setReadOptions(DEFAULT_FILE_OPEN_COUNT, DEFAULT_READ_AHEAD_SIZE);
   }
 
   /**
@@ -99,29 +84,14 @@ public class ColdBackupConfig extends FSConfig {
   }
 
   /**
-   * the max file open count
-   *
    * @param maxFileOpenCount maxFileOpenCount is rocksdb concept which can control the max file open
    *     count, default is 50. detail see
    *     https://github.com/facebook/rocksdb/wiki/RocksDB-Tuning-Guide#general-options
-   * @return this
-   */
-  public ColdBackupConfig setMaxFileOpenCount(int maxFileOpenCount) {
-    this.maxFileOpenCount = maxFileOpenCount;
-    rocksDBOptions.options.setMaxOpenFiles(maxFileOpenCount);
-    return this;
-  }
-
-  /**
-   * readAhead size
-   *
    * @param readAheadSize readAheadSize is rocksdb concept which can control the readAheadSize,
    *     default is 1MB, detail see https://github.com/facebook/rocksdb/wiki/Iterator#read-ahead
-   * @return this
    */
-  public ColdBackupConfig setReadAheadSize(long readAheadSize) {
-    this.readAheadSize = readAheadSize;
-    rocksDBOptions.readOptions.setReadaheadSize(this.readAheadSize * MB_UNIT);
-    return this;
+  public void setReadOptions(int maxFileOpenCount, long readAheadSize) {
+    this.readAheadSize = readAheadSize * MB_UNIT;
+    this.fileOpenCount = maxFileOpenCount;
   }
 }

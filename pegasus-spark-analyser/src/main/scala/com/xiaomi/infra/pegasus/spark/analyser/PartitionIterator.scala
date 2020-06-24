@@ -34,7 +34,16 @@ private[analyser] class PartitionIterator private (
     this(context, pid)
 
     pegasusLoader = snapshotLoader
-    rocksDBOptions = snapshotLoader.getConfig.rocksDBOptions
+    rocksDBOptions = new RocksDBOptions(
+      snapshotLoader.getConfig.remoteFileSystemURL,
+      snapshotLoader.getConfig.remoteFileSystemPort
+    )
+    rocksDBOptions.options.setMaxOpenFiles(
+      snapshotLoader.getConfig.fileOpenCount
+    )
+    rocksDBOptions.readOptions.setReadaheadSize(
+      snapshotLoader.getConfig.readAheadSize
+    )
     val checkPointUrls = snapshotLoader.getCheckpointUrls
     val dbPath = checkPointUrls.get(pid)
     rocksDB = RocksDB.openReadOnly(rocksDBOptions.options, dbPath)
