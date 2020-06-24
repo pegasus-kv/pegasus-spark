@@ -27,9 +27,9 @@ public class FDSFileSystem extends HDFSFileSystem {
         new GalaxyFDSClient(
             new BasicFDSCredential(fdsConfig.remoteFsAccessKey, fdsConfig.remoteFsAccessSecret),
             fdsClientConfiguration);
-    FDSObject fdsObject = null;
+
     try {
-      fdsObject =
+      FDSObject fdsObject =
           fdsClient.getObject(
               fdsConfig.remoteFsBucketName, filePath.split(fdsConfig.remoteFsEndPoint + "/")[1]);
       FDSObjectMetadata metaData = fdsObject.getObjectMetadata();
