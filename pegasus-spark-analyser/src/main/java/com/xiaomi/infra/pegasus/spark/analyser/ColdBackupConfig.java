@@ -11,7 +11,7 @@ public class ColdBackupConfig implements Serializable {
   private static final long MB_UNIT = 1024 * 1024L;
 
   private static final int DEFAULT_FILE_OPEN_COUNT = 50;
-  private static final long DEFAULT_READ_AHEAD_SIZE = 1;
+  private static final long DEFAULT_READ_AHEAD_SIZE_MB = 1;
 
   public String remoteFileSystemURL;
   public String remoteFileSystemPort;
@@ -43,7 +43,7 @@ public class ColdBackupConfig implements Serializable {
     this.remoteFileSystemPort = config.remoteFsPort;
     this.clusterName = clusterName;
     this.tableName = tableName;
-    setReadOptions(DEFAULT_FILE_OPEN_COUNT, DEFAULT_READ_AHEAD_SIZE);
+    setReadOptions(DEFAULT_FILE_OPEN_COUNT, DEFAULT_READ_AHEAD_SIZE_MB);
   }
 
   /**
