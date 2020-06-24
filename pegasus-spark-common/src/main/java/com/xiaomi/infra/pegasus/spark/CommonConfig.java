@@ -5,9 +5,10 @@ import java.io.Serializable;
 /** The config class contains the common config for coldBackupConfig and bulkLoadConfig */
 public class CommonConfig implements Serializable {
 
+  public RemoteFileSystem remoteFileSystem;
+
   public String remoteFileSystemURL;
   public String remoteFileSystemPort;
-  public RemoteFileSystem remoteFileSystem;
   public String clusterName;
   public String tableName;
 
