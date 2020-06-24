@@ -40,6 +40,7 @@ public class ColdBackupConfig implements Serializable {
 
   private void initConfig(HDFSConfig config, String clusterName, String tableName) {
     this.remoteFileSystemURL = config.remoteFsUrl;
+    this.remoteFileSystemPort = config.remoteFsPort;
     this.clusterName = clusterName;
     this.tableName = tableName;
     setReadOptions(DEFAULT_FILE_OPEN_COUNT, DEFAULT_READ_AHEAD_SIZE);

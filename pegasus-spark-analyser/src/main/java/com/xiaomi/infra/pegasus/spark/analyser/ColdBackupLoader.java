@@ -17,7 +17,7 @@ public class ColdBackupLoader implements PegasusLoader {
 
   private static final Log LOG = LogFactory.getLog(ColdBackupLoader.class);
 
-  private ColdBackupConfig globalConfig;
+  private ColdBackupConfig coldBackupConfig;
   private RemoteFileSystem remoteFileSystem;
   private Map<Integer, String> checkpointUrls = new HashMap<>();
   private int partitionCount;
@@ -25,25 +25,25 @@ public class ColdBackupLoader implements PegasusLoader {
   private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
   public ColdBackupLoader(ColdBackupConfig config) throws PegasusSparkException {
-    globalConfig = config;
+    coldBackupConfig = config;
     remoteFileSystem = config.remoteFileSystem;
 
     String idPrefix =
-        config.remoteFileSystemURL
+        coldBackupConfig.remoteFileSystemURL
             + "/"
-            + globalConfig.clusterName
+            + coldBackupConfig.clusterName
             + "/"
-            + globalConfig.policyName
+            + coldBackupConfig.policyName
             + "/";
 
     String idPath;
-    if (!config.coldBackupTime.equals("")) {
+    if (!config.coldBackupTime.isEmpty()) {
       idPath = getPolicyId(idPrefix, config.coldBackupTime);
     } else {
       idPath = getLatestPolicyId(idPrefix);
     }
 
-    String tableNameAndId = getTableNameAndId(idPath, globalConfig.tableName);
+    String tableNameAndId = getTableNameAndId(idPath, coldBackupConfig.tableName);
     String metaPrefix = idPath + "/" + tableNameAndId;
 
     partitionCount = getCount(metaPrefix);
@@ -54,7 +54,7 @@ public class ColdBackupLoader implements PegasusLoader {
 
   @Override
   public ColdBackupConfig getConfig() {
-    return globalConfig;
+    return coldBackupConfig;
   }
 
   @Override
@@ -69,7 +69,7 @@ public class ColdBackupLoader implements PegasusLoader {
 
   @Override
   public PegasusRecord restoreRecord(RocksIterator rocksIterator) {
-    return globalConfig.dataVersion.getPegasusRecord(rocksIterator);
+    return coldBackupConfig.dataVersion.getPegasusRecord(rocksIterator);
   }
 
   private void initCheckpointUrls(String prefix, int counter) throws PegasusSparkException {
@@ -80,7 +80,7 @@ public class ColdBackupLoader implements PegasusLoader {
       try (BufferedReader bufferedReader = remoteFileSystem.getReader(currentCheckpointUrl)) {
         while ((chkpt = bufferedReader.readLine()) != null) {
           String url =
-              prefix.split(globalConfig.remoteFileSystemURL)[1] + "/" + counter + "/" + chkpt;
+              prefix.split(coldBackupConfig.remoteFileSystemURL)[1] + "/" + counter + "/" + chkpt;
           checkpointUrls.put(counter, url);
         }
         counter--;
