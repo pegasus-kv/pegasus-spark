@@ -72,18 +72,18 @@ public class ColdBackupLoader implements PegasusLoader {
     return coldBackupConfig.dataVersion.getPegasusRecord(rocksIterator);
   }
 
-  private void initCheckpointUrls(String prefix, int counter) throws PegasusSparkException {
+  private void initCheckpointUrls(String prefix, int count) throws PegasusSparkException {
     String chkpt;
-    counter--;
-    while (counter >= 0) {
-      String currentCheckpointUrl = prefix + "/" + counter + "/" + "current_checkpoint";
+    count--;
+    while (count >= 0) {
+      String currentCheckpointUrl = prefix + "/" + count + "/" + "current_checkpoint";
       try (BufferedReader bufferedReader = remoteFileSystem.getReader(currentCheckpointUrl)) {
         while ((chkpt = bufferedReader.readLine()) != null) {
           String url =
-              prefix.split(coldBackupConfig.remoteFileSystemURL)[1] + "/" + counter + "/" + chkpt;
-          checkpointUrls.put(counter, url);
+              prefix.split(coldBackupConfig.remoteFileSystemURL)[1] + "/" + count + "/" + chkpt;
+          checkpointUrls.put(count, url);
         }
-        counter--;
+        count--;
       } catch (IOException e) {
         LOG.error("init checkPoint urls failed from " + currentCheckpointUrl);
         throw new PegasusSparkException(
