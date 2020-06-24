@@ -1,48 +1,30 @@
 package com.xiaomi.infra.pegasus.spark.analyser;
 
+import com.xiaomi.infra.pegasus.spark.CommonConfig;
 import com.xiaomi.infra.pegasus.spark.FDSConfig;
-import com.xiaomi.infra.pegasus.spark.FDSFileSystem;
 import com.xiaomi.infra.pegasus.spark.HDFSConfig;
-import com.xiaomi.infra.pegasus.spark.HDFSFileSystem;
-import com.xiaomi.infra.pegasus.spark.RemoteFileSystem;
 import java.io.Serializable;
 
-public class ColdBackupConfig implements Serializable {
+public class ColdBackupConfig extends CommonConfig implements Serializable {
   private static final long MB_UNIT = 1024 * 1024L;
 
   private static final int DEFAULT_FILE_OPEN_COUNT = 50;
   private static final long DEFAULT_READ_AHEAD_SIZE_MB = 1;
 
-  public String remoteFileSystemURL;
-  public String remoteFileSystemPort;
-
   public long readAheadSize;
   public int fileOpenCount;
-
-  public String clusterName;
-  public String tableName;
   public String policyName;
   public String coldBackupTime;
 
   public DataVersion dataVersion = new DataVersion1();
 
-  public RemoteFileSystem remoteFileSystem;
-
   public ColdBackupConfig(HDFSConfig hdfsConfig, String clusterName, String tableName) {
-    initConfig(hdfsConfig, clusterName, tableName);
-    this.remoteFileSystem = new HDFSFileSystem();
+    super(hdfsConfig, clusterName, tableName);
+    setReadOptions(DEFAULT_FILE_OPEN_COUNT, DEFAULT_READ_AHEAD_SIZE_MB);
   }
 
   public ColdBackupConfig(FDSConfig fdsConfig, String clusterName, String tableName) {
-    initConfig(fdsConfig, clusterName, tableName);
-    this.remoteFileSystem = new FDSFileSystem(fdsConfig);
-  }
-
-  private void initConfig(HDFSConfig config, String clusterName, String tableName) {
-    this.remoteFileSystemURL = config.remoteFsUrl;
-    this.remoteFileSystemPort = config.remoteFsPort;
-    this.clusterName = clusterName;
-    this.tableName = tableName;
+    super(fdsConfig, clusterName, tableName);
     setReadOptions(DEFAULT_FILE_OPEN_COUNT, DEFAULT_READ_AHEAD_SIZE_MB);
   }
 
@@ -91,8 +73,9 @@ public class ColdBackupConfig implements Serializable {
    * @param readAheadSize readAheadSize is rocksdb concept which can control the readAheadSize,
    *     default is 1MB, detail see https://github.com/facebook/rocksdb/wiki/Iterator#read-ahead
    */
-  public void setReadOptions(int maxFileOpenCount, long readAheadSize) {
+  public ColdBackupConfig setReadOptions(int maxFileOpenCount, long readAheadSize) {
     this.readAheadSize = readAheadSize * MB_UNIT;
     this.fileOpenCount = maxFileOpenCount;
+    return this;
   }
 }
