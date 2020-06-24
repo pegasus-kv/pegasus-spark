@@ -6,7 +6,7 @@ public class HDFSConfig implements Serializable {
   public String remoteFsUrl;
   public String remoteFsPort;
 
-  public HDFSConfig(String remoteFsUrl, String remoteFsPort) throws PegasusSparkException {
+  public HDFSConfig(String remoteFsUrl, String remoteFsPort) {
     this.remoteFsUrl = remoteFsUrl;
     this.remoteFsPort = remoteFsPort;
   }
