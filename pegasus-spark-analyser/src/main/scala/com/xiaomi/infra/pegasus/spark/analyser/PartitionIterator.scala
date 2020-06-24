@@ -1,7 +1,7 @@
 package com.xiaomi.infra.pegasus.spark.analyser
 
 import com.xiaomi.infra.pegasus.spark
-import com.xiaomi.infra.pegasus.spark.{Config, RocksDBOptions}
+import com.xiaomi.infra.pegasus.spark.{FSConfig, RocksDBOptions}
 import org.apache.commons.logging.LogFactory
 import org.apache.spark.TaskContext
 import org.rocksdb.{RocksDB, RocksIterator}

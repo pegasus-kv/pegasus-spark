@@ -1,24 +1,63 @@
 package com.xiaomi.infra.pegasus.spark.analyser;
 
-import com.xiaomi.infra.pegasus.spark.Config;
-import com.xiaomi.infra.pegasus.spark.FDSException;
+import com.xiaomi.infra.pegasus.spark.FSConfig;
+import com.xiaomi.infra.pegasus.spark.PegasusSparkException;
 
-public class ColdBackupConfig extends Config {
+public class ColdBackupConfig extends FSConfig {
 
   private static final long MB_UNIT = 1024 * 1024L;
 
   public String policyName = "every_day";
   public String coldBackupTime = "";
+  public String clusterName;
+  public String tableName;
+
   public DataVersion dataVersion = new DataVersion1();
   public int maxFileOpenCount = 50;
   public long readAheadSize = 1 * MB_UNIT;
 
-  public ColdBackupConfig(
-      String remoteFsUrl, String remoteFsPort, String clusterName, String tableName)
-      throws FDSException {
-    super(remoteFsUrl, remoteFsPort, clusterName, tableName);
+  /**
+   * the constructor can be used for fds and hdfs
+   *
+   * @param remoteFsUrl
+   * @param remoteFsPort
+   * @throws PegasusSparkException
+   */
+  public ColdBackupConfig(String remoteFsUrl, String remoteFsPort) throws PegasusSparkException {
+    super(remoteFsUrl, remoteFsPort);
     setMaxFileOpenCount(maxFileOpenCount);
     setReadAheadSize(readAheadSize);
+  }
+
+  /**
+   * the contructor only be used for fds
+   *
+   * @param accessKey
+   * @param accessSecret
+   * @param bucketName
+   * @param endPoint
+   * @param port
+   * @throws PegasusSparkException
+   */
+  public ColdBackupConfig(
+      String accessKey, String accessSecret, String bucketName, String endPoint, String port)
+      throws PegasusSparkException {
+    super(accessKey, accessSecret, bucketName, endPoint, port);
+    setMaxFileOpenCount(maxFileOpenCount);
+    setReadAheadSize(readAheadSize);
+  }
+
+  /**
+   * the cluster name and table name of target data
+   *
+   * @param clusterName
+   * @param tableName
+   * @return
+   */
+  public ColdBackupConfig setTableInfo(String clusterName, String tableName) {
+    this.clusterName = clusterName;
+    this.tableName = tableName;
+    return this;
   }
 
   /**

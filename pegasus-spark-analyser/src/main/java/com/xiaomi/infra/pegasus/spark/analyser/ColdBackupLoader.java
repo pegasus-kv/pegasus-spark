@@ -1,8 +1,8 @@
 package com.xiaomi.infra.pegasus.spark.analyser;
 
-import com.xiaomi.infra.pegasus.spark.Config;
-import com.xiaomi.infra.pegasus.spark.FDSException;
-import com.xiaomi.infra.pegasus.spark.FDSService;
+import com.xiaomi.infra.pegasus.spark.FSConfig;
+import com.xiaomi.infra.pegasus.spark.FSService;
+import com.xiaomi.infra.pegasus.spark.PegasusSparkException;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -19,13 +19,13 @@ public class ColdBackupLoader implements PegasusLoader {
   private static final Log LOG = LogFactory.getLog(ColdBackupLoader.class);
 
   private ColdBackupConfig globalConfig;
-  private FDSService fdsService = new FDSService();
+  private FSService fdsService = new FSService();
   private Map<Integer, String> checkpointUrls = new HashMap<>();
   private int partitionCount;
 
   private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
-  public ColdBackupLoader(ColdBackupConfig config) throws FDSException {
+  public ColdBackupLoader(ColdBackupConfig config) throws PegasusSparkException {
     globalConfig = config;
     String idPrefix =
         globalConfig.remoteFsUrl
@@ -52,7 +52,7 @@ public class ColdBackupLoader implements PegasusLoader {
   }
 
   @Override
-  public Config getConfig() {
+  public FSConfig getConfig() {
     return globalConfig;
   }
 
@@ -71,7 +71,7 @@ public class ColdBackupLoader implements PegasusLoader {
     return globalConfig.dataVersion.getPegasusRecord(rocksIterator);
   }
 
-  private void initCheckpointUrls(String prefix, int counter) throws FDSException {
+  private void initCheckpointUrls(String prefix, int counter) throws PegasusSparkException {
     String chkpt;
     counter--;
     while (counter >= 0) {
@@ -84,13 +84,13 @@ public class ColdBackupLoader implements PegasusLoader {
         counter--;
       } catch (IOException e) {
         LOG.error("init checkPoint urls failed from " + currentCheckpointUrl);
-        throw new FDSException(
+        throw new PegasusSparkException(
             "init checkPoint urls failed, [checkpointUrl:" + currentCheckpointUrl + "]" + e);
       }
     }
   }
 
-  private String getLatestPolicyId(String prefix) throws FDSException {
+  private String getLatestPolicyId(String prefix) throws PegasusSparkException {
     try {
       LOG.info("get the " + prefix + " latest id");
       ArrayList<String> idList = getPolicyIdList(fdsService.getFileStatus(prefix));
@@ -100,10 +100,10 @@ public class ColdBackupLoader implements PegasusLoader {
       }
     } catch (IOException e) {
       LOG.error("get latest policy id from " + prefix + "failed!");
-      throw new FDSException("get latest policy id failed, [url:" + prefix + "]", e);
+      throw new PegasusSparkException("get latest policy id failed, [url:" + prefix + "]", e);
     }
     LOG.error("get latest policy id from " + prefix + " failed, no policy id existed!");
-    throw new FDSException(
+    throw new PegasusSparkException(
         "get latest policy id from " + prefix + " failed, no policy id existed!");
   }
 
@@ -115,7 +115,7 @@ public class ColdBackupLoader implements PegasusLoader {
     return idList;
   }
 
-  private String getPolicyId(String prefix, String dateTime) throws FDSException {
+  private String getPolicyId(String prefix, String dateTime) throws PegasusSparkException {
     try {
       FileStatus[] fileStatuses = fdsService.getFileStatus(prefix);
       for (FileStatus s : fileStatuses) {
@@ -128,12 +128,12 @@ public class ColdBackupLoader implements PegasusLoader {
       }
     } catch (IOException e) {
       LOG.error("get latest policy id from " + prefix + "failed!");
-      throw new FDSException("get latest policy id failed, [url:" + prefix + "]", e);
+      throw new PegasusSparkException("get latest policy id failed, [url:" + prefix + "]", e);
     }
-    throw new FDSException("can't match the date time:+" + dateTime);
+    throw new PegasusSparkException("can't match the date time:+" + dateTime);
   }
 
-  private String getTableNameAndId(String prefix, String tableName) throws FDSException {
+  private String getTableNameAndId(String prefix, String tableName) throws PegasusSparkException {
     String backupInfo;
     String backupInfoUrl = prefix + "/" + "backup_info";
     try (BufferedReader bufferedReader = fdsService.getReader(backupInfoUrl)) {
@@ -150,12 +150,12 @@ public class ColdBackupLoader implements PegasusLoader {
       }
     } catch (IOException | JSONException e) {
       LOG.error("get table id from " + prefix + "failed!");
-      throw new FDSException("get table id failed, [url:" + prefix + "]", e);
+      throw new PegasusSparkException("get table id failed, [url:" + prefix + "]", e);
     }
-    throw new FDSException("can't get the table id");
+    throw new PegasusSparkException("can't get the table id");
   }
 
-  private int getCount(String prefix) throws FDSException {
+  private int getCount(String prefix) throws PegasusSparkException {
     String appMetaData;
     String appMetaDataUrl = prefix + "/" + "meta" + "/" + "app_metadata";
     try (BufferedReader bufferedReader = fdsService.getReader(appMetaDataUrl)) {
@@ -165,8 +165,10 @@ public class ColdBackupLoader implements PegasusLoader {
       }
     } catch (IOException | JSONException e) {
       LOG.error("get the partition count failed from " + appMetaDataUrl, e);
-      throw new FDSException("get the partition count failed, [url: " + appMetaDataUrl + "]" + e);
+      throw new PegasusSparkException(
+          "get the partition count failed, [url: " + appMetaDataUrl + "]" + e);
     }
-    throw new FDSException("get the partition count failed, [url: " + appMetaDataUrl + "]");
+    throw new PegasusSparkException(
+        "get the partition count failed, [url: " + appMetaDataUrl + "]");
   }
 }
