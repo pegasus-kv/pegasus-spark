@@ -36,13 +36,10 @@ public class ColdBackupLoader implements PegasusLoader {
             + coldBackupConfig.policyName
             + "/";
 
-    String idPath;
-    if (!config.coldBackupTime.isEmpty()) {
-      idPath = getPolicyId(idPrefix, config.coldBackupTime);
-    } else {
-      idPath = getLatestPolicyId(idPrefix);
-    }
-
+    String idPath =
+        config.coldBackupTime.isEmpty()
+            ? getLatestPolicyId(idPrefix)
+            : getPolicyId(idPrefix, config.coldBackupTime);
     String tableNameAndId = getTableNameAndId(idPath, coldBackupConfig.tableName);
     String metaPrefix = idPath + "/" + tableNameAndId;
 
