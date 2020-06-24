@@ -63,7 +63,7 @@ public class ColdBackupConfig implements Serializable {
    * cold backup creating time.
    *
    * @param coldBackupTime creating time of cold backup data, accurate to day level. for example:
-   *     2019-09-11, default is "", means choose the latest data
+   *     2019-09-11, default is null, means choose the latest data
    * @return this
    */
   public ColdBackupConfig setColdBackupTime(String coldBackupTime) {
