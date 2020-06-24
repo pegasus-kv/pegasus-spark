@@ -11,7 +11,7 @@ public class ColdBackupConfig implements Serializable {
   private static final long MB_UNIT = 1024 * 1024L;
 
   private static final int DEFAULT_FILE_OPEN_COUNT = 50;
-  private static final long DEFAULT_READ_AHEAD_SIZE = 1 * MB_UNIT;
+  private static final long DEFAULT_READ_AHEAD_SIZE = 1;
 
   public String remoteFileSystemURL;
   public String remoteFileSystemPort;
