@@ -2,6 +2,7 @@ package com.xiaomi.infra.pegasus.spark;
 
 import java.io.Serializable;
 
+/** The config class contains the common config for coldBackupConfig and bulkLoadConfig */
 public class CommonConfig implements Serializable {
 
   public String remoteFileSystemURL;

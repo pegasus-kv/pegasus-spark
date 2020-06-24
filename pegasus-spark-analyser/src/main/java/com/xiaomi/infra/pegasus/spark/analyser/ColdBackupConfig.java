@@ -3,9 +3,8 @@ package com.xiaomi.infra.pegasus.spark.analyser;
 import com.xiaomi.infra.pegasus.spark.CommonConfig;
 import com.xiaomi.infra.pegasus.spark.FDSConfig;
 import com.xiaomi.infra.pegasus.spark.HDFSConfig;
-import java.io.Serializable;
 
-public class ColdBackupConfig extends CommonConfig implements Serializable {
+public class ColdBackupConfig extends CommonConfig {
   private static final long MB_UNIT = 1024 * 1024L;
 
   private static final int DEFAULT_FILE_OPEN_COUNT = 50;
