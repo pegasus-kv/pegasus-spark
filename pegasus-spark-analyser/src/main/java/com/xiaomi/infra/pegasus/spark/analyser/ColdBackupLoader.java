@@ -82,9 +82,8 @@ public class ColdBackupLoader implements PegasusLoader {
         }
         count--;
       } catch (IOException e) {
-        LOG.error("init checkPoint urls failed from " + currentCheckpointUrl);
         throw new PegasusSparkException(
-            "init checkPoint urls failed, [checkpointUrl:" + currentCheckpointUrl + "]" + e);
+            "init checkPoint urls failed, [checkpointUrl:" + currentCheckpointUrl + "]", e);
       }
     }
   }
@@ -96,7 +95,6 @@ public class ColdBackupLoader implements PegasusLoader {
     if (idList.size() != 0) {
       return idList.get(idList.size() - 1);
     }
-    LOG.error("get latest policy id from " + prefix + " failed, no policy id existed!");
     throw new PegasusSparkException(
         "get latest policy id from " + prefix + " failed, no policy id existed!");
   }
@@ -138,10 +136,9 @@ public class ColdBackupLoader implements PegasusLoader {
         }
       }
     } catch (IOException | JSONException e) {
-      LOG.error("get table id from " + prefix + "failed!");
       throw new PegasusSparkException("get table id failed, [url:" + prefix + "]", e);
     }
-    throw new PegasusSparkException("can't get the table id");
+    throw new PegasusSparkException("can't find the table id, [url:" + prefix + "]");
   }
 
   private int getCount(String prefix) throws PegasusSparkException {
@@ -153,11 +150,10 @@ public class ColdBackupLoader implements PegasusLoader {
         return jsonObject.getInt("partition_count");
       }
     } catch (IOException | JSONException e) {
-      LOG.error("get the partition count failed from " + appMetaDataUrl, e);
       throw new PegasusSparkException(
-          "get the partition count failed, [url: " + appMetaDataUrl + "]" + e);
+          "get the partition count failed, [url: " + appMetaDataUrl + "]", e);
     }
     throw new PegasusSparkException(
-        "get the partition count failed, [url: " + appMetaDataUrl + "]");
+        "can't find the partition count failed, [url: " + appMetaDataUrl + "]");
   }
 }

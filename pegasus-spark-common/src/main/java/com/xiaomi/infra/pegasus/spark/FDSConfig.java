@@ -8,8 +8,7 @@ public class FDSConfig extends HDFSConfig {
   public String remoteFsAccessSecret;
 
   public FDSConfig(
-      String accessKey, String accessSecret, String bucketName, String endPoint, String port)
-      throws PegasusSparkException {
+      String accessKey, String accessSecret, String bucketName, String endPoint, String port) {
     super("fds://" + accessKey + ":" + accessSecret + "@" + bucketName + "." + endPoint, port);
     this.remoteFsAccessKey = accessKey;
     this.remoteFsAccessSecret = accessSecret;

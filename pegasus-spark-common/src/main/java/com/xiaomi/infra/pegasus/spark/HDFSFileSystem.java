@@ -30,8 +30,7 @@ public class HDFSFileSystem implements RemoteFileSystem {
       BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
       return bufferedReader;
     } catch (Exception e) {
-      LOG.error("get filePath reader failed from " + filePath, e);
-      throw new PegasusSparkException("get filePath reader failed, [url: " + filePath + "]" + e);
+      throw new PegasusSparkException("get filePath reader failed, [url: " + filePath + "]", e);
     }
   }
 
@@ -44,8 +43,7 @@ public class HDFSFileSystem implements RemoteFileSystem {
       BufferedWriter bufferedWriter = new BufferedWriter(outputStreamWriter);
       return bufferedWriter;
     } catch (Exception e) {
-      LOG.error("get filePath writer failed from " + filePath, e);
-      throw new PegasusSparkException("get filePath writer failed, [url: " + filePath + "]" + e);
+      throw new PegasusSparkException("get filePath writer failed, [url: " + filePath + "]", e);
     }
   }
 
@@ -55,7 +53,7 @@ public class HDFSFileSystem implements RemoteFileSystem {
       Path Path = new Path(path);
       return fs.listStatus(Path);
     } catch (IOException e) {
-      throw new PegasusSparkException("get file status failed!");
+      throw new PegasusSparkException("get file status failed:", e);
     }
   }
 
@@ -65,7 +63,7 @@ public class HDFSFileSystem implements RemoteFileSystem {
       return DigestUtils.md5Hex(
           FileSystem.get(new URI(filePath), new Configuration()).open(new Path(filePath)));
     } catch (IOException | URISyntaxException e) {
-      throw new PegasusSparkException("get md5 from hdfs failed!");
+      throw new PegasusSparkException("get md5 from hdfs failed:", e);
     }
   }
 }

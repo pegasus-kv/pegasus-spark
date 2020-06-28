@@ -35,7 +35,7 @@ public class FDSFileSystem extends HDFSFileSystem {
       FDSObjectMetadata metaData = fdsObject.getObjectMetadata();
       return metaData.getContentMD5();
     } catch (GalaxyFDSClientException e) {
-      throw new PegasusSparkException("get md5 from fds failed");
+      throw new PegasusSparkException("get md5 from fds failed:", e);
     }
   }
 }
