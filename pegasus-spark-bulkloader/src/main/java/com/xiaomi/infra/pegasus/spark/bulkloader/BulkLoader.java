@@ -94,6 +94,8 @@ public class BulkLoader {
   }
 
   private void createBulkLoadInfoFile() throws PegasusSparkException {
+    // all partitions share one bulkLoadInfo file, so just one partition create it, otherwise the
+    // filesystem may throw exception
     if (partitionId == 0) {
       try (BufferedWriter bulkLoadInfoWriter = remoteFileSystem.getWriter(bulkLoadInfoPath)) {
         bulkLoadInfoWriter.write(JSON.toJSONString(bulkLoadInfo));
