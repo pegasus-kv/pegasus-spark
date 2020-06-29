@@ -15,7 +15,7 @@ class PegasusRecordRDD(data: RDD[(PegasusRecord, String)]) {
       rdd = rdd.distinct()
     }
 
-    if (config.isSort) {
+    if (config.enableSort) {
       rdd = rdd.repartitionAndSortWithinPartitions(
         new PegasusHashPartitioner(config.getTablePartitionCount)
       )

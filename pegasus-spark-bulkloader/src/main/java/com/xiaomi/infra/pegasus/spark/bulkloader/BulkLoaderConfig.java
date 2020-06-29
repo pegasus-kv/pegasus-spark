@@ -94,7 +94,7 @@ public class BulkLoaderConfig extends CommonConfig {
     return isDistinct;
   }
 
-  public boolean isSort() {
+  public boolean enableSort() {
     return isSort;
   }
 }
