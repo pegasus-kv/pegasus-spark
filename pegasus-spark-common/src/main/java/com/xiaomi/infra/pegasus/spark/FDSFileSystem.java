@@ -12,7 +12,7 @@ public class FDSFileSystem extends HDFSFileSystem {
 
   private FDSConfig fdsConfig;
 
-  public FDSFileSystem(FDSConfig fdsConfig) {
+  FDSFileSystem(FDSConfig fdsConfig) {
     this.fdsConfig = fdsConfig;
   }
 

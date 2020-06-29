@@ -10,12 +10,11 @@ public class ColdBackupConfig extends CommonConfig {
   private static final int DEFAULT_FILE_OPEN_COUNT = 50;
   private static final long DEFAULT_READ_AHEAD_SIZE_MB = 1;
 
-  public long readAheadSize;
-  public int fileOpenCount;
-  public String policyName;
-  public String coldBackupTime;
-
-  public DataVersion dataVersion = new DataVersion1();
+  private long readAheadSize;
+  private int fileOpenCount;
+  private String policyName;
+  private String coldBackupTime;
+  private DataVersion dataVersion = new DataVersion1();
 
   public ColdBackupConfig(HDFSConfig hdfsConfig, String clusterName, String tableName) {
     super(hdfsConfig, clusterName, tableName);
@@ -76,5 +75,25 @@ public class ColdBackupConfig extends CommonConfig {
     this.readAheadSize = readAheadSize * MB_UNIT;
     this.fileOpenCount = maxFileOpenCount;
     return this;
+  }
+
+  public long getReadAheadSize() {
+    return readAheadSize;
+  }
+
+  public int getFileOpenCount() {
+    return fileOpenCount;
+  }
+
+  public String getPolicyName() {
+    return policyName;
+  }
+
+  public String getColdBackupTime() {
+    return coldBackupTime;
+  }
+
+  public DataVersion getDataVersion() {
+    return dataVersion;
   }
 }

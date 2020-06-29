@@ -26,21 +26,21 @@ public class ColdBackupLoader implements PegasusLoader {
 
   public ColdBackupLoader(ColdBackupConfig config) throws PegasusSparkException {
     coldBackupConfig = config;
-    remoteFileSystem = config.remoteFileSystem;
+    remoteFileSystem = config.getRemoteFileSystem();
 
     String idPrefix =
-        coldBackupConfig.remoteFileSystemURL
+        coldBackupConfig.getRemoteFileSystemURL()
             + "/"
-            + coldBackupConfig.clusterName
+            + coldBackupConfig.getClusterName()
             + "/"
-            + coldBackupConfig.policyName
+            + coldBackupConfig.getPolicyName()
             + "/";
 
     String idPath =
-        config.coldBackupTime.isEmpty()
+        config.getColdBackupTime().isEmpty()
             ? getLatestPolicyId(idPrefix)
-            : getPolicyId(idPrefix, config.coldBackupTime);
-    String tableNameAndId = getTableNameAndId(idPath, coldBackupConfig.tableName);
+            : getPolicyId(idPrefix, config.getColdBackupTime());
+    String tableNameAndId = getTableNameAndId(idPath, coldBackupConfig.getTableName());
     String metaPrefix = idPath + "/" + tableNameAndId;
 
     partitionCount = getCount(metaPrefix);
@@ -66,7 +66,7 @@ public class ColdBackupLoader implements PegasusLoader {
 
   @Override
   public PegasusRecord restoreRecord(RocksIterator rocksIterator) {
-    return coldBackupConfig.dataVersion.getPegasusRecord(rocksIterator);
+    return coldBackupConfig.getDataVersion().getPegasusRecord(rocksIterator);
   }
 
   private void initCheckpointUrls(String prefix, int count) throws PegasusSparkException {
@@ -77,7 +77,11 @@ public class ColdBackupLoader implements PegasusLoader {
       try (BufferedReader bufferedReader = remoteFileSystem.getReader(currentCheckpointUrl)) {
         while ((chkpt = bufferedReader.readLine()) != null) {
           String url =
-              prefix.split(coldBackupConfig.remoteFileSystemURL)[1] + "/" + count + "/" + chkpt;
+              prefix.split(coldBackupConfig.getRemoteFileSystemURL())[1]
+                  + "/"
+                  + count
+                  + "/"
+                  + chkpt;
           checkpointUrls.put(count, url);
         }
         count--;

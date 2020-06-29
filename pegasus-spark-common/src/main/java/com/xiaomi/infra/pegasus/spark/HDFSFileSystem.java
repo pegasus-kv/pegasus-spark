@@ -18,7 +18,7 @@ import org.apache.hadoop.fs.Path;
 
 public class HDFSFileSystem implements RemoteFileSystem {
 
-  public HDFSFileSystem() {}
+  HDFSFileSystem() {}
 
   private static final Log LOG = LogFactory.getLog(RemoteFileSystem.class);
 
