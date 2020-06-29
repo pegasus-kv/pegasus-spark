@@ -86,7 +86,7 @@ public class BulkLoader {
   void start() throws PegasusSparkException {
     try {
       createBulkLoadInfoFile();
-      createDataFile(dataResourceIterator);
+      createDataFile();
       createBulkLoadMetaDataFile();
     } catch (Exception e) {
       throw new PegasusSparkException("generated bulkloader data failed, please check and retry!");
@@ -108,9 +108,9 @@ public class BulkLoader {
     }
   }
 
-  private void createDataFile(Iterator<Tuple2<PegasusRecord, String>> iterator)
+  private void createDataFile()
       throws PegasusSparkException {
-    if (!iterator.hasNext()) {
+    if (!dataResourceIterator.hasNext()) {
       return;
     }
 
@@ -119,9 +119,9 @@ public class BulkLoader {
 
     String curSSTFileName = curFileIndex + BULK_DATA_FILE_SUFFIX;
     dataWriter.openWithRetry(partitionPath + curSSTFileName);
-    while (iterator.hasNext()) {
+    while (dataResourceIterator.hasNext()) {
       count++;
-      PegasusRecord pegasusRecord = iterator.next()._1;
+      PegasusRecord pegasusRecord = dataResourceIterator.next()._1;
       if (curFileSize > SINGLE_FILE_SIZE_THRESHOLD) {
         dataWriter.closeWithRetry();
         LOG.debug(curFileIndex + BULK_DATA_FILE_SUFFIX + " writes complete!");
