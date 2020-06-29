@@ -1,4 +1,4 @@
-package examples.parquet
+package com.xiaomi.infra.pegasus.spark.analyser.examples.parquet
 
 import com.xiaomi.infra.pegasus.spark.FDSConfig
 import com.xiaomi.infra.pegasus.spark.analyser.{
