@@ -7,7 +7,7 @@ import com.google.common.primitives.Bytes
 import org.apache.commons.lang3.Validate
 import org.apache.commons.lang3.builder.HashCodeBuilder
 
-object RocksDBRecord {
+object PegasusRecord {
   private val epoch_begin = 1451606400 // seconds since 2016.01.01-00:00:00 GMT
 
   def generateKey(hashKey: Array[Byte], sortKey: Array[Byte]): Array[Byte] = {
@@ -50,8 +50,8 @@ object RocksDBRecord {
     b.array
   }
 
-  def create(hashKey: String, sortKey: String, value: String): RocksDBRecord = {
-    new RocksDBRecord(
+  def create(hashKey: String, sortKey: String, value: String): PegasusRecord = {
+    new PegasusRecord(
       generateKey(hashKey.getBytes, sortKey.getBytes),
       generateValue(value.getBytes)
     )
@@ -61,19 +61,19 @@ object RocksDBRecord {
       hashKey: Array[Byte],
       sortKey: Array[Byte],
       value: Array[Byte]
-  ): RocksDBRecord = {
-    new RocksDBRecord(generateKey(hashKey, sortKey), generateValue(value))
+  ): PegasusRecord = {
+    new PegasusRecord(generateKey(hashKey, sortKey), generateValue(value))
   }
 
 }
 
-case class RocksDBRecord private (key: Array[Byte], value: Array[Byte]) {
+case class PegasusRecord private (key: Array[Byte], value: Array[Byte]) {
 
   override def hashCode: Int = new HashCodeBuilder().append(key).hashCode
 
   override def equals(other: Any): Boolean = {
     other match {
-      case that: RocksDBRecord => key.sameElements(that.key)
+      case that: PegasusRecord => key.sameElements(that.key)
       case _                   => false
     }
   }

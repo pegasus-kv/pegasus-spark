@@ -9,16 +9,15 @@ import org.apache.spark.rdd.RDD
   * import com.xiaomi.infra.pegasus.spark.bulkloader.CustomImplicits._
   *
   * to use it.
-  *
   */
 object CustomImplicits {
 
   /**
     * The implicit implement of ordering by RocksDBRecord
     */
-  implicit val basePegasusKey: Ordering[RocksDBRecord] =
-    new Ordering[RocksDBRecord] {
-      override def compare(x: RocksDBRecord, y: RocksDBRecord): Int = {
+  implicit val basePegasusKey: Ordering[PegasusRecord] =
+    new Ordering[PegasusRecord] {
+      override def compare(x: PegasusRecord, y: PegasusRecord): Int = {
         Tools.compare(x.key, y.key)
       }
     }
@@ -28,6 +27,8 @@ object CustomImplicits {
     * @param rdd
     * @return
     */
-  implicit def convertFromByte(rdd: RDD[(RocksDBRecord, String)]): RocksDBRDD =
-    new RocksDBRDD(rdd)
+  implicit def convertFromByte(
+      rdd: RDD[(PegasusRecord, String)]
+  ): PegasusRecordRDD =
+    new PegasusRecordRDD(rdd)
 }

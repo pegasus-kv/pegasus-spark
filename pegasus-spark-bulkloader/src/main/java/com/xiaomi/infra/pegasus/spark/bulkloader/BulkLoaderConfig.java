@@ -1,22 +1,26 @@
 package com.xiaomi.infra.pegasus.spark.bulkloader;
 
-import com.xiaomi.infra.pegasus.spark.Config;
-import com.xiaomi.infra.pegasus.spark.PegasusSparkException;
+import com.xiaomi.infra.pegasus.spark.CommonConfig;
+import com.xiaomi.infra.pegasus.spark.FDSConfig;
+import com.xiaomi.infra.pegasus.spark.HDFSConfig;
 
-public class BulkLoaderConfig extends Config {
+public class BulkLoaderConfig extends CommonConfig {
 
-  public String dataPathRoot = "/pegasus-bulkloader";
+  private String dataPathRoot = "/pegasus-bulkloader";
   // todo(jiashuo): tableId, tablePartitionCount should be automatically get by clusterName and
   // tableName
-  public int tableId;
-  public int tablePartitionCount;
-  public boolean isDistinct = false;
-  public boolean isSort = true;
+  private int tableId;
+  private int tablePartitionCount;
 
-  public BulkLoaderConfig(
-      String remoteFsUrl, String remoteFsPort, String clusterName, String tableName)
-      throws PegasusSparkException {
-    super(remoteFsUrl, remoteFsPort, clusterName, tableName);
+  private boolean isDistinct = false;
+  private boolean isSort = true;
+
+  public BulkLoaderConfig(HDFSConfig hdfsConfig, String clusterName, String tableName) {
+    super(hdfsConfig, clusterName, tableName);
+  }
+
+  public BulkLoaderConfig(FDSConfig fdsConfig, String clusterName, String tableName) {
+    super(fdsConfig, clusterName, tableName);
   }
 
   /**
@@ -72,5 +76,25 @@ public class BulkLoaderConfig extends Config {
   public BulkLoaderConfig enableSort(boolean sort) {
     isSort = sort;
     return this;
+  }
+
+  public String getDataPathRoot() {
+    return dataPathRoot;
+  }
+
+  public int getTableId() {
+    return tableId;
+  }
+
+  public int getTablePartitionCount() {
+    return tablePartitionCount;
+  }
+
+  public boolean enableDistinct() {
+    return isDistinct;
+  }
+
+  public boolean isSort() {
+    return isSort;
   }
 }

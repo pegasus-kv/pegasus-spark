@@ -18,9 +18,9 @@ public class DataWriter {
   // TODO: The two variables only for partitions which contain nothing, set the ttl = 10s is for
   // voiding being duplication with real kv when load to tables.
   private static final byte[] PEGASUS_NULL_KEY =
-      RocksDBRecord.generateKey("NULL".getBytes(), "NULL".getBytes());
+      PegasusRecord.generateKey("NULL".getBytes(), "NULL".getBytes());
   private static final byte[] PEGASUS_NULL_VALUE =
-      RocksDBRecord.generateValue("NULL".getBytes(), 10);
+      PegasusRecord.generateValue("NULL".getBytes(), 10);
 
   private SstFileWriter sstFileWriter;
 

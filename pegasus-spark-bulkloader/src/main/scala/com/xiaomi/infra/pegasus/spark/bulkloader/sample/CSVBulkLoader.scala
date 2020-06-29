@@ -1,8 +1,9 @@
 package com.xiaomi.infra.pegasus.spark.bulkloader.sample
 
+import com.xiaomi.infra.pegasus.spark.FDSConfig
 import com.xiaomi.infra.pegasus.spark.bulkloader.{
   BulkLoaderConfig,
-  RocksDBRecord
+  PegasusRecord
 }
 import org.apache.spark.{SparkConf, SparkContext}
 import com.xiaomi.infra.pegasus.spark.bulkloader.CustomImplicits._
@@ -18,23 +19,29 @@ object CSVBulkLoader {
 
     val sc = new SparkContext(conf)
 
-    val config = new BulkLoaderConfig()
-
-    config
-      .enableDistinct(false)
-      .setRemote("", "", "", "", "")
-      .setTableInfo("C2", "T2")
+    val config = new BulkLoaderConfig(
+      new FDSConfig(
+        "accessKey",
+        "accessSecret",
+        "bucketName",
+        "endPoint",
+        "80"
+      ),
+      "clusterName",
+      "tableName"
+    ).enableDistinct(true)
+      .enableSort(true)
       // TODO tableId and tablePartitionCount should be get just by clusterName and tableName
       .setTableId(20)
       .setTablePartitionCount(32)
 
-    // Note(jiashuo1): if the partition size > 2G before "saveAsPegasusFile", you need
+    // Note: if the partition size > 2G before "saveAsPegasusFile", you need
     // sc.textFile("data.csv").repartition(n), and let the partition size < 2G
     sc.textFile("data.csv")
       .map(i => {
         val lines = i.split(",")
         (
-          RocksDBRecord
+          PegasusRecord
             .create(lines(0), lines(1), lines(2)),
           ""
         )

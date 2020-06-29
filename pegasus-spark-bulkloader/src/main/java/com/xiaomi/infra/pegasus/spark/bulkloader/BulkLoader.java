@@ -2,15 +2,13 @@ package com.xiaomi.infra.pegasus.spark.bulkloader;
 
 import com.alibaba.fastjson.JSON;
 import com.github.rholder.retry.RetryException;
-import com.xiaomi.infra.galaxy.fds.client.exception.GalaxyFDSClientException;
-import com.xiaomi.infra.pegasus.spark.FDSService;
 import com.xiaomi.infra.pegasus.spark.PegasusSparkException;
+import com.xiaomi.infra.pegasus.spark.RemoteFileSystem;
 import com.xiaomi.infra.pegasus.spark.RocksDBOptions;
 import com.xiaomi.infra.pegasus.spark.Tools;
 import com.xiaomi.infra.pegasus.spark.bulkloader.DataMetaInfo.FileInfo;
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -47,22 +45,24 @@ public class BulkLoader {
   private String bulkLoadInfoPath;
   private String bulkLoadMetaDataPath;
 
-  private FDSService fdsService;
+  private RemoteFileSystem remoteFileSystem;
   private DataWriter dataWriter;
 
-  private Iterator<Tuple2<RocksDBRecord, String>> dataResourceIterator;
+  private Iterator<Tuple2<PegasusRecord, String>> dataResourceIterator;
 
   public BulkLoader(
-      BulkLoaderConfig config, Iterator<Tuple2<RocksDBRecord, String>> iterator, int partitionId)
+      BulkLoaderConfig config, Iterator<Tuple2<PegasusRecord, String>> iterator, int partitionId)
       throws PegasusSparkException {
 
+    remoteFileSystem = config.getRemoteFileSystem();
+
     String dataPathPrefix =
-        config.remoteFsUrl
-            + config.dataPathRoot
+        config.getRemoteFileSystemURL()
+            + config.getDataPathRoot()
             + "/"
-            + config.clusterName
+            + config.getClusterName()
             + "/"
-            + config.tableName
+            + config.getTableName()
             + "/";
 
     this.dataResourceIterator = iterator;
@@ -74,11 +74,15 @@ public class BulkLoader {
 
     this.bulkLoadInfo =
         new BulkLoadInfo(
-            config.clusterName, config.tableName, config.tableId, config.tablePartitionCount);
+            config.getClusterName(),
+            config.getTableName(),
+            config.getTableId(),
+            config.getTablePartitionCount());
     this.dataMetaInfo = new DataMetaInfo();
 
-    this.fdsService = new FDSService(config);
-    this.dataWriter = new DataWriter(new RocksDBOptions(config.remoteFsUrl, config.remoteFsPort));
+    this.dataWriter =
+        new DataWriter(
+            new RocksDBOptions(config.getRemoteFileSystemURL(), config.getRemoteFileSystemPort()));
   }
 
   void start() throws PegasusSparkException {
@@ -93,7 +97,7 @@ public class BulkLoader {
 
   private void createBulkLoadInfoFile() throws PegasusSparkException {
     if (partitionId == 0) {
-      try (BufferedWriter bulkLoadInfoWriter = fdsService.getWriter(bulkLoadInfoPath)) {
+      try (BufferedWriter bulkLoadInfoWriter = remoteFileSystem.getWriter(bulkLoadInfoPath)) {
         bulkLoadInfoWriter.write(JSON.toJSONString(bulkLoadInfo));
         LOG.info("The bulkLoadInfo file is created successful by partition 0.");
       } catch (IOException e) {
@@ -105,7 +109,7 @@ public class BulkLoader {
     }
   }
 
-  private void createDataFile(Iterator<Tuple2<RocksDBRecord, String>> iterator)
+  private void createDataFile(Iterator<Tuple2<PegasusRecord, String>> iterator)
       throws PegasusSparkException {
     long start = System.currentTimeMillis();
     long count = 0;
@@ -114,7 +118,7 @@ public class BulkLoader {
     dataWriter.openWithRetry(partitionPath + curSSTFileName);
     while (iterator.hasNext()) {
       count++;
-      RocksDBRecord rocksDBRecord = iterator.next()._1;
+      PegasusRecord pegasusRecord = iterator.next()._1;
       if (curFileSize > SINGLE_FILE_SIZE_THRESHOLD) {
         dataWriter.closeWithRetry();
         LOG.debug(curFileIndex + BULK_DATA_FILE_SUFFIX + " writes complete!");
@@ -125,7 +129,7 @@ public class BulkLoader {
 
         dataWriter.openWithRetry(partitionPath + curSSTFileName);
       }
-      curFileSize += dataWriter.writeWithRetry(rocksDBRecord.key(), rocksDBRecord.value());
+      curFileSize += dataWriter.writeWithRetry(pegasusRecord.key(), pegasusRecord.value());
     }
     if (curFileSize != 0) {
       dataWriter.closeWithRetry();
@@ -149,7 +153,7 @@ public class BulkLoader {
     List<Future> taskList = new ArrayList<>();
     AtomicBoolean isSuccess = new AtomicBoolean(true);
 
-    FileStatus[] fileStatuses = fdsService.getFileStatus(partitionPath);
+    FileStatus[] fileStatuses = remoteFileSystem.getFileStatus(partitionPath);
     for (FileStatus fileStatus : fileStatuses) {
       taskList.add(
           metaInfoCreateTask.submit(
@@ -176,19 +180,18 @@ public class BulkLoader {
     }
 
     dataMetaInfo.file_total_size = totalSize.get();
-    BufferedWriter bulkLoadMetaDataWriter = fdsService.getWriter(bulkLoadMetaDataPath);
+    BufferedWriter bulkLoadMetaDataWriter = remoteFileSystem.getWriter(bulkLoadMetaDataPath);
     bulkLoadMetaDataWriter.write(JSON.toJSONString(dataMetaInfo));
     bulkLoadMetaDataWriter.close();
     LOG.info("create meta info successfully, time used is " + (System.currentTimeMillis() - start));
   }
 
-  private boolean generateFileMetaInfo(FileStatus fileStatus)
-      throws GalaxyFDSClientException, IOException, URISyntaxException {
+  private boolean generateFileMetaInfo(FileStatus fileStatus) throws PegasusSparkException {
     String filePath = fileStatus.getPath().toString();
 
     String fileName = fileStatus.getPath().getName();
     long fileSize = fileStatus.getLen();
-    String fileMD5 = fdsService.getFileMD5(filePath);
+    String fileMD5 = remoteFileSystem.getFileMD5(filePath);
 
     FileInfo fileInfo = dataMetaInfo.new FileInfo(fileName, fileSize, fileMD5);
     dataMetaInfo.files.add(fileInfo);
