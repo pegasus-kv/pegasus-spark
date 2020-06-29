@@ -6,11 +6,10 @@ cd "${PROJECT_DIR}" || exit 1
 
 SRC_FILES=(pegasus-spark-common/src/main/java/com/xiaomi/infra/pegasus/spark/*.java
            pegasus-spark-analyser/src/main/java/com/xiaomi/infra/pegasus/spark/analyser/*.java
-           pegasus-spark-bulkloader/src/main/java/com/xiaomi/infra/pegasus/spark/bulkloader/*.java
            )
 
 if [[ ! -f "${PROJECT_DIR}"/google-java-format-1.8-all-deps.jar ]]; then
-    wget https://github.com/google/google-java-format/releases/download/google-java-format-1.8/google-java-format-1.7-all-deps.jar
+    wget https://github.com/google/google-java-format/releases/download/google-java-format-1.8/google-java-format-1.8-all-deps.jar
 fi
 if ! java -jar "${PROJECT_DIR}"/google-java-format-1.8-all-deps.jar --replace "${SRC_FILES[@]}"; then
     echo "ERROR: failed to format java codes"
@@ -18,13 +17,12 @@ if ! java -jar "${PROJECT_DIR}"/google-java-format-1.8-all-deps.jar --replace "$
 fi
 
 if [[ ! -f "${PROJECT_DIR}"/scalafmt ]]; then
-    if ! wget https://github.com/scalameta/scalafmt/releases/download/v2.3.2/scalafmt-linux.zip; then
+    if ! wget https://github.com/scalameta/scalafmt/releases/download/v2.6.1/scalafmt-linux.zip; then
         echo "ERROR: failed to download scalafmt"
         exit 1
     fi
     unzip scalafmt-linux.zip
-    mv scalafmt-linux/scalafmt .
-    rm -rf scalafmt-linux.zip scalafmt-linux
+    rm -rf scalafmt-linux.zip
     chmod +x scalafmt
 fi
 
