@@ -1,4 +1,4 @@
-package com.xiaomi.infra.pegasus.spark.bulkloader.sample
+package com.xiaomi.infra.pegasus.spark.bulkloader.examples
 
 import com.xiaomi.infra.pegasus.spark.FDSConfig
 import com.xiaomi.infra.pegasus.spark.bulkloader.{
@@ -11,8 +11,6 @@ import com.xiaomi.infra.pegasus.spark.bulkloader.CustomImplicits._
 object CSVBulkLoader {
 
   def main(args: Array[String]): Unit = {
-    //System.setProperty("java.security.krb5.conf", "/home/mi/krb5.conf")
-
     val conf = new SparkConf()
       .setAppName("pegasus data bulkloader")
       .setIfMissing("spark.master", "local[1]")
