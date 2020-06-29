@@ -1,11 +1,9 @@
 package com.xiaomi.infra.pegasus.spark.bulkloader;
 
 import com.alibaba.fastjson.JSON;
-import com.github.rholder.retry.RetryException;
 import com.xiaomi.infra.pegasus.spark.PegasusSparkException;
 import com.xiaomi.infra.pegasus.spark.RemoteFileSystem;
 import com.xiaomi.infra.pegasus.spark.RocksDBOptions;
-import com.xiaomi.infra.pegasus.spark.Tools;
 import com.xiaomi.infra.pegasus.spark.bulkloader.DataMetaInfo.FileInfo;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -16,7 +14,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -101,7 +99,6 @@ public class BulkLoader {
         bulkLoadInfoWriter.write(JSON.toJSONString(bulkLoadInfo));
         LOG.info("The bulkLoadInfo file is created successful by partition 0.");
       } catch (IOException e) {
-        LOG.warn("The bulkLoadInfo file is created failed by partition 0 failed");
         throw new PegasusSparkException("create bulkLoadInfo failed!", e);
       }
     } else {
@@ -111,6 +108,10 @@ public class BulkLoader {
 
   private void createDataFile(Iterator<Tuple2<PegasusRecord, String>> iterator)
       throws PegasusSparkException {
+    if (!iterator.hasNext()) {
+      return;
+    }
+
     long start = System.currentTimeMillis();
     long count = 0;
 
@@ -131,14 +132,7 @@ public class BulkLoader {
       }
       curFileSize += dataWriter.writeWithRetry(pegasusRecord.key(), pegasusRecord.value());
     }
-    if (curFileSize != 0) {
-      dataWriter.closeWithRetry();
-    } else {
-      // dataWriter will be throw exception when closed if dataWriter don't write any kv,
-      dataWriter.writeDefaultKV();
-      dataWriter.closeWithRetry();
-    }
-
+    dataWriter.closeWithRetry();
     LOG.info(
         "create sst file time used is "
             + (System.currentTimeMillis() - start)
@@ -148,35 +142,33 @@ public class BulkLoader {
             + curFileIndex);
   }
 
-  private void createBulkLoadMetaDataFile() throws IOException, PegasusSparkException {
+  private void createBulkLoadMetaDataFile()
+      throws PegasusSparkException, ExecutionException, InterruptedException, IOException {
     long start = System.currentTimeMillis();
     List<Future> taskList = new ArrayList<>();
-    AtomicBoolean isSuccess = new AtomicBoolean(true);
+    AtomicInteger successCount = new AtomicInteger();
 
     FileStatus[] fileStatuses = remoteFileSystem.getFileStatus(partitionPath);
+
     for (FileStatus fileStatus : fileStatuses) {
       taskList.add(
           metaInfoCreateTask.submit(
               () -> {
                 try {
-                  Tools.<Boolean>getDefaultRetryer().call(() -> generateFileMetaInfo(fileStatus));
-                } catch (ExecutionException | RetryException e) {
-                  isSuccess.set(false);
-                  LOG.error("write meta info[" + fileStatus.getPath().toString() + "] failed!");
+                  generateFileMetaInfo(fileStatus);
+                  successCount.incrementAndGet();
+                } catch (PegasusSparkException e) {
+                  LOG.error("generate meta info[" + fileStatus.getPath().toString() + "] failed!");
                 }
               }));
     }
 
     for (Future task : taskList) {
-      try {
-        task.get();
-      } catch (InterruptedException | ExecutionException e) {
-        throw new PegasusSparkException("create metaDataInfo failed!", e);
-      }
+      task.get();
     }
 
-    if (!isSuccess.get()) {
-      throw new PegasusSparkException("create metaDataInfo failed!");
+    if (successCount.get() != fileStatuses.length) {
+      throw new PegasusSparkException("some file metaInfo generate failed!");
     }
 
     dataMetaInfo.file_total_size = totalSize.get();
@@ -186,7 +178,7 @@ public class BulkLoader {
     LOG.info("create meta info successfully, time used is " + (System.currentTimeMillis() - start));
   }
 
-  private boolean generateFileMetaInfo(FileStatus fileStatus) throws PegasusSparkException {
+  private void generateFileMetaInfo(FileStatus fileStatus) throws PegasusSparkException {
     String filePath = fileStatus.getPath().toString();
 
     String fileName = fileStatus.getPath().getName();
@@ -199,6 +191,5 @@ public class BulkLoader {
     totalSize.addAndGet(fileSize);
 
     LOG.debug(fileName + " meta info generates complete!");
-    return true;
   }
 }
