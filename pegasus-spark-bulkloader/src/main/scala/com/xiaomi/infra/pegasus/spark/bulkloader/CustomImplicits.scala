@@ -13,7 +13,7 @@ import org.apache.spark.rdd.RDD
 object CustomImplicits {
 
   /**
-    * The implicit implement of ordering by RocksDBRecord
+    * The implicit implement of ordering by PegasusRecord
     */
   implicit val basePegasusKey: Ordering[PegasusRecord] =
     new Ordering[PegasusRecord] {
@@ -23,11 +23,11 @@ object CustomImplicits {
     }
 
   /**
-    * The implicit method of converting RDD[(RocksDBRecord,String) to RocksDBRDD
+    * The implicit method of converting RDD[(PegasusRecord,String) to PegasusRecordRDD
     * @param rdd
     * @return
     */
-  implicit def convertFromByte(
+  implicit def convert2PegasusRecordRDD(
       rdd: RDD[(PegasusRecord, String)]
   ): PegasusRecordRDD =
     new PegasusRecordRDD(rdd)
