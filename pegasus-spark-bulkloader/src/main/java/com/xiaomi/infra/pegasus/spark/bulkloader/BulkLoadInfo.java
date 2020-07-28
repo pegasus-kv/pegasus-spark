@@ -1,6 +1,8 @@
 package com.xiaomi.infra.pegasus.spark.bulkloader;
 
-public class BulkLoadInfo {
+import com.xiaomi.infra.pegasus.spark.Tools;
+
+class BulkLoadInfo {
 
   private String cluster;
   private int app_id;
@@ -12,5 +14,9 @@ public class BulkLoadInfo {
     this.app_name = app_name;
     this.app_id = app_id;
     this.partition_count = partition_count;
+  }
+
+  String toJsonString(){
+    return Tools.gson.toJson(this);
   }
 }

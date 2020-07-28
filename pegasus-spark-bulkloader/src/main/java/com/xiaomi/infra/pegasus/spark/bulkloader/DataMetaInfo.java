@@ -1,8 +1,9 @@
 package com.xiaomi.infra.pegasus.spark.bulkloader;
 
+import com.xiaomi.infra.pegasus.spark.Tools;
 import java.util.ArrayList;
 
-public class DataMetaInfo {
+class DataMetaInfo {
 
   ArrayList<FileInfo> files = new ArrayList<>();
   long file_total_size;
@@ -13,10 +14,14 @@ public class DataMetaInfo {
     long size;
     String md5;
 
-    public FileInfo(String name, long size, String md5) {
+    FileInfo(String name, long size, String md5) {
       this.name = name;
       this.size = size;
       this.md5 = md5;
     }
+  }
+
+  String toJsonString(){
+    return Tools.gson.toJson(this);
   }
 }

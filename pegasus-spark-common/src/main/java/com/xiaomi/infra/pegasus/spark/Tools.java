@@ -4,19 +4,24 @@ import com.github.rholder.retry.Retryer;
 import com.github.rholder.retry.RetryerBuilder;
 import com.github.rholder.retry.StopStrategies;
 import com.github.rholder.retry.WaitStrategies;
+import com.google.gson.Gson;
 import java.nio.ByteBuffer;
 import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 
+//todo(jiashuo1) miscellaneous tools, later need split to appropriate class
 public class Tools {
 
   private static final Logger logger = org.slf4j.LoggerFactory.getLogger(Tools.class);
 
+  // it will be used for all module to parse object
+  public static final Gson gson = new Gson();
+
   private static class dsn_crc {
 
-    public static final long crc64_poly = 0x9a6c9329ac4bc9b5l;
-    public static final int crc32_poly = 0x82f63b78;
+    static final long crc64_poly = 0x9a6c9329ac4bc9b5L;
+    static final int crc32_poly = 0x82f63b78;
     public static final int[] crc32_table = new int[0x100];
     public static final long[] crc64_table = new long[0x100];
 
@@ -131,6 +136,7 @@ public class Tools {
         : dsn_crc64(pegasusKey, 2, hashKeyLen);
   }
 
+  //todo(jiashuo1) this need refactor to singleton
   public static <T> Retryer<T> getDefaultRetryer() {
     return RetryerBuilder.<T>newBuilder()
         .retryIfException()

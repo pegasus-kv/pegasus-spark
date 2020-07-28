@@ -1,6 +1,5 @@
 package com.xiaomi.infra.pegasus.spark.bulkloader;
 
-import com.alibaba.fastjson.JSON;
 import com.xiaomi.infra.pegasus.spark.PegasusSparkException;
 import com.xiaomi.infra.pegasus.spark.RemoteFileSystem;
 import com.xiaomi.infra.pegasus.spark.RocksDBOptions;
@@ -22,7 +21,6 @@ import org.apache.hadoop.fs.FileStatus;
 import scala.Tuple2;
 
 public class BulkLoader {
-
   private static final Log LOG = LogFactory.getLog(BulkLoader.class);
 
   private static final int SINGLE_FILE_SIZE_THRESHOLD = 64 * 1024 * 1024;
@@ -99,7 +97,7 @@ public class BulkLoader {
     // filesystem may throw exception
     if (partitionId == 0) {
       try (BufferedWriter bulkLoadInfoWriter = remoteFileSystem.getWriter(bulkLoadInfoPath)) {
-        bulkLoadInfoWriter.write(JSON.toJSONString(bulkLoadInfo));
+        bulkLoadInfoWriter.write(bulkLoadInfo.toJsonString());
         LOG.info("The bulkLoadInfo file is created successful by partition 0.");
       } catch (IOException e) {
         throw new PegasusSparkException("create bulkLoadInfo failed!", e);
@@ -177,7 +175,7 @@ public class BulkLoader {
 
     dataMetaInfo.file_total_size = totalSize.get();
     BufferedWriter bulkLoadMetaDataWriter = remoteFileSystem.getWriter(bulkLoadMetaDataPath);
-    bulkLoadMetaDataWriter.write(JSON.toJSONString(dataMetaInfo));
+    bulkLoadMetaDataWriter.write(dataMetaInfo.toJsonString());
     bulkLoadMetaDataWriter.close();
     LOG.info("create meta info successfully, time used is " + (System.currentTimeMillis() - start));
   }
