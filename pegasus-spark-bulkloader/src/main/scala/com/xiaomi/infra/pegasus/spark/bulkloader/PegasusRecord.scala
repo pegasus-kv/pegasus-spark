@@ -92,7 +92,7 @@ class PegasusBytes(record: Array[Byte]) {
 
   val data: Array[Byte] = record
 
-  override def hashCode: Int = new HashCodeBuilder().append(record).hashCode
+  override def hashCode: Int = new HashCodeBuilder().append(data).hashCode
 
   override def equals(other: Any): Boolean = {
     other match {
