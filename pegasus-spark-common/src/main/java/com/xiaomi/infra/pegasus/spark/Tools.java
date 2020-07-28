@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 
-//todo(jiashuo1) miscellaneous tools, later need split to appropriate class
+// todo(jiashuo1) miscellaneous tools, later need split to appropriate class
 public class Tools {
 
   private static final Logger logger = org.slf4j.LoggerFactory.getLogger(Tools.class);
@@ -136,7 +136,7 @@ public class Tools {
         : dsn_crc64(pegasusKey, 2, hashKeyLen);
   }
 
-  //todo(jiashuo1) this need refactor to singleton
+  // todo(jiashuo1) this need refactor to singleton
   public static <T> Retryer<T> getDefaultRetryer() {
     return RetryerBuilder.<T>newBuilder()
         .retryIfException()
