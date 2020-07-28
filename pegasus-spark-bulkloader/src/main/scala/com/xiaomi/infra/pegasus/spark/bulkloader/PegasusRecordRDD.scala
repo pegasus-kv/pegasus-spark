@@ -4,9 +4,6 @@ import CustomImplicits._
 import org.apache.spark.TaskContext
 import org.apache.spark.rdd.RDD
 import org.rocksdb.RocksDB
-import com.xiaomi.infra.pegasus.spark.bulkloader.{PegasusBytes => PegasusKey}
-import com.xiaomi.infra.pegasus.spark.bulkloader.{PegasusBytes => PegasusValue}
-
 import scala.collection.JavaConverters._
 
 class PegasusRecordRDD(data: RDD[(PegasusKey, PegasusValue)]) {
