@@ -2,13 +2,13 @@ package com.xiaomi.infra.pegasus.spark.analyser;
 
 public interface PegasusScanner {
 
-  public boolean isValid();
+  boolean isValid();
 
-  public void seekToFirst();
+  void seekToFirst();
 
-  public void next();
+  void next();
 
-  public void close();
+  void close();
 
-  public PegasusRecord restore();
+  PegasusRecord restore();
 }

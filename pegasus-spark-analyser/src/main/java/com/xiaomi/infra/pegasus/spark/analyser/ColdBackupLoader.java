@@ -168,7 +168,7 @@ public class ColdBackupLoader implements PegasusLoader {
         "can't find the partition count failed, [url: " + appMetaDataUrl + "]");
   }
 
-  public static class ColdBackupScanner implements PegasusScanner {
+  static class ColdBackupScanner implements PegasusScanner {
     DataVersion scannerVersion;
     RocksDBOptions rocksDBOptions;
     RocksDB rocksDB;
