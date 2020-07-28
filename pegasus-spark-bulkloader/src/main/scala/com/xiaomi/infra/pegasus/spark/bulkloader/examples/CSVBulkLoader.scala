@@ -38,11 +38,7 @@ object CSVBulkLoader {
     sc.textFile("data.csv")
       .map(i => {
         val lines = i.split(",")
-        (
-          PegasusRecord
-            .create(lines(0), lines(1), lines(2)),
-          ""
-        )
+        PegasusRecord.create(lines(0), lines(1), lines(2))
       })
       .saveAsPegasusFile(config)
   }

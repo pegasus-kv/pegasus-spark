@@ -46,10 +46,11 @@ public class BulkLoader {
   private RemoteFileSystem remoteFileSystem;
   private DataWriter dataWriter;
 
-  private Iterator<Tuple2<PegasusRecord, String>> dataResourceIterator;
+  //key-value
+  private Iterator<Tuple2<PegasusRecord, PegasusRecord>> dataResourceIterator;
 
   public BulkLoader(
-      BulkLoaderConfig config, Iterator<Tuple2<PegasusRecord, String>> iterator, int partitionId)
+      BulkLoaderConfig config, Iterator<Tuple2<PegasusRecord, PegasusRecord>> iterator, int partitionId)
       throws PegasusSparkException {
 
     remoteFileSystem = config.getRemoteFileSystem();
@@ -121,7 +122,7 @@ public class BulkLoader {
     dataWriter.openWithRetry(partitionPath + curSSTFileName);
     while (dataResourceIterator.hasNext()) {
       count++;
-      PegasusRecord pegasusRecord = dataResourceIterator.next()._1;
+      Tuple2<PegasusRecord, PegasusRecord> record = dataResourceIterator.next();
       if (curFileSize > SINGLE_FILE_SIZE_THRESHOLD) {
         dataWriter.closeWithRetry();
         LOG.debug(curFileIndex + BULK_DATA_FILE_SUFFIX + " writes complete!");
@@ -132,7 +133,8 @@ public class BulkLoader {
 
         dataWriter.openWithRetry(partitionPath + curSSTFileName);
       }
-      curFileSize += dataWriter.writeWithRetry(pegasusRecord.key(), pegasusRecord.value());
+
+      curFileSize += dataWriter.writeWithRetry(record._1.data(), record._2.data());
     }
     dataWriter.closeWithRetry();
     LOG.info(

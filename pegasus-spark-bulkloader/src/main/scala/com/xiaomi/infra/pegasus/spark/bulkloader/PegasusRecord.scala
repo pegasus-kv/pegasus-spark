@@ -8,7 +8,7 @@ import org.apache.commons.lang3.Validate
 import org.apache.commons.lang3.builder.HashCodeBuilder
 
 object PegasusRecord {
-  private val epoch_begin = 1451606400 // seconds since 2016.01.01-00:00:00 GMT
+  private val EPOCH_BEGIN = 1451606400 // seconds since 2016.01.01-00:00:00 GMT
 
   def generateKey(hashKey: Array[Byte], sortKey: Array[Byte]): Array[Byte] = {
     val hashKeyLen =
@@ -31,29 +31,47 @@ object PegasusRecord {
     buf.array
   }
 
-  def generateValue(value: Array[Byte]): Array[Byte] = generateValue(value, 0)
-
-  def generateValue(value: Array[Byte], ttl: Int): Array[Byte] = {
-    if (ttl != 0) Bytes.concat(toBeBytes(ttl + epoch_now.toInt), value)
-    else Bytes.concat(toBeBytes(ttl), value)
+  // todo(jiashuo1): ttl, ts, clusterId, deleteTag default 0, later offer api to set it
+  def generateValue(
+      value: Array[Byte],
+      ttl: Int = 0,
+      ts: Long = 0,
+      clusterId: Short = 0,
+      deleteTag: Byte = 0
+  ): Array[Byte] = {
+    val externTag = Long2Bytes(ts << 8 | clusterId << 1 | deleteTag)
+    if (ttl != 0)
+      Bytes.concat(Int2Bytes(ttl + epochNow.toInt), externTag, value)
+    else Bytes.concat(Int2Bytes(ttl), externTag, value)
   }
 
-  def epoch_now: Long = {
+  def epochNow: Long = {
     val d = new Date
-    d.getTime / 1000 - epoch_begin
+    d.getTime / 1000 - EPOCH_BEGIN
   }
 
-  def toBeBytes(i: Int): Array[Byte] = {
+  def Int2Bytes(i: Int): Array[Byte] = {
     val b = ByteBuffer.allocate(4)
     b.order(ByteOrder.BIG_ENDIAN)
     b.putInt(i)
     b.array
   }
 
-  def create(hashKey: String, sortKey: String, value: String): PegasusRecord = {
-    new PegasusRecord(
-      generateKey(hashKey.getBytes, sortKey.getBytes),
-      generateValue(value.getBytes)
+  def Long2Bytes(i: Long): Array[Byte] = {
+    val b = ByteBuffer.allocate(8)
+    b.order(ByteOrder.BIG_ENDIAN)
+    b.putLong(i)
+    b.array
+  }
+
+  def create(
+      hashKey: String,
+      sortKey: String,
+      value: String
+  ): (PegasusRecord, PegasusRecord) = {
+    (
+      PegasusRecord(generateKey(hashKey.getBytes, sortKey.getBytes)),
+      PegasusRecord(generateValue(value.getBytes))
     )
   }
 
@@ -61,21 +79,23 @@ object PegasusRecord {
       hashKey: Array[Byte],
       sortKey: Array[Byte],
       value: Array[Byte]
-  ): PegasusRecord = {
-    new PegasusRecord(generateKey(hashKey, sortKey), generateValue(value))
+  ): (PegasusRecord, PegasusRecord) = {
+    (
+      PegasusRecord(generateKey(hashKey, sortKey)),
+      PegasusRecord(generateValue(value))
+    )
   }
 
 }
 
-case class PegasusRecord private (key: Array[Byte], value: Array[Byte]) {
+case class PegasusRecord(data: Array[Byte]) {
 
-  override def hashCode: Int = new HashCodeBuilder().append(key).hashCode
+  override def hashCode: Int = new HashCodeBuilder().append(data).hashCode
 
   override def equals(other: Any): Boolean = {
     other match {
-      case that: PegasusRecord => key.sameElements(that.key)
+      case that: PegasusRecord => data.sameElements(that.data)
       case _                   => false
     }
   }
-
 }

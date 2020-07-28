@@ -12,7 +12,7 @@ class PegasusHashPartitioner(val num: Int) extends Partitioner {
 
   override def getPartition(key: Any): Int = {
     Tools
-      .remainderUnsigned(Tools.hash(key.asInstanceOf[PegasusRecord].key), num)
+      .remainderUnsigned(Tools.hash(key.asInstanceOf[PegasusRecord].data), num)
       .toInt
   }
 }

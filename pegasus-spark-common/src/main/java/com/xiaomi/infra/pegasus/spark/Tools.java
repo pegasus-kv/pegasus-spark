@@ -17,8 +17,8 @@ public class Tools {
 
     public static final long crc64_poly = 0x9a6c9329ac4bc9b5l;
     public static final int crc32_poly = 0x82f63b78;
-    public static final int crc32_table[] = new int[0x100];
-    public static final long crc64_table[] = new long[0x100];
+    public static final int[] crc32_table = new int[0x100];
+    public static final long[] crc64_table = new long[0x100];
 
     static {
       for (int i = 0; i < 256; ++i) {
@@ -41,19 +41,6 @@ public class Tools {
         crc64_table[i] = k2;
       }
     }
-  }
-
-  public static int dsn_crc32(byte[] array) {
-    return dsn_crc32(array, 0, array.length);
-  }
-
-  public static int dsn_crc32(byte[] array, int offset, int length) {
-    int crc = -1;
-    int end = offset + length;
-    for (int i = offset; i < end; ++i) {
-      crc = dsn_crc.crc32_table[(array[i] ^ crc) & 0xFF] ^ (crc >>> 8);
-    }
-    return ~crc;
   }
 
   public static long dsn_crc64(byte[] array) {
@@ -140,8 +127,8 @@ public class Tools {
     int hashKeyLen = 0xFFFF & buf.getShort();
     Validate.isTrue(hashKeyLen != 0xFFFF && (2 + hashKeyLen <= pegasusKey.length));
     return hashKeyLen == 0
-        ? Tools.dsn_crc64(pegasusKey, 2, pegasusKey.length - 2)
-        : Tools.dsn_crc64(pegasusKey, 2, hashKeyLen);
+        ? dsn_crc64(pegasusKey, 2, pegasusKey.length - 2)
+        : dsn_crc64(pegasusKey, 2, hashKeyLen);
   }
 
   public static <T> Retryer<T> getDefaultRetryer() {

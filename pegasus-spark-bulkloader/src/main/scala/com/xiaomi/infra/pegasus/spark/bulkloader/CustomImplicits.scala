@@ -2,6 +2,8 @@ package com.xiaomi.infra.pegasus.spark.bulkloader
 
 import com.xiaomi.infra.pegasus.spark.Tools
 import org.apache.spark.rdd.RDD
+import com.xiaomi.infra.pegasus.spark.bulkloader.{PegasusRecord => PegasusKey}
+import com.xiaomi.infra.pegasus.spark.bulkloader.{PegasusRecord => PegasusValue}
 
 /**
   * custom implicits object, you can:
@@ -18,7 +20,7 @@ object CustomImplicits {
   implicit val basePegasusKey: Ordering[PegasusRecord] =
     new Ordering[PegasusRecord] {
       override def compare(x: PegasusRecord, y: PegasusRecord): Int = {
-        Tools.compare(x.key, y.key)
+        Tools.compare(x.data, y.data)
       }
     }
 
@@ -28,7 +30,7 @@ object CustomImplicits {
     * @return
     */
   implicit def convert2PegasusRecordRDD(
-      rdd: RDD[(PegasusRecord, String)]
+      rdd: RDD[(PegasusKey, PegasusValue)]
   ): PegasusRecordRDD =
     new PegasusRecordRDD(rdd)
 }
