@@ -102,5 +102,5 @@ class PegasusBytes(record: Array[Byte]) {
   }
 }
 
-case class PegasusKey(key:Array[Byte]) extends PegasusBytes(record = key)
-case class PegasusValue(value:Array[Byte]) extends PegasusBytes(record = value)
+case class PegasusKey(key: Array[Byte]) extends PegasusBytes(record = key)
+case class PegasusValue(value: Array[Byte]) extends PegasusBytes(record = value)
