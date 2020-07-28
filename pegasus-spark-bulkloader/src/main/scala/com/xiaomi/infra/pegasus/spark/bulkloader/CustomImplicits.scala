@@ -2,8 +2,6 @@ package com.xiaomi.infra.pegasus.spark.bulkloader
 
 import com.xiaomi.infra.pegasus.spark.Tools
 import org.apache.spark.rdd.RDD
-import com.xiaomi.infra.pegasus.spark.bulkloader.{PegasusRecord => PegasusKey}
-import com.xiaomi.infra.pegasus.spark.bulkloader.{PegasusRecord => PegasusValue}
 
 /**
   * custom implicits object, you can:
@@ -15,7 +13,7 @@ import com.xiaomi.infra.pegasus.spark.bulkloader.{PegasusRecord => PegasusValue}
 object CustomImplicits {
 
   /**
-    * The implicit implement of ordering by PegasusRecord
+    * The implicit implement of ordering by PegasusBytes
     */
   implicit val basePegasusKey: Ordering[PegasusBytes] =
     new Ordering[PegasusBytes] {
@@ -25,7 +23,7 @@ object CustomImplicits {
     }
 
   /**
-    * The implicit method of converting RDD[(PegasusRecord,String) to PegasusRecordRDD
+    * The implicit method of converting RDD[(PegasusBytes,PegasusBytes) to PegasusRecordRDD
     * @param rdd
     * @return
     */
