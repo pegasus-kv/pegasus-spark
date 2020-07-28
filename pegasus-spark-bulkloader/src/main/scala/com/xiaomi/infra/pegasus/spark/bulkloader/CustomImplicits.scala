@@ -17,9 +17,9 @@ object CustomImplicits {
   /**
     * The implicit implement of ordering by PegasusRecord
     */
-  implicit val basePegasusKey: Ordering[PegasusRecord] =
-    new Ordering[PegasusRecord] {
-      override def compare(x: PegasusRecord, y: PegasusRecord): Int = {
+  implicit val basePegasusKey: Ordering[PegasusBytes] =
+    new Ordering[PegasusBytes] {
+      override def compare(x: PegasusBytes, y: PegasusBytes): Int = {
         Tools.compare(x.data, y.data)
       }
     }
@@ -30,7 +30,7 @@ object CustomImplicits {
     * @return
     */
   implicit def convert2PegasusRecordRDD(
-      rdd: RDD[(PegasusKey, PegasusValue)]
+      rdd: RDD[(PegasusBytes, PegasusBytes)]
   ): PegasusRecordRDD =
     new PegasusRecordRDD(rdd)
 }

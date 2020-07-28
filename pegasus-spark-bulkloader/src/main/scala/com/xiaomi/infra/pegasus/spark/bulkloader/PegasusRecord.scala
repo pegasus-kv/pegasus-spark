@@ -68,10 +68,10 @@ object PegasusRecord {
       hashKey: String,
       sortKey: String,
       value: String
-  ): (PegasusRecord, PegasusRecord) = {
+  ): (PegasusBytes, PegasusBytes) = {
     (
-      PegasusRecord(generateKey(hashKey.getBytes, sortKey.getBytes)),
-      PegasusRecord(generateValue(value.getBytes))
+      PegasusBytes(generateKey(hashKey.getBytes, sortKey.getBytes)),
+      PegasusBytes(generateValue(value.getBytes))
     )
   }
 
@@ -79,23 +79,23 @@ object PegasusRecord {
       hashKey: Array[Byte],
       sortKey: Array[Byte],
       value: Array[Byte]
-  ): (PegasusRecord, PegasusRecord) = {
+  ): (PegasusBytes, PegasusBytes) = {
     (
-      PegasusRecord(generateKey(hashKey, sortKey)),
-      PegasusRecord(generateValue(value))
+      PegasusBytes(generateKey(hashKey, sortKey)),
+      PegasusBytes(generateValue(value))
     )
   }
 
 }
 
-case class PegasusRecord(data: Array[Byte]) {
+case class PegasusBytes(data: Array[Byte]) {
 
   override def hashCode: Int = new HashCodeBuilder().append(data).hashCode
 
   override def equals(other: Any): Boolean = {
     other match {
-      case that: PegasusRecord => data.sameElements(that.data)
-      case _                   => false
+      case that: PegasusBytes => data.sameElements(that.data)
+      case _                  => false
     }
   }
 }
