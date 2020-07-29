@@ -43,7 +43,7 @@ object PegasusRecord {
       deleteTag: Boolean = false
   ): Array[Byte] = {
     val externTag = Long2Bytes(
-      ts << 8 | clusterId << 1 | (if (deleteTag) Byte(1) else Byte(0))
+      ts << 8 | clusterId << 1 | (if (deleteTag) 1 else 0)
     )
     if (ttl != 0)
       Bytes.concat(Int2Bytes(ttl + epochNow.toInt), externTag, value)
