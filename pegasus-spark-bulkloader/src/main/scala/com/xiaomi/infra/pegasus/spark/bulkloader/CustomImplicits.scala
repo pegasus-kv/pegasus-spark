@@ -13,7 +13,7 @@ import org.apache.spark.rdd.RDD
 object CustomImplicits {
 
   /**
-    * The implicit implement of ordering by PegasusBytes
+    * The implicit implement of ordering by PegasusKey
     */
   implicit val basePegasusKey: Ordering[PegasusKey] =
     new Ordering[PegasusKey] {
@@ -23,7 +23,7 @@ object CustomImplicits {
     }
 
   /**
-    * The implicit method of converting RDD[(PegasusBytes,PegasusBytes) to PegasusRecordRDD
+    * The implicit method of converting RDD[(PegasusKey,PegasusValue) to PegasusRecordRDD
     * @param rdd
     * @return
     */
