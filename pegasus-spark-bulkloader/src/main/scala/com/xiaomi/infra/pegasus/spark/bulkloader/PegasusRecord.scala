@@ -93,7 +93,7 @@ object PegasusRecord {
 
 }
 
-class PegasusBytes(record: Array[Byte]) {
+class PegasusBytes(record: Array[Byte]) extends Serializable {
 
   val data: Array[Byte] = record
 

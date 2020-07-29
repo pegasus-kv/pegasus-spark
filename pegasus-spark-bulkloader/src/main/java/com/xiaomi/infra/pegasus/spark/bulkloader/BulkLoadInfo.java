@@ -16,7 +16,7 @@ class BulkLoadInfo {
     this.partition_count = partition_count;
   }
 
-  String toJsonString(){
+  String toJsonString() {
     return Tools.gson.toJson(this);
   }
 }

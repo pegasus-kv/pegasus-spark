@@ -21,7 +21,7 @@ class DataMetaInfo {
     }
   }
 
-  String toJsonString(){
+  String toJsonString() {
     return Tools.gson.toJson(this);
   }
 }

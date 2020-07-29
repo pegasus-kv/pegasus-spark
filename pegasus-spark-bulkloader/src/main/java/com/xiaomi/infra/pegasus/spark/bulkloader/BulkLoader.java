@@ -106,8 +106,7 @@ public class BulkLoader {
     }
   }
 
-  private void createDataFile()
-      throws PegasusSparkException {
+  private void createDataFile() throws PegasusSparkException {
     if (!dataResourceIterator.hasNext()) {
       return;
     }
@@ -135,7 +134,9 @@ public class BulkLoader {
     }
     dataWriter.closeWithRetry();
     LOG.info(
-        "create sst file time used is "
+        "create partition("
+            + partitionId
+            + ") sst file complete, time used is "
             + (System.currentTimeMillis() - start)
             + "ms, kv counts = "
             + count
