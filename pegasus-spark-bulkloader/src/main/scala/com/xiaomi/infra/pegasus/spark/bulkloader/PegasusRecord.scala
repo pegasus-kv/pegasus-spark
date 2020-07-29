@@ -10,7 +10,10 @@ import org.apache.commons.lang3.builder.HashCodeBuilder
 object PegasusRecord {
   private val EPOCH_BEGIN = 1451606400 // seconds since 2016.01.01-00:00:00 GMT
 
-  def generateKey(hashKey: Array[Byte], sortKey: Array[Byte]): Array[Byte] = {
+  private def generateKey(
+      hashKey: Array[Byte],
+      sortKey: Array[Byte]
+  ): Array[Byte] = {
     val hashKeyLen =
       if (hashKey == null) 0
       else hashKey.length
@@ -32,32 +35,34 @@ object PegasusRecord {
   }
 
   // todo(jiashuo1): ttl, ts, clusterId, deleteTag default 0, later offer api to set it
-  def generateValue(
+  private def generateValue(
       value: Array[Byte],
       ttl: Int = 0,
       ts: Long = 0,
       clusterId: Short = 0,
-      deleteTag: Byte = 0
+      deleteTag: Boolean = false
   ): Array[Byte] = {
-    val externTag = Long2Bytes(ts << 8 | clusterId << 1 | deleteTag)
+    val externTag = Long2Bytes(
+      ts << 8 | clusterId << 1 | (if (deleteTag) Byte(1) else Byte(0))
+    )
     if (ttl != 0)
       Bytes.concat(Int2Bytes(ttl + epochNow.toInt), externTag, value)
     else Bytes.concat(Int2Bytes(ttl), externTag, value)
   }
 
-  def epochNow: Long = {
+  private def epochNow: Long = {
     val d = new Date
     d.getTime / 1000 - EPOCH_BEGIN
   }
 
-  def Int2Bytes(i: Int): Array[Byte] = {
+  private def Int2Bytes(i: Int): Array[Byte] = {
     val b = ByteBuffer.allocate(4)
     b.order(ByteOrder.BIG_ENDIAN)
     b.putInt(i)
     b.array
   }
 
-  def Long2Bytes(i: Long): Array[Byte] = {
+  private def Long2Bytes(i: Long): Array[Byte] = {
     val b = ByteBuffer.allocate(8)
     b.order(ByteOrder.BIG_ENDIAN)
     b.putLong(i)
