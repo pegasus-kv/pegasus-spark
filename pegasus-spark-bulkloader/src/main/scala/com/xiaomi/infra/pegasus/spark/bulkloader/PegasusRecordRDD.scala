@@ -10,11 +10,11 @@ class PegasusRecordRDD(data: RDD[(PegasusKey, PegasusValue)]) {
 
   def saveAsPegasusFile(config: BulkLoaderConfig): Unit = {
     var rdd = data
-    if (config.enableDistinct) {
+    if (config.getAdvancedConfig.enableDistinct) {
       rdd = rdd.distinct()
     }
 
-    if (config.enableSort) {
+    if (config.getAdvancedConfig.enableSort) {
       rdd = rdd.repartitionAndSortWithinPartitions(
         new PegasusHashPartitioner(config.getTablePartitionCount)
       )
