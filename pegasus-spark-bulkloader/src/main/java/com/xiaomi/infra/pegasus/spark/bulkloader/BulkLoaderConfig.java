@@ -3,6 +3,7 @@ package com.xiaomi.infra.pegasus.spark.bulkloader;
 import com.xiaomi.infra.pegasus.spark.CommonConfig;
 import com.xiaomi.infra.pegasus.spark.FDSConfig;
 import com.xiaomi.infra.pegasus.spark.HDFSConfig;
+import java.io.Serializable;
 
 public class BulkLoaderConfig extends CommonConfig {
   private BulkLoaderAdvancedConfig advancedConfig = new BulkLoaderAdvancedConfig();
@@ -88,7 +89,7 @@ public class BulkLoaderConfig extends CommonConfig {
    * data has been sorted or distinct base the rule, you can set them false to ignored the sort or
    * distinct process to decrease the time consuming. However, you may not should use the class generally.
    */
-  public static class BulkLoaderAdvancedConfig {
+  public static class BulkLoaderAdvancedConfig implements Serializable {
 
     private boolean isDistinct = true;
     private boolean isSort = true;
