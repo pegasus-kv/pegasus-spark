@@ -27,10 +27,7 @@ object CSVBulkLoader {
       ),
       "clusterName",
       "tableName"
-    ).enableDistinct(true)
-      .enableSort(true)
-      // TODO tableId and tablePartitionCount should be get just by clusterName and tableName
-      .setTableId(20)
+    ).setTableId(20)
       .setTablePartitionCount(32)
 
     // Note: if the partition size > 2G before "saveAsPegasusFile", you need
