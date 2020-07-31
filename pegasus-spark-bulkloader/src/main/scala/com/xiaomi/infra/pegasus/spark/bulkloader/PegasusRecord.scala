@@ -7,6 +7,7 @@ import com.google.common.primitives.Bytes
 import org.apache.commons.lang3.Validate
 import org.apache.commons.lang3.builder.HashCodeBuilder
 
+//todo(jiashuo) PegasusRecord schema of analyser and bulkloader need refactor into common
 object PegasusRecord {
   private val EPOCH_BEGIN = 1451606400 // seconds since 2016.01.01-00:00:00 GMT
 
@@ -34,8 +35,16 @@ object PegasusRecord {
     buf.array
   }
 
-  // todo(jiashuo1): ttl, ts, clusterId, deleteTag default 0, later offer api to set it
-  private def generateValue(
+  private def generateValueV1(
+      value: Array[Byte],
+      ttl: Int = 0
+  ): Array[Byte] = {
+    if (ttl != 0)
+      Bytes.concat(Int2Bytes(ttl + epochNow.toInt), value)
+    else Bytes.concat(Int2Bytes(ttl), value)
+  }
+
+  private def generateValueV2(
       value: Array[Byte],
       ttl: Int = 0,
       ts: Long = 0,
@@ -69,25 +78,25 @@ object PegasusRecord {
     b.array
   }
 
-  def create(
-      hashKey: String,
-      sortKey: String,
-      value: String
-  ): (PegasusKey, PegasusValue) = {
-    (
-      PegasusKey(generateKey(hashKey.getBytes, sortKey.getBytes)),
-      PegasusValue(generateValue(value.getBytes))
-    )
-  }
-
-  def create(
+  def createV1(
       hashKey: Array[Byte],
       sortKey: Array[Byte],
       value: Array[Byte]
   ): (PegasusKey, PegasusValue) = {
     (
       PegasusKey(generateKey(hashKey, sortKey)),
-      PegasusValue(generateValue(value))
+      PegasusValue(generateValueV1(value))
+    )
+  }
+
+  def createV2(
+      hashKey: Array[Byte],
+      sortKey: Array[Byte],
+      value: Array[Byte]
+  ): (PegasusKey, PegasusValue) = {
+    (
+      PegasusKey(generateKey(hashKey, sortKey)),
+      PegasusValue(generateValueV2(value))
     )
   }
 
