@@ -6,14 +6,7 @@ import com.xiaomi.infra.pegasus.spark.RocksDBOptions;
 import com.xiaomi.infra.pegasus.spark.bulkloader.DataMetaInfo.FileInfo;
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -28,7 +21,6 @@ public class BulkLoader {
   private static final String BULK_LOAD_METADATA = "bulk_load_metadata";
   private static final String BULK_DATA_FILE_SUFFIX = ".sst";
 
-  private ExecutorService metaInfoCreateTask = Executors.newFixedThreadPool(10);
   private final AtomicLong totalSize = new AtomicLong();
   private final int partitionId;
   private int curFileIndex = 1;
@@ -153,33 +145,12 @@ public class BulkLoader {
             + curFileIndex);
   }
 
-  private void createBulkLoadMetaDataFile()
-      throws PegasusSparkException, ExecutionException, InterruptedException, IOException {
+  private void createBulkLoadMetaDataFile() throws PegasusSparkException, IOException {
     long start = System.currentTimeMillis();
-    List<Future> taskList = new ArrayList<>();
-    AtomicInteger successCount = new AtomicInteger();
-
     FileStatus[] fileStatuses = remoteFileSystem.getFileStatus(partitionPath);
 
     for (FileStatus fileStatus : fileStatuses) {
-      taskList.add(
-          metaInfoCreateTask.submit(
-              () -> {
-                try {
-                  generateFileMetaInfo(fileStatus);
-                  successCount.incrementAndGet();
-                } catch (PegasusSparkException e) {
-                  LOG.error("generate meta info[" + fileStatus.getPath().toString() + "] failed!");
-                }
-              }));
-    }
-
-    for (Future task : taskList) {
-      task.get();
-    }
-
-    if (successCount.get() != fileStatuses.length) {
-      throw new PegasusSparkException("some file metaInfo generate failed!");
+      generateFileMetaInfo(fileStatus);
     }
 
     dataMetaInfo.file_total_size = totalSize.get();

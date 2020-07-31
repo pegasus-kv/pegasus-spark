@@ -1,6 +1,7 @@
 package com.xiaomi.infra.pegasus.spark.bulkloader;
 
 import com.github.rholder.retry.RetryException;
+import com.github.rholder.retry.Retryer;
 import com.xiaomi.infra.pegasus.spark.PegasusSparkException;
 import com.xiaomi.infra.pegasus.spark.RocksDBOptions;
 import com.xiaomi.infra.pegasus.spark.Tools;
@@ -12,6 +13,8 @@ import org.rocksdb.SstFileWriter;
 class DataWriter {
 
   private SstFileWriter sstFileWriter;
+  private Retryer<Boolean> booleanRetryer = Tools.getDefaultRetryer();
+  private Retryer<Integer> integerRetryer = Tools.getDefaultRetryer();
 
   DataWriter(RocksDBOptions rocksDBOptions) {
     this.sstFileWriter = new SstFileWriter(rocksDBOptions.envOptions, rocksDBOptions.options);
@@ -19,7 +22,7 @@ class DataWriter {
 
   void openWithRetry(String path) throws PegasusSparkException {
     try {
-      Tools.<Boolean>getDefaultRetryer().call(() -> open(path));
+      booleanRetryer.call(() -> open(path));
     } catch (ExecutionException | RetryException e) {
       throw new PegasusSparkException("sstFileWriter open [" + path + "] failed!", e);
     }
@@ -32,7 +35,7 @@ class DataWriter {
 
   int writeWithRetry(byte[] key, byte[] value) throws PegasusSparkException {
     try {
-      return Tools.<Integer>getDefaultRetryer().call(() -> write(key, value));
+      return integerRetryer.call(() -> write(key, value));
     } catch (ExecutionException | RetryException e) {
       throw new PegasusSparkException(
           "sstFileWriter put key-value[key=" + new String(key) + "] failed!", e);
@@ -46,7 +49,7 @@ class DataWriter {
 
   void closeWithRetry() throws PegasusSparkException {
     try {
-      Tools.<Boolean>getDefaultRetryer().call(this::close);
+      booleanRetryer.call(this::close);
     } catch (ExecutionException | RetryException e) {
       throw new PegasusSparkException("sstFileWriter close failed!", e);
     }

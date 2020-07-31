@@ -9,18 +9,12 @@ import java.io.OutputStreamWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 
 public class HDFSFileSystem implements RemoteFileSystem {
-
-  HDFSFileSystem() {}
-
-  private static final Log LOG = LogFactory.getLog(RemoteFileSystem.class);
 
   public BufferedReader getReader(String filePath) throws PegasusSparkException {
     try {
