@@ -80,7 +80,8 @@ public class BulkLoader {
       createDataFile();
       createBulkLoadMetaDataFile();
     } catch (Exception e) {
-      throw new PegasusSparkException("generated bulkloader data failed, please check and retry!");
+      throw new PegasusSparkException(
+          "generated bulkloader data failed, please check and retry!", e);
     }
   }
 
