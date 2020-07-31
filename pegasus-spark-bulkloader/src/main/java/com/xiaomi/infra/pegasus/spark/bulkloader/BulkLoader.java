@@ -140,9 +140,9 @@ public class BulkLoader {
             + partitionId
             + ") sst file complete, time used is "
             + (System.currentTimeMillis() - start)
-            + "ms, kv counts = "
+            + "ms, record counts = "
             + count
-            + " file counts = "
+            + ", file counts = "
             + curFileIndex);
   }
 
