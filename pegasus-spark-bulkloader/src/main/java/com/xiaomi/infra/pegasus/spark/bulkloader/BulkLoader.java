@@ -92,6 +92,7 @@ public class BulkLoader {
     }
   }
 
+  // if has older bulkloader data, need delete it
   private void checkExistAndDelete() throws PegasusSparkException {
     if (remoteFileSystem.exist(partitionPath)) {
       LOG.warn("the data" + partitionPath + "has been existed, and will delete it!");
