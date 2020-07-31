@@ -83,11 +83,19 @@ public class BulkLoader {
 
   void start() throws PegasusSparkException {
     try {
+      checkExistAndDelete();
       createBulkLoadInfoFile();
       createDataFile();
       createBulkLoadMetaDataFile();
     } catch (Exception e) {
       throw new PegasusSparkException("generated bulkloader data failed, please check and retry!");
+    }
+  }
+
+  private void checkExistAndDelete() throws PegasusSparkException {
+    if (remoteFileSystem.exist(partitionPath)) {
+      LOG.warn("the data" + partitionPath + "has been existed, and will delete it!");
+      remoteFileSystem.delete(partitionPath, true);
     }
   }
 
