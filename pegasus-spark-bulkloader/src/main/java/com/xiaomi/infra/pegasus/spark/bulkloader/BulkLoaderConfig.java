@@ -5,11 +5,18 @@ import com.xiaomi.infra.pegasus.spark.FDSConfig;
 import com.xiaomi.infra.pegasus.spark.HDFSConfig;
 import java.io.Serializable;
 
+/**
+ * The config used for generating the pegasus data which will be placed as follow":
+ *
+ * <p><DataPathRoot>/<ClusterName>/<TableName>
+ * <DataPathRoot>/<ClusterName>/<TableName>/bulk_load_info => {JSON}
+ * <DataPathRoot>/<ClusterName>/<TableName>/<PartitionIndex>/bulk_load_metadata => {JSON}
+ * <DataPathRoot>/<ClusterName>/<TableName>/<PartitionIndex>/<FileIndex>.sst => RocksDB SST File
+ */
 public class BulkLoaderConfig extends CommonConfig {
   private AdvancedConfig advancedConfig = new AdvancedConfig();
 
   private String dataPathRoot = "/pegasus-bulkloader";
-  // todo(jiashuo): tableId, tablePartitionCount should be get by clusterName and tableName
   private int tableId;
   private int tablePartitionCount;
 
@@ -22,7 +29,9 @@ public class BulkLoaderConfig extends CommonConfig {
   }
 
   /**
-   * table id
+   * pegasus table ID
+   *
+   * <p>TODO(jiashuo): support automatically retrieval of the table ID of the specified table name
    *
    * @param tableId
    * @return this
@@ -33,7 +42,10 @@ public class BulkLoaderConfig extends CommonConfig {
   }
 
   /**
-   * table partition count
+   * pegasus table partition count
+   *
+   * <p>TODO(jiashuo): support automatically retrieval of the partition count of the specified table
+   * name
    *
    * @param tablePartitionCount
    * @return this

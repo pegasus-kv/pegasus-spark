@@ -77,7 +77,7 @@ class BulkLoader {
     try {
       checkExistAndDelete();
       createBulkLoadInfoFile();
-      createDataFile();
+      createSstFile();
       createBulkLoadMetaDataFile();
     } catch (Exception e) {
       throw new PegasusSparkException(
@@ -108,7 +108,7 @@ class BulkLoader {
     }
   }
 
-  private void createDataFile() throws PegasusSparkException {
+  private void createSstFile() throws PegasusSparkException {
     if (!dataResourceIterator.hasNext()) {
       return;
     }
