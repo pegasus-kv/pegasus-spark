@@ -86,7 +86,7 @@ public class BulkLoaderConfig extends CommonConfig {
    * This class supports two options: enableSort and enableDistinct. Pegasus bulkload require the
    * data must be sorted and distinct by [hashKeyLength][hashKey][sortKey]. if you make sure that
    * the source data has been sorted or distinct base the rule, you can set them false to ignored
-   * the sort or distinct process to decrease the time consuming. However, you may not should use
+   * the sort or distinct process to decrease the time consuming. Otherwise, you may not should use
    * the class generally.
    */
   public static class BulkLoaderAdvancedConfig implements Serializable {
