@@ -13,7 +13,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.fs.FileStatus;
 import scala.Tuple2;
 
-public class BulkLoader {
+class BulkLoader {
   private static final Log LOG = LogFactory.getLog(BulkLoader.class);
 
   private static final int SINGLE_FILE_SIZE_THRESHOLD = 64 * 1024 * 1024;
@@ -34,15 +34,15 @@ public class BulkLoader {
   private String bulkLoadMetaDataPath;
 
   private RemoteFileSystem remoteFileSystem;
-  private DataWriter dataWriter;
+  private SstFileWriterWrapper sstFileWriterWrapper;
 
   private Iterator<Tuple2<PegasusKey, PegasusValue>> dataResourceIterator;
 
-  public BulkLoader(
+  BulkLoader(
       BulkLoaderConfig config, Iterator<Tuple2<PegasusKey, PegasusValue>> iterator, int partitionId)
       throws PegasusSparkException {
 
-    remoteFileSystem = config.getRemoteFileSystem();
+    this.remoteFileSystem = config.getRemoteFileSystem();
 
     String dataPathPrefix =
         config.getRemoteFileSystemURL()
@@ -68,8 +68,8 @@ public class BulkLoader {
             config.getTablePartitionCount());
     this.dataMetaInfo = new DataMetaInfo();
 
-    this.dataWriter =
-        new DataWriter(
+    this.sstFileWriterWrapper =
+        new SstFileWriterWrapper(
             new RocksDBOptions(config.getRemoteFileSystemURL(), config.getRemoteFileSystemPort()));
   }
 
@@ -117,24 +117,24 @@ public class BulkLoader {
     long count = 0;
 
     String curSSTFileName = curFileIndex + BULK_DATA_FILE_SUFFIX;
-    dataWriter.openWithRetry(partitionPath + curSSTFileName);
+    sstFileWriterWrapper.openWithRetry(partitionPath + curSSTFileName);
     while (dataResourceIterator.hasNext()) {
       count++;
       Tuple2<PegasusKey, PegasusValue> record = dataResourceIterator.next();
       if (curFileSize > SINGLE_FILE_SIZE_THRESHOLD) {
-        dataWriter.closeWithRetry();
+        sstFileWriterWrapper.closeWithRetry();
         LOG.debug(curFileIndex + BULK_DATA_FILE_SUFFIX + " writes complete!");
 
         curFileIndex++;
         curFileSize = 0L;
         curSSTFileName = curFileIndex + BULK_DATA_FILE_SUFFIX;
 
-        dataWriter.openWithRetry(partitionPath + curSSTFileName);
+        sstFileWriterWrapper.openWithRetry(partitionPath + curSSTFileName);
       }
 
-      curFileSize += dataWriter.writeWithRetry(record._1.data(), record._2.data());
+      curFileSize += sstFileWriterWrapper.writeWithRetry(record._1.data(), record._2.data());
     }
-    dataWriter.closeWithRetry();
+    sstFileWriterWrapper.closeWithRetry();
     LOG.info(
         "create partition("
             + partitionId

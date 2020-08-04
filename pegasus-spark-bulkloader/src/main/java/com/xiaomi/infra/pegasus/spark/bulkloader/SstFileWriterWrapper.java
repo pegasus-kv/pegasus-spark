@@ -10,13 +10,13 @@ import org.rocksdb.RocksDBException;
 import org.rocksdb.SstFileWriter;
 
 /** The wrapper of sstFileWriter of rocksdbjava */
-class DataWriter {
+class SstFileWriterWrapper {
 
   private SstFileWriter sstFileWriter;
   private Retryer<Boolean> booleanRetryer = Tools.getDefaultRetryer();
   private Retryer<Integer> integerRetryer = Tools.getDefaultRetryer();
 
-  DataWriter(RocksDBOptions rocksDBOptions) {
+  SstFileWriterWrapper(RocksDBOptions rocksDBOptions) {
     this.sstFileWriter = new SstFileWriter(rocksDBOptions.envOptions, rocksDBOptions.options);
   }
 

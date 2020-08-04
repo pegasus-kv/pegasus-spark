@@ -6,7 +6,7 @@ import com.xiaomi.infra.pegasus.spark.HDFSConfig;
 import java.io.Serializable;
 
 public class BulkLoaderConfig extends CommonConfig {
-  private BulkLoaderAdvancedConfig advancedConfig = new BulkLoaderAdvancedConfig();
+  private AdvancedConfig advancedConfig = new AdvancedConfig();
 
   private String dataPathRoot = "/pegasus-bulkloader";
   // todo(jiashuo): tableId, tablePartitionCount should be get by clusterName and tableName
@@ -55,13 +55,13 @@ public class BulkLoaderConfig extends CommonConfig {
   }
 
   /**
-   * set BulkLoaderAdvancedConfig decide the data whether to sort or distinct, detail see {@link
-   * BulkLoaderAdvancedConfig}
+   * set AdvancedConfig decide the data whether to sort or distinct, detail see {@link
+   * AdvancedConfig}
    *
    * @param advancedConfig
    * @return this
    */
-  public BulkLoaderConfig setAdvancedConfig(BulkLoaderAdvancedConfig advancedConfig) {
+  public BulkLoaderConfig setAdvancedConfig(AdvancedConfig advancedConfig) {
     this.advancedConfig = advancedConfig;
     return this;
   }
@@ -78,7 +78,7 @@ public class BulkLoaderConfig extends CommonConfig {
     return tablePartitionCount;
   }
 
-  public BulkLoaderAdvancedConfig getAdvancedConfig() {
+  public AdvancedConfig getAdvancedConfig() {
     return advancedConfig;
   }
 
@@ -89,7 +89,7 @@ public class BulkLoaderConfig extends CommonConfig {
    * the sort or distinct process to decrease the time consuming. Otherwise, you may not should use
    * the class generally.
    */
-  public static class BulkLoaderAdvancedConfig implements Serializable {
+  public static class AdvancedConfig implements Serializable {
 
     private boolean isDistinct = true;
     private boolean isSort = true;
@@ -102,7 +102,7 @@ public class BulkLoaderConfig extends CommonConfig {
      * @param distinct true or false, default is "true"
      * @return this
      */
-    public BulkLoaderAdvancedConfig enableDistinct(boolean distinct) {
+    public AdvancedConfig enableDistinct(boolean distinct) {
       isDistinct = distinct;
       return this;
     }
@@ -115,7 +115,7 @@ public class BulkLoaderConfig extends CommonConfig {
      * @param sort true or false, default is "true"
      * @return this
      */
-    public BulkLoaderAdvancedConfig enableSort(boolean sort) {
+    public AdvancedConfig enableSort(boolean sort) {
       isSort = sort;
       return this;
     }
