@@ -1,4 +1,4 @@
-package com.xiaomi.infra.pegasus.spark
+package com.xiaomi.infra.pegasus.spark.bulkloader
 
 import java.time.Duration
 
@@ -15,9 +15,9 @@ import com.xiaomi.infra.pegasus.client.{
   SetItem
 }
 
-case class OnlineWriteConfig() extends Serializable {
+case class OnlineLoadConfig() extends Serializable {
   var metaServer: String = _
-  var timeout: Long = 1000
+  var timeout: Long = 10000
   var asyncWorks: Int = 4
 
   var clusterName: String = _
@@ -26,6 +26,7 @@ case class OnlineWriteConfig() extends Serializable {
   // ttlThreshold(unit is seconds) must not be negative. less than the threshold won't be write,
   // default is 0.
   var ttlThreshold: Int = 0
+  // TODO(jiashuo) flow control need be refactored
   // flow control：
   // single_qps = flowControl * bulkNum
   // total_qps = single_qps * partitionNum(here partitionNum equal count of partition in
@@ -33,53 +34,53 @@ case class OnlineWriteConfig() extends Serializable {
   var bulkNum: Int = 10
   var flowControl: Int = 5
 
-  def metaServer(metaServer: String): OnlineWriteConfig = {
+  def metaServer(metaServer: String): OnlineLoadConfig = {
     this.metaServer = metaServer
     this
   }
 
-  def timeout(timeout: Long): OnlineWriteConfig = {
+  def timeout(timeout: Long): OnlineLoadConfig = {
     this.timeout = timeout
     this
   }
 
-  def asyncWorks(asyncWorks: Int): OnlineWriteConfig = {
+  def asyncWorks(asyncWorks: Int): OnlineLoadConfig = {
     this.asyncWorks = asyncWorks
     this
   }
 
-  def clusterName(clusterName: String): OnlineWriteConfig = {
+  def clusterName(clusterName: String): OnlineLoadConfig = {
     this.clusterName = clusterName
     this
   }
 
-  def tableName(table: String): OnlineWriteConfig = {
+  def tableName(table: String): OnlineLoadConfig = {
     this.tableName = table
     this
   }
 
-  def bulkNum(bulkNum: Int): OnlineWriteConfig = {
+  def bulkNum(bulkNum: Int): OnlineLoadConfig = {
     this.bulkNum = bulkNum
     this
   }
 
-  def flowControl(flowControl: Int): OnlineWriteConfig = {
+  def flowControl(flowControl: Int): OnlineLoadConfig = {
     this.flowControl = flowControl
     this
   }
 
-  def TTLThreshold(ttl: Int): OnlineWriteConfig = {
+  def TTLThreshold(ttl: Int): OnlineLoadConfig = {
     this.ttlThreshold = ttl
     this
   }
 
 }
 
-class PegasusOnlineWriter(resource: RDD[SetItem]) extends Serializable {
+class PegasusSetItemRDD(resource: RDD[SetItem]) extends Serializable {
 
-  private val logger = LoggerFactory.getLogger(classOf[PegasusOnlineWriter])
+  private val logger = LoggerFactory.getLogger(classOf[PegasusSetItemRDD])
 
-  def saveAsOnlineData(writeConfig: OnlineWriteConfig): Unit = {
+  def saveAsPegasusFile(writeConfig: OnlineLoadConfig): Unit = {
     resource.foreachPartition(i => {
       var totalCount = 0
       var validCount = 0
@@ -100,14 +101,14 @@ class PegasusOnlineWriter(resource: RDD[SetItem]) extends Serializable {
         .foreach(slice => {
           flowController.getToken()
           val validData =
-            slice.filter(i => i.ttlSeconds > writeConfig.ttlThreshold)
+            slice.filter(i => i.ttlSeconds >= writeConfig.ttlThreshold)
           var success = false
           while (!success) {
             try {
               client.batchSet(writeConfig.tableName, validData.asJava)
               success = true
             } catch {
-              case ex: PException =>
+              case ex: Exception =>
                 logger
                   .info("partition index " + index + ": batchSet error:" + ex)
                 Thread.sleep(10)

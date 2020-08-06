@@ -8,7 +8,7 @@ import com.xiaomi.infra.pegasus.spark.bulkloader.{
 import org.apache.spark.{SparkConf, SparkContext}
 import com.xiaomi.infra.pegasus.spark.bulkloader.CustomImplicits._
 
-object CSVBulkLoader {
+object CSVOfflineLoader {
 
   def main(args: Array[String]): Unit = {
     val conf = new SparkConf()
