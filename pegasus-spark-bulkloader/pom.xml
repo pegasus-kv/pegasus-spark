@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <parent>
     <artifactId>pegasus-spark</artifactId>
     <groupId>com.xiaomi.infra</groupId>
@@ -10,9 +10,9 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>pegasus-spark-analyser</artifactId>
+  <artifactId>pegasus-spark-bulkloader</artifactId>
 
-  <name>pegasus-spark-analyser</name>
+  <name>pegasus-spark-bulkloader</name>
   <!-- FIXME change it to the project's website -->
   <url>http://www.example.com</url>
 
@@ -24,15 +24,15 @@
 
   <dependencies>
     <dependency>
+      <groupId>com.xiaomi.infra</groupId>
+      <artifactId>pegasus-spark-common</artifactId>
+      <version>1.0-SNAPSHOT</version>
+    </dependency>
+    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>4.11</version>
       <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.xiaomi.infra</groupId>
-      <artifactId>pegasus-spark-common</artifactId>
-      <version>1.0-SNAPSHOT</version>
     </dependency>
   </dependencies>
 </project>

@@ -1,12 +1,30 @@
 package com.xiaomi.infra.pegasus.spark.analyser;
 
-import com.xiaomi.infra.pegasus.spark.Config;
+import com.xiaomi.infra.pegasus.spark.CommonConfig;
+import com.xiaomi.infra.pegasus.spark.FDSConfig;
+import com.xiaomi.infra.pegasus.spark.HDFSConfig;
 
-public class ColdBackupConfig extends Config {
+public class ColdBackupConfig extends CommonConfig {
+  private static final long MB_UNIT = 1024 * 1024L;
 
-  public String policyName = "every_day";
-  public String coldBackupTime = "";
-  public DataVersion dataVersion = new DataVersion1();
+  private static final int DEFAULT_FILE_OPEN_COUNT = 50;
+  private static final long DEFAULT_READ_AHEAD_SIZE_MB = MB_UNIT;
+
+  private long readAheadSize;
+  private int fileOpenCount;
+  private String policyName;
+  private String coldBackupTime;
+  private DataVersion dataVersion = new DataVersion1();
+
+  public ColdBackupConfig(HDFSConfig hdfsConfig, String clusterName, String tableName) {
+    super(hdfsConfig, clusterName, tableName);
+    setReadOptions(DEFAULT_FILE_OPEN_COUNT, DEFAULT_READ_AHEAD_SIZE_MB);
+  }
+
+  public ColdBackupConfig(FDSConfig fdsConfig, String clusterName, String tableName) {
+    super(fdsConfig, clusterName, tableName);
+    setReadOptions(DEFAULT_FILE_OPEN_COUNT, DEFAULT_READ_AHEAD_SIZE_MB);
+  }
 
   /**
    * cold backup policy name
@@ -25,7 +43,7 @@ public class ColdBackupConfig extends Config {
    * cold backup creating time.
    *
    * @param coldBackupTime creating time of cold backup data, accurate to day level. for example:
-   *     2019-09-11, default is "", means choose the latest data
+   *     2019-09-11, default is null, means choose the latest data
    * @return this
    */
   public ColdBackupConfig setColdBackupTime(String coldBackupTime) {
@@ -36,12 +54,46 @@ public class ColdBackupConfig extends Config {
   /**
    * pegasus data version
    *
-   * @param dataVersion pegasus has different data versions, default is {@linkplain DataVersion1}
+   * @param dataVersion pegasus data has different data versions, default is {@linkplain
+   *     DataVersion1}
    * @return this
    */
   // TODO(wutao1): we can support auto detection of the data version.
   public ColdBackupConfig setDataVersion(DataVersion dataVersion) {
     this.dataVersion = dataVersion;
     return this;
+  }
+
+  /**
+   * @param maxFileOpenCount maxFileOpenCount is rocksdb concept which can control the max file open
+   *     count, default is 50. detail see
+   *     https://github.com/facebook/rocksdb/wiki/RocksDB-Tuning-Guide#general-options
+   * @param readAheadSize readAheadSize is rocksdb concept which can control the readAheadSize,
+   *     default is 1MB, detail see https://github.com/facebook/rocksdb/wiki/Iterator#read-ahead
+   */
+  public ColdBackupConfig setReadOptions(int maxFileOpenCount, long readAheadSize) {
+    this.readAheadSize = readAheadSize * MB_UNIT;
+    this.fileOpenCount = maxFileOpenCount;
+    return this;
+  }
+
+  public long getReadAheadSize() {
+    return readAheadSize;
+  }
+
+  public int getFileOpenCount() {
+    return fileOpenCount;
+  }
+
+  public String getPolicyName() {
+    return policyName;
+  }
+
+  public String getColdBackupTime() {
+    return coldBackupTime;
+  }
+
+  public DataVersion getDataVersion() {
+    return dataVersion;
   }
 }
