@@ -3,10 +3,10 @@ package com.xiaomi.infra.pegasus.spark.analyser.examples.basic
 import com.xiaomi.infra.pegasus.spark.FDSConfig
 import com.xiaomi.infra.pegasus.spark.analyser.{
   ColdBackupConfig,
-  ColdBackupLoader,
-  PegasusContext
+  ColdBackupLoader
 }
-import org.apache.spark.{SparkConf, SparkContext};
+import org.apache.spark.{SparkConf, SparkContext}
+import com.xiaomi.infra.pegasus.spark.analyser.CustomImplicits._
 
 object CountData {
 
@@ -14,7 +14,6 @@ object CountData {
     val conf: SparkConf = new SparkConf()
       .setAppName("count data")
       .setIfMissing("spark.master", "local[1]")
-    val sc = new SparkContext(conf)
     // if data in HDFS, pass HDFSConfig()
     val coldBackupConfig =
       new ColdBackupConfig(
@@ -30,7 +29,7 @@ object CountData {
       )
 
     var count = 0
-    new PegasusContext(sc)
+    val sc = new SparkContext(conf)
       .pegasusSnapshotRDD(new ColdBackupLoader(coldBackupConfig))
       .map(i => {
         count = count + 1

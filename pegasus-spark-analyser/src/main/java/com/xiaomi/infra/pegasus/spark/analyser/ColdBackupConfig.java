@@ -4,7 +4,9 @@ import com.xiaomi.infra.pegasus.spark.CommonConfig;
 import com.xiaomi.infra.pegasus.spark.FDSConfig;
 import com.xiaomi.infra.pegasus.spark.HDFSConfig;
 
-public class ColdBackupConfig extends CommonConfig {
+public class ColdBackupConfig extends CommonConfig implements Config {
+  public DataType dataType = DataType.COLD_BACKUP;
+
   private static final long MB_UNIT = 1024 * 1024L;
 
   private static final int DEFAULT_FILE_OPEN_COUNT = 50;
