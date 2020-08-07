@@ -21,8 +21,7 @@ object CountData {
           "accessKey",
           "accessSecret",
           "bucketName",
-          "endPoint",
-          "port"
+          "endPoint"
         ),
         "clusterName",
         "tableName"
