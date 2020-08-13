@@ -8,5 +8,5 @@ public interface Config {
     INVALID
   }
 
-  DataType dataType = DataType.INVALID;
+  DataType getDataType();
 }

@@ -5,7 +5,7 @@ import com.xiaomi.infra.pegasus.spark.FDSConfig;
 import com.xiaomi.infra.pegasus.spark.HDFSConfig;
 
 public class ColdBackupConfig extends CommonConfig implements Config {
-  public DataType dataType = DataType.COLD_BACKUP;
+  public static final DataType dataType = DataType.COLD_BACKUP;
 
   private static final long MB_UNIT = 1024 * 1024L;
 
@@ -26,6 +26,11 @@ public class ColdBackupConfig extends CommonConfig implements Config {
   public ColdBackupConfig(FDSConfig fdsConfig, String clusterName, String tableName) {
     super(fdsConfig, clusterName, tableName);
     setReadOptions(DEFAULT_FILE_OPEN_COUNT, DEFAULT_READ_AHEAD_SIZE_MB);
+  }
+
+  @Override
+  public DataType getDataType() {
+    return dataType;
   }
 
   /**
