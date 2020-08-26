@@ -48,14 +48,19 @@ public class JNILibraryLoader {
         .add(LIB_ZSTD);
   }
 
-  public static void load() throws IOException, PegasusSparkException {
+  /**
+   * Loads the necessary library files from rocksdbjni.jar. Calling this method twice will have no
+   * effect. NOTE: The method extracts the shared libraries for loading at java.io.tmpdir, and
+   * delete the temporary files on exit.
+   */
+  public static void load() throws PegasusSparkException {
     for (String lib : jniLibraries.libraries) {
       load(lib);
     }
     RocksDB.loadLibrary();
   }
 
-  private static void load(String libraryName) throws IOException, PegasusSparkException {
+  private static void load(String libraryName) throws PegasusSparkException {
     String libraryPath = libraryPrefix + libraryName;
 
     if (temporaryDir == null) {
@@ -71,23 +76,26 @@ public class JNILibraryLoader {
     if (!temp.exists()) {
       synchronized (JNILibraryLoader.class) {
         if (!temp.exists()) {
-          InputStream in = JNILibraryLoader.class.getResourceAsStream(libraryPath);
-          if (in == null) {
-            throw new PegasusSparkException(libraryPath + " not found!");
+          try {
+            InputStream in = JNILibraryLoader.class.getResourceAsStream(libraryPath);
+            Files.copy(in, temp.toPath(), StandardCopyOption.REPLACE_EXISTING);
+          } catch (IOException e) {
+            temporaryDir.delete();
+            throw new PegasusSparkException(
+                libraryPath + " copy to " + temp.toPath().toString() + " error!", e);
           }
-          Files.copy(in, temp.toPath(), StandardCopyOption.REPLACE_EXISTING);
           System.load(temp.getAbsolutePath());
         }
       }
     }
   }
 
-  private static File generateTempFile() throws IOException {
+  private static File generateTempFile() throws PegasusSparkException {
     String tempDir = System.getProperty("java.io.tmpdir");
     File generatedDir = new File(tempDir, "pegasus-spark" + System.nanoTime());
 
     if (!generatedDir.mkdir())
-      throw new IOException("Failed to create temp directory " + generatedDir.getName());
+      throw new PegasusSparkException("Failed to create temp directory " + generatedDir.getName());
     return generatedDir;
   }
 }
