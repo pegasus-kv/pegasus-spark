@@ -7,6 +7,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.fs.FileStatus;
@@ -26,6 +27,10 @@ class ColdBackupLoader implements PegasusLoader {
   private final int partitionCount;
 
   private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+  public ColdBackupLoader() throws PegasusSparkException, ConfigurationException {
+    this(ColdBackupConfig.loadConfig());
+  }
 
   ColdBackupLoader(ColdBackupConfig config) throws PegasusSparkException {
     coldBackupConfig = config;

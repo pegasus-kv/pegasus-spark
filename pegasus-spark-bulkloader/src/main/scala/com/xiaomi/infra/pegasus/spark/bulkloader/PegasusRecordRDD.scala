@@ -8,7 +8,9 @@ import scala.collection.JavaConverters._
 
 class PegasusRecordRDD(data: RDD[(PegasusKey, PegasusValue)]) {
 
-  def saveAsPegasusFile(config: BulkLoaderConfig): Unit = {
+  def saveAsPegasusFile(
+      config: BulkLoaderConfig = BulkLoaderConfig.loadConfig()
+  ): Unit = {
     var rdd = data
     if (config.getAdvancedConfig.enableDistinct) {
       rdd = rdd.distinct()

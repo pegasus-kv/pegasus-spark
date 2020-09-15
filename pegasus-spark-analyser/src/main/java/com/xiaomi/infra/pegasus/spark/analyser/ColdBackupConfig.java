@@ -1,8 +1,14 @@
 package com.xiaomi.infra.pegasus.spark.analyser;
 
+import static com.xiaomi.infra.pegasus.spark.FDSConfig.loadFDSConfig;
+import static com.xiaomi.infra.pegasus.spark.HDFSConfig.loadHDFSConfig;
+
 import com.xiaomi.infra.pegasus.spark.CommonConfig;
 import com.xiaomi.infra.pegasus.spark.FDSConfig;
 import com.xiaomi.infra.pegasus.spark.HDFSConfig;
+import com.xiaomi.infra.pegasus.spark.PegasusSparkException;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.XMLConfiguration;
 
 /**
  * ColdBackupConfig is used when you manipulate the cold-backup data. <br>
@@ -17,6 +23,9 @@ public class ColdBackupConfig extends CommonConfig implements Config {
 
   private static final int DEFAULT_FILE_OPEN_COUNT = 50;
   private static final long DEFAULT_READ_AHEAD_SIZE_MB = 1;
+  private static final String DEFAULT_POLICY_NAME = "one_time";
+  private static final String DEFAULT_COLD_BACKUP_TIME = "";
+  private static final int DEFAULT_DATA_VERSION = 1;
 
   private long readAheadSize;
   private int fileOpenCount;
@@ -32,6 +41,44 @@ public class ColdBackupConfig extends CommonConfig implements Config {
   public ColdBackupConfig(FDSConfig fdsConfig, String clusterName, String tableName) {
     super(fdsConfig, clusterName, tableName);
     setReadOptions(DEFAULT_FILE_OPEN_COUNT, DEFAULT_READ_AHEAD_SIZE_MB);
+  }
+
+  public static ColdBackupConfig loadConfig() throws PegasusSparkException, ConfigurationException {
+    return loadConfig("core-site.xml", ClusterType.C3, RemoteFSType.FDS);
+  }
+
+  public static ColdBackupConfig loadConfig(
+      String path, ClusterType clusterType, RemoteFSType remoteFSType)
+      throws ConfigurationException, PegasusSparkException {
+    XMLConfiguration configuration = new XMLConfiguration(path);
+    long readAheadSize = configuration.getLong("fs.read.ahead.size", DEFAULT_READ_AHEAD_SIZE_MB);
+    int fileOpenCount = configuration.getInt("fs.file.max.open.count", DEFAULT_FILE_OPEN_COUNT);
+    DataVersion version =
+        configuration.getInt("pegasus.analyser.data.version", DEFAULT_DATA_VERSION) == 1
+            ? new DataVersion1()
+            : new DataVersion2();
+    String policyName =
+        configuration.getString("pegasus.analyser.data.policy", DEFAULT_POLICY_NAME);
+    String coldBackupTime =
+        configuration.getString("pegasus.analyser.data.time", DEFAULT_COLD_BACKUP_TIME);
+    String clusterName = configuration.getString("pegasus.analyser.cluster");
+    String tableName = configuration.getString("pegasus.analyser.table");
+
+    ColdBackupConfig coldBackupConfig;
+    if (remoteFSType == RemoteFSType.FDS) {
+      coldBackupConfig =
+          new ColdBackupConfig(loadFDSConfig(configuration, clusterType), clusterName, tableName);
+    } else if (remoteFSType == RemoteFSType.HDFS) {
+      coldBackupConfig =
+          new ColdBackupConfig(loadHDFSConfig(configuration), clusterName, tableName);
+    } else {
+      throw new PegasusSparkException("Only support fds and hdfs");
+    }
+    return coldBackupConfig
+        .setReadOptions(fileOpenCount, readAheadSize)
+        .setColdBackupTime(coldBackupTime)
+        .setPolicyName(policyName)
+        .setDataVersion(version);
   }
 
   @Override
