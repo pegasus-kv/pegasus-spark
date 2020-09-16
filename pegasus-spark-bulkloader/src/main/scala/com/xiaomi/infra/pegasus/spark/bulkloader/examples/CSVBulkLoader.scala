@@ -1,7 +1,6 @@
 package com.xiaomi.infra.pegasus.spark.bulkloader.examples
 
-import com.xiaomi.infra.pegasus.spark.CommonConfig.{ClusterType, RemoteFSType}
-import com.xiaomi.infra.pegasus.spark.FDSConfig
+import com.xiaomi.infra.pegasus.spark.CommonConfig.RemoteFSType
 import com.xiaomi.infra.pegasus.spark.bulkloader.{
   BulkLoaderConfig,
   PegasusRecord
@@ -30,7 +29,7 @@ object CSVBulkLoader {
         )
       })
       .saveAsPegasusFile(
-        BulkLoaderConfig.loadConfig(ClusterType.C3, RemoteFSType.FDS)
+        BulkLoaderConfig.loadConfig(RemoteFSType.FDS)
       )
   }
 

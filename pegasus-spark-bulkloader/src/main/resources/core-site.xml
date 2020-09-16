@@ -9,12 +9,7 @@
       <key>key</key>
       <secret>secret</secret>
       <bucket>bucket</bucket>
-      <endpoint>
-        <!--xiaomi internal fds cluster name-->
-        <WQ>wq</WQ>
-        <C3>c3</C3>
-        <C4>c4</C4>
-      </endpoint>
+      <endpoint>endpoint</endpoint>
       <port>80</port>
     </fds>
 
@@ -25,17 +20,6 @@
   </fs>
 
   <pegasus>
-    <analyser>
-      <cluster>cluster</cluster>
-      <table>table</table>
-      <!--follow is optional-->
-      <readAheadSize>1</readAheadSize>
-      <fileMaxOpenCount>50</fileMaxOpenCount>
-      <version>1</version>
-      <policy>one_time</policy>
-      <timestamp>2019-01-09</timestamp>
-    </analyser>
-
     <bulkloader>
       <cluster>cluster</cluster>
       <table>table</table>

@@ -45,10 +45,10 @@ public class BulkLoaderConfig extends CommonConfig {
   }
 
   public static BulkLoaderConfig loadConfig() throws PegasusSparkException, ConfigurationException {
-    return loadConfig(ClusterType.C3, RemoteFSType.FDS);
+    return loadConfig(RemoteFSType.FDS);
   }
 
-  public static BulkLoaderConfig loadConfig(ClusterType clusterType, RemoteFSType remoteFSType)
+  public static BulkLoaderConfig loadConfig(RemoteFSType remoteFSType)
       throws ConfigurationException, PegasusSparkException {
     XMLConfiguration configuration =
         new XMLConfiguration(
@@ -69,8 +69,7 @@ public class BulkLoaderConfig extends CommonConfig {
 
     BulkLoaderConfig bulkLoaderConfig;
     if (remoteFSType == RemoteFSType.FDS) {
-      bulkLoaderConfig =
-          new BulkLoaderConfig(loadFDSConfig(configuration, clusterType), clusterName, tableName);
+      bulkLoaderConfig = new BulkLoaderConfig(loadFDSConfig(configuration), clusterName, tableName);
     } else if (remoteFSType == RemoteFSType.HDFS) {
       bulkLoaderConfig =
           new BulkLoaderConfig(loadHDFSConfig(configuration), clusterName, tableName);

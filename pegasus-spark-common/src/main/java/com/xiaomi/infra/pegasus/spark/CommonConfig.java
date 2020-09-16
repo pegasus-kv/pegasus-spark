@@ -4,11 +4,6 @@ import java.io.Serializable;
 
 /** The config class contains the common config for coldBackupConfig and bulkLoadConfig */
 public abstract class CommonConfig implements Serializable {
-  public enum ClusterType {
-    WQ,
-    C3,
-    C4
-  }
 
   public enum RemoteFSType {
     FDS,

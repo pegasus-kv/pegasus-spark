@@ -1,7 +1,6 @@
 package com.xiaomi.infra.pegasus.spark.analyser.examples.parquet
 
-import com.xiaomi.infra.pegasus.spark.CommonConfig.{ClusterType, RemoteFSType}
-import com.xiaomi.infra.pegasus.spark.FDSConfig
+import com.xiaomi.infra.pegasus.spark.CommonConfig.RemoteFSType
 import com.xiaomi.infra.pegasus.spark.analyser.ColdBackupConfig
 import com.xiaomi.infra.pegasus.spark.analyser.CustomImplicits._
 import org.apache.spark.sql.{Row, SaveMode, SparkSession}
@@ -18,7 +17,7 @@ object ConvertParquet {
       .getOrCreate()
 
     val rdd = spark.sparkContext.pegasusSnapshotRDD(
-      ColdBackupConfig.loadConfig(ClusterType.C3, RemoteFSType.FDS)
+      ColdBackupConfig.loadConfig(RemoteFSType.FDS)
     )
 
     // please make sure data can be converted valid string value

@@ -44,11 +44,10 @@ public class ColdBackupConfig extends CommonConfig implements Config {
   }
 
   public static ColdBackupConfig loadConfig() throws PegasusSparkException, ConfigurationException {
-    return loadConfig(ClusterType.C3, RemoteFSType.FDS);
+    return loadConfig(RemoteFSType.FDS);
   }
 
-  public static ColdBackupConfig loadConfig(
-      CommonConfig.ClusterType clusterType, CommonConfig.RemoteFSType remoteFSType)
+  public static ColdBackupConfig loadConfig(CommonConfig.RemoteFSType remoteFSType)
       throws ConfigurationException, PegasusSparkException {
     XMLConfiguration configuration =
         new XMLConfiguration(
@@ -70,8 +69,7 @@ public class ColdBackupConfig extends CommonConfig implements Config {
 
     ColdBackupConfig coldBackupConfig;
     if (remoteFSType == RemoteFSType.FDS) {
-      coldBackupConfig =
-          new ColdBackupConfig(loadFDSConfig(configuration, clusterType), clusterName, tableName);
+      coldBackupConfig = new ColdBackupConfig(loadFDSConfig(configuration), clusterName, tableName);
     } else if (remoteFSType == RemoteFSType.HDFS) {
       coldBackupConfig =
           new ColdBackupConfig(loadHDFSConfig(configuration), clusterName, tableName);

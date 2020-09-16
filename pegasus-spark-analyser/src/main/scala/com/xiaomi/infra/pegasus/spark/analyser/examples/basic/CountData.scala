@@ -1,6 +1,6 @@
 package com.xiaomi.infra.pegasus.spark.analyser.examples.basic
 
-import com.xiaomi.infra.pegasus.spark.CommonConfig.{ClusterType, RemoteFSType}
+import com.xiaomi.infra.pegasus.spark.CommonConfig.RemoteFSType
 import com.xiaomi.infra.pegasus.spark.analyser.ColdBackupConfig
 import org.apache.spark.{SparkConf, SparkContext}
 import com.xiaomi.infra.pegasus.spark.analyser.CustomImplicits._
@@ -15,7 +15,7 @@ object CountData {
     var count = 0
     val sc = new SparkContext(conf)
       .pegasusSnapshotRDD(
-        ColdBackupConfig.loadConfig(ClusterType.C3, RemoteFSType.FDS)
+        ColdBackupConfig.loadConfig(RemoteFSType.FDS)
       )
       .map(_ => {
         count = count + 1
