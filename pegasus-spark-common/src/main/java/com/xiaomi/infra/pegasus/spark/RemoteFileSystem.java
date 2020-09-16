@@ -17,5 +17,7 @@ public interface RemoteFileSystem extends Serializable {
 
   boolean delete(String path, boolean recursive) throws PegasusSparkException;
 
+  boolean mkdirs(String path) throws PegasusSparkException;
+
   String getFileMD5(String filePath) throws PegasusSparkException;
 }

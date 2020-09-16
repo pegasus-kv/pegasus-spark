@@ -69,6 +69,17 @@ public class HDFSFileSystem implements RemoteFileSystem {
   }
 
   @Override
+  public boolean mkdirs(String path) throws PegasusSparkException {
+    FileSystem fs = null;
+    try {
+      fs = FileSystem.get(URI.create(path), new Configuration());
+      return fs.mkdirs(new Path(path));
+    } catch (IOException e) {
+      throw new PegasusSparkException("delete the file existed failed:", e);
+    }
+  }
+
+  @Override
   public String getFileMD5(String filePath) throws PegasusSparkException {
     try {
       return DigestUtils.md5Hex(

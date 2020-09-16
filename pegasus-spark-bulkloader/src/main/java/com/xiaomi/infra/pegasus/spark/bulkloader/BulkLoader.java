@@ -109,6 +109,7 @@ class BulkLoader {
   }
 
   private void createSstFile() throws PegasusSparkException {
+    remoteFileSystem.mkdirs(partitionPath);
     if (!dataResourceIterator.hasNext()) {
       return;
     }
