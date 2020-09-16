@@ -1,6 +1,6 @@
 package com.xiaomi.infra.pegasus.spark.analyser.examples.parquet
 
-import com.xiaomi.infra.pegasus.spark.FDSConfig
+import com.xiaomi.infra.pegasus.spark.CommonConfig.RemoteFSType
 import com.xiaomi.infra.pegasus.spark.analyser.ColdBackupConfig
 import com.xiaomi.infra.pegasus.spark.analyser.CustomImplicits._
 import org.apache.spark.sql.{Row, SaveMode, SparkSession}
@@ -16,11 +16,9 @@ object ConvertParquet {
       ) // this config only for test at local, remove it before deploy in cluster
       .getOrCreate()
 
-    // if data in HDFS, pass HDFSConfig()
-    val coldBackupConfig =
-      new ColdBackupConfig(new FDSConfig("", "", "", "", ""), "onebox", "temp")
-
-    val rdd = spark.sparkContext.pegasusSnapshotRDD(coldBackupConfig)
+    val rdd = spark.sparkContext.pegasusSnapshotRDD(
+      ColdBackupConfig.loadConfig(RemoteFSType.FDS)
+    )
 
     // please make sure data can be converted valid string value
     val dataFrame = spark.createDataFrame(

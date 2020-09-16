@@ -1,5 +1,9 @@
 package com.xiaomi.infra.pegasus.spark;
 
+import java.util.Objects;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.XMLConfiguration;
+
 public class FDSConfig extends HDFSConfig {
 
   String bucketName;
@@ -18,6 +22,22 @@ public class FDSConfig extends HDFSConfig {
 
   public FDSConfig(String accessKey, String accessSecret, String bucketName, String endPoint) {
     this(accessKey, accessSecret, bucketName, endPoint, "80");
+  }
+
+  public static FDSConfig loadFDSConfig() throws ConfigurationException {
+    XMLConfiguration configuration =
+        new XMLConfiguration(
+            Objects.requireNonNull(FDSConfig.class.getClassLoader().getResource("core-site.xml")));
+    return loadFDSConfig(configuration);
+  }
+
+  public static FDSConfig loadFDSConfig(XMLConfiguration configuration) {
+    String key = configuration.getString("fs.fds.key");
+    String secret = configuration.getString("fs.fds.secret");
+    String bucket = configuration.getString("fs.fds.bucket");
+    String endpoint = configuration.getString("fs.fds.endpoint");
+    String port = configuration.getString("fs.fds.port");
+    return new FDSConfig(key, secret, bucket, endpoint, port);
   }
 
   public void setBucketName(String bucketName) {

@@ -1,0 +1,35 @@
+<configuration>
+  <property>
+    <name>fs.fds.impl</name>
+    <value>com.xiaomi.infra.pegasus.spark.thirdparty.galaxy.hadoop.fs.FDSFileSystem</value>
+  </property>
+
+  <fs>
+    <fds>
+      <key>key</key>
+      <secret>secret</secret>
+      <bucket>bucket</bucket>
+      <endpoint>endpoint</endpoint>
+      <port>80</port>
+    </fds>
+
+    <hdfs>
+      <url>hdfs://</url>
+      <port>9001</port>
+    </hdfs>
+  </fs>
+
+  <pegasus>
+    <analyser>
+      <cluster>cluster</cluster>
+      <table>table</table>
+      <!--follow is optional-->
+      <readAheadSize>1</readAheadSize>
+      <fileMaxOpenCount>50</fileMaxOpenCount>
+      <version>1</version>
+      <policy>one_time</policy>
+      <timestamp>2019-01-09</timestamp>
+    </analyser>
+  </pegasus>
+
+</configuration>
