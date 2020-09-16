@@ -1,6 +1,7 @@
 package com.xiaomi.infra.pegasus.spark;
 
 import java.io.Serializable;
+import java.util.Objects;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.XMLConfiguration;
 
@@ -13,8 +14,11 @@ public class HDFSConfig implements Serializable {
     this.Port = Port;
   }
 
-  public static HDFSConfig loadHDFSConfig(String path) throws ConfigurationException {
-    return loadHDFSConfig(new XMLConfiguration(path));
+  public static HDFSConfig loadHDFSConfig() throws ConfigurationException {
+    XMLConfiguration configuration =
+        new XMLConfiguration(
+            Objects.requireNonNull(FDSConfig.class.getClassLoader().getResource("core-site.xml")));
+    return loadHDFSConfig(configuration);
   }
 
   public static HDFSConfig loadHDFSConfig(XMLConfiguration configuration) {

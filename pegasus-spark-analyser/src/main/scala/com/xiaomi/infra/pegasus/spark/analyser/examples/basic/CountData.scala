@@ -26,7 +26,7 @@ object CountData {
 
     var count = 0
     val sc = new SparkContext(conf)
-      .pegasusSnapshotRDD(coldBackupConfig)
+      .pegasusSnapshotRDD()
       .map(_ => {
         count = count + 1
         if (count % 10000 == 0) {

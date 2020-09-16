@@ -1,0 +1,51 @@
+<configuration>
+  <property>
+    <name>fs.fds.impl</name>
+    <value>com.xiaomi.infra.pegasus.spark.thirdparty.galaxy.hadoop.fs.FDSFileSystem</value>
+  </property>
+
+  <fs>
+    <fds>
+      <key>key</key>
+      <secret>secret</secret>
+      <bucket>bucket</bucket>
+      <endpoint>
+        <!--xiaomi internal fds cluster name-->
+        <WQ>wq</WQ>
+        <C3>c3</C3>
+        <C4>c4</C4>
+      </endpoint>
+      <port>80</port>
+    </fds>
+
+    <hdfs>
+      <url>hdfs://</url>
+      <port>9001</port>
+    </hdfs>
+  </fs>
+
+  <pegasus>
+    <analyser>
+      <cluster>cluster</cluster>
+      <table>table</table>
+      <!--follow is optional-->
+      <readAheadSize>1</readAheadSize>
+      <fileMaxOpenCount>50</fileMaxOpenCount>
+      <version>1</version>
+      <policy>one_time</policy>
+      <timestamp>2019-01-09</timestamp>
+    </analyser>
+
+    <bulkloader>
+      <cluster>cluster</cluster>
+      <table>table</table>
+      <id>id</id>
+      <count>count</count>
+      <!--follow is optional-->
+      <root>/pegasus-bulkloader</root>
+      <sort>true</sort>
+      <distinct>true</distinct>
+    </bulkloader>
+  </pegasus>
+
+</configuration>

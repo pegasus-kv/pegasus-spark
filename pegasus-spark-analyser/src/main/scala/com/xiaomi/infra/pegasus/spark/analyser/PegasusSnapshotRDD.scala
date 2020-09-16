@@ -4,7 +4,6 @@ import com.xiaomi.infra.pegasus.spark.JNILibraryLoader
 import org.apache.commons.logging.LogFactory
 import org.apache.spark.rdd.RDD
 import org.apache.spark.{Partition, SparkContext, TaskContext}
-import org.rocksdb.RocksDB
 
 /**
   * PegasusContext is a serializable container for analysing Pegasus's checkpoint on HDFS.
@@ -15,7 +14,9 @@ import org.rocksdb.RocksDB
 // TODO(jiashuo1) refactor rdd/iterator for adding pegasus online data
 class PegasusContext(private val sc: SparkContext) extends Serializable {
 
-  def pegasusSnapshotRDD(config: Config): PegasusSnapshotRDD = {
+  def pegasusSnapshotRDD(
+      config: Config = ColdBackupConfig.loadConfig()
+  ): PegasusSnapshotRDD = {
 
     new PegasusSnapshotRDD(
       this,

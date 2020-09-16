@@ -7,6 +7,7 @@ import com.xiaomi.infra.pegasus.spark.CommonConfig;
 import com.xiaomi.infra.pegasus.spark.FDSConfig;
 import com.xiaomi.infra.pegasus.spark.HDFSConfig;
 import com.xiaomi.infra.pegasus.spark.PegasusSparkException;
+import java.util.Objects;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.XMLConfiguration;
 
@@ -24,7 +25,6 @@ public class ColdBackupConfig extends CommonConfig implements Config {
   private static final int DEFAULT_FILE_OPEN_COUNT = 50;
   private static final long DEFAULT_READ_AHEAD_SIZE_MB = 1;
   private static final String DEFAULT_POLICY_NAME = "one_time";
-  private static final String DEFAULT_COLD_BACKUP_TIME = "";
   private static final int DEFAULT_DATA_VERSION = 1;
 
   private long readAheadSize;
@@ -44,23 +44,26 @@ public class ColdBackupConfig extends CommonConfig implements Config {
   }
 
   public static ColdBackupConfig loadConfig() throws PegasusSparkException, ConfigurationException {
-    return loadConfig("core-site.xml", ClusterType.C3, RemoteFSType.FDS);
+    return loadConfig(ClusterType.C3, RemoteFSType.FDS);
   }
 
-  public static ColdBackupConfig loadConfig(
-      String path, ClusterType clusterType, RemoteFSType remoteFSType)
+  public static ColdBackupConfig loadConfig(CommonConfig.ClusterType clusterType, CommonConfig.RemoteFSType remoteFSType)
       throws ConfigurationException, PegasusSparkException {
-    XMLConfiguration configuration = new XMLConfiguration(path);
-    long readAheadSize = configuration.getLong("fs.read.ahead.size", DEFAULT_READ_AHEAD_SIZE_MB);
-    int fileOpenCount = configuration.getInt("fs.file.max.open.count", DEFAULT_FILE_OPEN_COUNT);
+    XMLConfiguration configuration =
+        new XMLConfiguration(
+            Objects.requireNonNull(
+                ColdBackupConfig.class.getClassLoader().getResource("core-site.xml")));
+
+    long readAheadSize =
+        configuration.getLong("pegasus.analyser.readAheadSize", DEFAULT_READ_AHEAD_SIZE_MB);
+    int fileOpenCount =
+        configuration.getInt("pegasus.analyser.fileMaxOpenCount", DEFAULT_FILE_OPEN_COUNT);
     DataVersion version =
-        configuration.getInt("pegasus.analyser.data.version", DEFAULT_DATA_VERSION) == 1
+        configuration.getInt("pegasus.analyser.version", DEFAULT_DATA_VERSION) == 1
             ? new DataVersion1()
             : new DataVersion2();
-    String policyName =
-        configuration.getString("pegasus.analyser.data.policy", DEFAULT_POLICY_NAME);
-    String coldBackupTime =
-        configuration.getString("pegasus.analyser.data.time", DEFAULT_COLD_BACKUP_TIME);
+    String policyName = configuration.getString("pegasus.analyser.policy", DEFAULT_POLICY_NAME);
+    String coldBackupTime = configuration.getString("pegasus.analyser.timestamp");
     String clusterName = configuration.getString("pegasus.analyser.cluster");
     String tableName = configuration.getString("pegasus.analyser.table");
 

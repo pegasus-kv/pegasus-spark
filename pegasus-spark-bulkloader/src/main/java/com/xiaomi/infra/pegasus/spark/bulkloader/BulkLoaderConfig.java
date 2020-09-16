@@ -8,6 +8,7 @@ import com.xiaomi.infra.pegasus.spark.FDSConfig;
 import com.xiaomi.infra.pegasus.spark.HDFSConfig;
 import com.xiaomi.infra.pegasus.spark.PegasusSparkException;
 import java.io.Serializable;
+import java.util.Objects;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.XMLConfiguration;
 
@@ -44,23 +45,27 @@ public class BulkLoaderConfig extends CommonConfig {
   }
 
   public static BulkLoaderConfig loadConfig() throws PegasusSparkException, ConfigurationException {
-    return loaderConfig("core-site.xml", ClusterType.C3, RemoteFSType.FDS);
+    return loaderConfig(ClusterType.C3, RemoteFSType.FDS);
   }
 
-  public static BulkLoaderConfig loaderConfig(
-      String path, ClusterType clusterType, RemoteFSType remoteFSType)
+  public static BulkLoaderConfig loaderConfig(ClusterType clusterType, RemoteFSType remoteFSType)
       throws ConfigurationException, PegasusSparkException {
-    XMLConfiguration configuration = new XMLConfiguration(path);
+    XMLConfiguration configuration =
+        new XMLConfiguration(
+            Objects.requireNonNull(
+                    BulkLoaderConfig.class.getClassLoader().getResource("core-site.xml"))
+                .getPath());
     String clusterName = configuration.getString("pegasus.bulkloader.cluster");
     String tableName = configuration.getString("pegasus.bulkloader.table");
+    int tableId = configuration.getInt("pegasus.bulkloader.id");
+    int tablePartitionCount = configuration.getInt("pegasus.bulkloader.count");
     String dataPathRoot =
-        configuration.getString("pegasus.bulkloader.path", DEFAULT_DATA_PATH_ROOT);
+        configuration.getString("pegasus.bulkloader.root", DEFAULT_DATA_PATH_ROOT);
     boolean enableSort =
-        configuration.getBoolean(
-            "pegasus.bulkloader.enable.sort", AdvancedConfig.DEFAULT_ENABLE_SORT);
+        configuration.getBoolean("pegasus.bulkloader.sort", AdvancedConfig.DEFAULT_ENABLE_SORT);
     boolean enableDistinct =
         configuration.getBoolean(
-            "pegasus.bulkloader.enable.distinct", AdvancedConfig.DEFAULT_ENABLE_DISTINCT);
+            "pegasus.bulkloader.distinct", AdvancedConfig.DEFAULT_ENABLE_DISTINCT);
 
     BulkLoaderConfig bulkLoaderConfig;
     if (remoteFSType == RemoteFSType.FDS) {
@@ -76,7 +81,9 @@ public class BulkLoaderConfig extends CommonConfig {
     return bulkLoaderConfig
         .setAdvancedConfig(
             new AdvancedConfig().enableDistinct(enableDistinct).enableSort(enableSort))
-        .setDataPathRoot(dataPathRoot);
+        .setDataPathRoot(dataPathRoot)
+        .setTableId(tableId)
+        .setTablePartitionCount(tablePartitionCount);
   }
 
   /**

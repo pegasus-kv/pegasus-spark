@@ -1,6 +1,7 @@
 package com.xiaomi.infra.pegasus.spark;
 
 import com.xiaomi.infra.pegasus.spark.CommonConfig.ClusterType;
+import java.util.Objects;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.XMLConfiguration;
 
@@ -24,12 +25,14 @@ public class FDSConfig extends HDFSConfig {
     this(accessKey, accessSecret, bucketName, endPoint, "80");
   }
 
-  public static FDSConfig loadFDSConfig(String path, ClusterType clusterType)
-      throws ConfigurationException {
-    return loadFDSConfig(new XMLConfiguration(path), clusterType);
+  public static FDSConfig loadFDSConfig(CommonConfig.ClusterType clusterType) throws ConfigurationException {
+    XMLConfiguration configuration =
+        new XMLConfiguration(
+            Objects.requireNonNull(FDSConfig.class.getClassLoader().getResource("core-site.xml")));
+    return loadFDSConfig(configuration, clusterType);
   }
 
-  public static FDSConfig loadFDSConfig(XMLConfiguration configuration, ClusterType clusterType) {
+  public static FDSConfig loadFDSConfig(XMLConfiguration configuration, CommonConfig.ClusterType clusterType) {
     String key = configuration.getString("fs.fds.key");
     String secret = configuration.getString("fs.fds.secret");
     String bucket = configuration.getString("fs.fds.bucket");
