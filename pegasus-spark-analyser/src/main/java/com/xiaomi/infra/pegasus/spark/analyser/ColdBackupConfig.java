@@ -47,7 +47,8 @@ public class ColdBackupConfig extends CommonConfig implements Config {
     return loadConfig(ClusterType.C3, RemoteFSType.FDS);
   }
 
-  public static ColdBackupConfig loadConfig(CommonConfig.ClusterType clusterType, CommonConfig.RemoteFSType remoteFSType)
+  public static ColdBackupConfig loadConfig(
+      CommonConfig.ClusterType clusterType, CommonConfig.RemoteFSType remoteFSType)
       throws ConfigurationException, PegasusSparkException {
     XMLConfiguration configuration =
         new XMLConfiguration(
