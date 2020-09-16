@@ -1,5 +1,6 @@
 package com.xiaomi.infra.pegasus.spark.bulkloader.examples
 
+import com.xiaomi.infra.pegasus.spark.CommonConfig.{ClusterType, RemoteFSType}
 import com.xiaomi.infra.pegasus.spark.FDSConfig
 import com.xiaomi.infra.pegasus.spark.bulkloader.{
   BulkLoaderConfig,
@@ -17,18 +18,6 @@ object CSVBulkLoader {
 
     val sc = new SparkContext(conf)
 
-    val config = new BulkLoaderConfig(
-      new FDSConfig(
-        "accessKey",
-        "accessSecret",
-        "bucketName",
-        "endPoint"
-      ),
-      "clusterName",
-      "tableName"
-    ).setTableId(20)
-      .setTablePartitionCount(32)
-
     // Note: if the partition size > 2G before "saveAsPegasusFile", you need
     // sc.textFile("data.csv").repartition(n), and let the partition size < 2G
     sc.textFile("data.csv")
@@ -40,7 +29,9 @@ object CSVBulkLoader {
           lines(2).getBytes()
         )
       })
-      .saveAsPegasusFile(config)
+      .saveAsPegasusFile(
+        BulkLoaderConfig.loadConfig(ClusterType.C3, RemoteFSType.FDS)
+      )
   }
 
 }

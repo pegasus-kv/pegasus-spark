@@ -45,10 +45,10 @@ public class BulkLoaderConfig extends CommonConfig {
   }
 
   public static BulkLoaderConfig loadConfig() throws PegasusSparkException, ConfigurationException {
-    return loaderConfig(ClusterType.C3, RemoteFSType.FDS);
+    return loadConfig(ClusterType.C3, RemoteFSType.FDS);
   }
 
-  public static BulkLoaderConfig loaderConfig(ClusterType clusterType, RemoteFSType remoteFSType)
+  public static BulkLoaderConfig loadConfig(ClusterType clusterType, RemoteFSType remoteFSType)
       throws ConfigurationException, PegasusSparkException {
     XMLConfiguration configuration =
         new XMLConfiguration(
