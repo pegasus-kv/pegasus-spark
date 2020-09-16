@@ -75,7 +75,7 @@ public class HDFSFileSystem implements RemoteFileSystem {
       fs = FileSystem.get(URI.create(path), new Configuration());
       return fs.mkdirs(new Path(path));
     } catch (IOException e) {
-      throw new PegasusSparkException("delete the file existed failed:", e);
+      throw new PegasusSparkException("mkdirs the partition dir failed:", e);
     }
   }
 
