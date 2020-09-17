@@ -5,7 +5,6 @@ import com.xiaomi.infra.pegasus.spark.{HDFSFileSystem, JNILibraryLoader}
 import org.apache.commons.logging.{Log, LogFactory}
 import org.apache.spark.TaskContext
 import org.apache.spark.rdd.RDD
-
 import scala.collection.JavaConverters._
 
 class PegasusRecordRDD(data: RDD[(PegasusKey, PegasusValue)]) {
