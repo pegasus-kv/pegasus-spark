@@ -15,7 +15,7 @@ object CustomImplicits {
   /**
     * The implicit implement of ordering by PegasusKey
     */
-  implicit val basePegasusKey: Ordering[PegasusKey] =
+  implicit val sortPegasusKey: Ordering[PegasusKey] =
     new Ordering[PegasusKey] {
       override def compare(x: PegasusKey, y: PegasusKey): Int = {
         Tools.compare(x.data, y.data)
