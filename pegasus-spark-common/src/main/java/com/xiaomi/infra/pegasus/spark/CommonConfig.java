@@ -6,6 +6,7 @@ import java.io.Serializable;
 public abstract class CommonConfig implements Serializable {
 
   private RemoteFileSystem remoteFileSystem;
+  private FlowController flowController;
 
   private String remoteFileSystemURL;
   private String remoteFileSystemPort;
@@ -27,6 +28,14 @@ public abstract class CommonConfig implements Serializable {
     this.remoteFileSystemPort = config.getPort();
     this.clusterName = clusterName;
     this.tableName = tableName;
+  }
+
+  public void setFlowController(FlowController flowController) {
+    this.flowController = flowController;
+  }
+
+  public FlowController getFlowController() {
+    return flowController;
   }
 
   public void setRemoteFileSystemURL(String remoteFileSystemURL) {
