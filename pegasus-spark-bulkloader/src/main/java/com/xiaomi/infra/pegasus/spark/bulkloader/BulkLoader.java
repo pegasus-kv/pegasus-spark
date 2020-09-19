@@ -72,7 +72,14 @@ class BulkLoader {
     this.sstFileWriterWrapper =
         new SstFileWriterWrapper(
             new RocksDBOptions(config.getRemoteFileSystemURL(), config.getRemoteFileSystemPort()));
-    this.flowController = config.getFlowController();
+
+    if (config.getRateLimiterConfig() != null) {
+      double qps = config.getRateLimiterConfig().getQps();
+      double bps = config.getRateLimiterConfig().getBps();
+      double factor = config.getRateLimiterConfig().getBurstFactor();
+
+      this.flowController = new FlowController(config.getTablePartitionCount(), qps, bps, factor);
+    }
   }
 
   void start() throws PegasusSparkException {

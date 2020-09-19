@@ -1,12 +1,13 @@
 package com.xiaomi.infra.pegasus.spark;
 
+import com.xiaomi.infra.pegasus.spark.FlowController.RateLimiterConfig;
 import java.io.Serializable;
 
 /** The config class contains the common config for coldBackupConfig and bulkLoadConfig */
 public abstract class CommonConfig implements Serializable {
 
   private RemoteFileSystem remoteFileSystem;
-  private FlowController flowController;
+  private RateLimiterConfig rateLimiterConfig;
 
   private String remoteFileSystemURL;
   private String remoteFileSystemPort;
@@ -30,12 +31,13 @@ public abstract class CommonConfig implements Serializable {
     this.tableName = tableName;
   }
 
-  public void setFlowController(FlowController flowController) {
-    this.flowController = flowController;
+  public RateLimiterConfig getRateLimiterConfig() {
+    return rateLimiterConfig;
   }
 
-  public FlowController getFlowController() {
-    return flowController;
+  public CommonConfig setRateLimiterConfig(RateLimiterConfig rateLimiterConfig) {
+    this.rateLimiterConfig = rateLimiterConfig;
+    return this;
   }
 
   public void setRemoteFileSystemURL(String remoteFileSystemURL) {

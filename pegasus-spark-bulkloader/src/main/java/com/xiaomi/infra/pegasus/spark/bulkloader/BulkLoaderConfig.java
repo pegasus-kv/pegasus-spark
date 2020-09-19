@@ -2,7 +2,6 @@ package com.xiaomi.infra.pegasus.spark.bulkloader;
 
 import com.xiaomi.infra.pegasus.spark.CommonConfig;
 import com.xiaomi.infra.pegasus.spark.FDSConfig;
-import com.xiaomi.infra.pegasus.spark.FlowController;
 import com.xiaomi.infra.pegasus.spark.HDFSConfig;
 import java.io.Serializable;
 
@@ -15,7 +14,7 @@ import java.io.Serializable;
  * <DataPathRoot>/<ClusterName>/<TableName>/<PartitionIndex>/<FileIndex>.sst => RocksDB SST File
  */
 public class BulkLoaderConfig extends CommonConfig {
-  private AdvancedConfig advancedConfig = new AdvancedConfig();
+  private AdvancedConfig advancedConfig;
 
   private String dataPathRoot = "/pegasus-bulkloader";
   private int tableId;
@@ -23,16 +22,12 @@ public class BulkLoaderConfig extends CommonConfig {
 
   public BulkLoaderConfig(HDFSConfig hdfsConfig, String clusterName, String tableName) {
     super(hdfsConfig, clusterName, tableName);
+    setAdvancedConfig(new AdvancedConfig());
   }
 
   public BulkLoaderConfig(FDSConfig fdsConfig, String clusterName, String tableName) {
     super(fdsConfig, clusterName, tableName);
-  }
-
-  @Override
-  public void setFlowController(FlowController flowController) {
-    flowController.withPartitionCount(tablePartitionCount);
-    super.setFlowController(flowController);
+    setAdvancedConfig(new AdvancedConfig());
   }
 
   /**
