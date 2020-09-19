@@ -10,6 +10,7 @@ import org.apache.commons.logging.LogFactory;
 public class FlowController {
 
   private static final Log LOG = LogFactory.getLog(FlowController.class);
+  private int partitionCount;
 
   private RateLimiter bytesLimiter;
   private RateLimiter qpsLimiter;
@@ -20,11 +21,13 @@ public class FlowController {
   }
 
   public void withBytesLimiter(double permitsPerSecond, double maxBurstSeconds) {
-    bytesLimiter = RateLimiter.create(permitsPerSecond, maxBurstSeconds);
+    bytesLimiter =
+        RateLimiter.create(permitsPerSecond / partitionCount, maxBurstSeconds / partitionCount);
   }
 
   public void withQPSLimiter(double permitsPerSecond, double maxBurstSeconds) {
-    qpsLimiter = RateLimiter.create(permitsPerSecond, maxBurstSeconds);
+    qpsLimiter =
+        RateLimiter.create(permitsPerSecond / partitionCount, maxBurstSeconds / partitionCount);
   }
 
   public void withLimiterRateMinitor(int periodSeconds, String message) {
@@ -40,6 +43,10 @@ public class FlowController {
                     + "byte/sec"),
         periodSeconds,
         TimeUnit.SECONDS);
+  }
+
+  public void withPartitionCount(int partitionCount) {
+    this.partitionCount = partitionCount;
   }
 
   public void acquireBytes(int bytes) {

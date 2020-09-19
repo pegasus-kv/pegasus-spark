@@ -2,6 +2,7 @@ package com.xiaomi.infra.pegasus.spark.bulkloader;
 
 import com.xiaomi.infra.pegasus.spark.CommonConfig;
 import com.xiaomi.infra.pegasus.spark.FDSConfig;
+import com.xiaomi.infra.pegasus.spark.FlowController;
 import com.xiaomi.infra.pegasus.spark.HDFSConfig;
 import java.io.Serializable;
 
@@ -26,6 +27,12 @@ public class BulkLoaderConfig extends CommonConfig {
 
   public BulkLoaderConfig(FDSConfig fdsConfig, String clusterName, String tableName) {
     super(fdsConfig, clusterName, tableName);
+  }
+
+  @Override
+  public void setFlowController(FlowController flowController) {
+    flowController.withPartitionCount(tablePartitionCount);
+    super.setFlowController(flowController);
   }
 
   /**
