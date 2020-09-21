@@ -70,7 +70,7 @@ public class BulkLoaderConfig extends CommonConfig {
   /**
    * set the bulkloader data root path, default is {@link #DEFAULT_DATA_ROOT_PATH}
    *
-   * @param dataRootPath data path root
+   * @param dataRootPath data root path
    * @return this
    */
   public BulkLoaderConfig setDataRootPath(String dataRootPath) {
