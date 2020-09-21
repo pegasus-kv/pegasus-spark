@@ -45,12 +45,12 @@ class PegasusRecordRDD(data: RDD[(PegasusKey, PegasusValue)]) {
     if (remoteFileSystem.exist(tablePath)) {
       if (!config.isAutoDeletePreviousData) {
         throw new PegasusSparkException(
-          "the data " + tablePath + " has been existed"
+          "the data path [" + tablePath + "] has been existed!"
         )
       }
 
       LOG.warn(
-        "the data " + tablePath + " has been existed, and will be deleted!"
+        "the data path [" + tablePath + "] has been existed, and will be deleted!"
       )
       remoteFileSystem.delete(tablePath, true)
     }
