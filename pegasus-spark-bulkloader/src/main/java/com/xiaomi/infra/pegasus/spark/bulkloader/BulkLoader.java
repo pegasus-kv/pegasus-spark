@@ -79,7 +79,9 @@ class BulkLoader {
       double factor = config.getRateLimiterConfig().getBurstFactor();
 
       this.flowController =
-          new FlowController(config.getTablePartitionCount(), qps, megabytes, factor);
+          new FlowController(config.getTablePartitionCount(), factor)
+              .withMBytesLimiter(megabytes)
+              .withQPSLimiter(qps);
     }
   }
 
