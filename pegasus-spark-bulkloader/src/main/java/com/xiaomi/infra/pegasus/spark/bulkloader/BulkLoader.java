@@ -46,7 +46,7 @@ class BulkLoader {
 
     String dataPathPrefix =
         config.getRemoteFileSystemURL()
-            + config.getDataPathRoot()
+            + config.getDataRootPath()
             + "/"
             + config.getClusterName()
             + "/"
