@@ -7,7 +7,7 @@ import java.io.Serializable;
 public abstract class CommonConfig implements Serializable {
 
   private RemoteFileSystem remoteFileSystem;
-  private RateLimiterConfig rateLimiterConfig;
+  protected RateLimiterConfig rateLimiterConfig;
 
   private String remoteFileSystemURL;
   private String remoteFileSystemPort;

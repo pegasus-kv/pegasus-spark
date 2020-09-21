@@ -2,30 +2,26 @@ package com.xiaomi.infra.pegasus.spark;
 
 import com.revinate.guava.util.concurrent.RateLimiter;
 import java.io.Serializable;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 public class FlowController {
 
   public static class RateLimiterConfig implements Serializable {
-    private double bps;
-    private double qps;
+    private long megabytes;
+    private long qps;
     private double burstFactor;
 
     public RateLimiterConfig() {
-      this.bps = Long.MAX_VALUE;
+      this.megabytes = Long.MAX_VALUE;
       this.qps = Long.MAX_VALUE;
       this.burstFactor = 1;
     }
 
-    public RateLimiterConfig setBps(double bps) {
-      this.bps = bps;
+    public RateLimiterConfig setMegabytes(long megabytes) {
+      this.megabytes = megabytes;
       return this;
     }
 
-    public RateLimiterConfig setQps(double qps) {
+    public RateLimiterConfig setQps(long qps) {
       this.qps = qps;
       return this;
     }
@@ -35,12 +31,12 @@ public class FlowController {
       return this;
     }
 
-    public double getQps() {
-      return qps;
+    public long getMegabytes() {
+      return megabytes;
     }
 
-    public double getBps() {
-      return bps;
+    public long getQps() {
+      return qps;
     }
 
     public double getBurstFactor() {
@@ -50,11 +46,12 @@ public class FlowController {
 
   private RateLimiter bytesLimiter;
   private RateLimiter qpsLimiter;
-  private String name;
 
-  public FlowController(int partitionCount, double qps, double bps, double factor) {
-    this.qpsLimiter = RateLimiter.create(qps / partitionCount, qps * factor / partitionCount);
-    this.bytesLimiter = RateLimiter.create(bps / partitionCount, bps * factor / partitionCount);
+  public FlowController(int partitionCount, long qps, long megabytes, double factor) {
+    this.qpsLimiter = RateLimiter.create(1.0 * qps / partitionCount, qps * factor / partitionCount);
+    this.bytesLimiter =
+        RateLimiter.create(
+            1.0 * (megabytes << 20) / partitionCount, (megabytes << 20) * factor / partitionCount);
   }
 
   public void acquireBytes(int bytes) {

@@ -82,13 +82,15 @@ public class BulkLoaderConfig extends CommonConfig {
   }
 
   /**
-   * set RateLimiter config to control request flow, detail see {@link com.xiaomi.infra.pegasus.spark.FlowController}
+   * set RateLimiter config to control request flow, detail see {@link
+   * com.xiaomi.infra.pegasus.spark.FlowController}
+   *
    * @param rateLimiterConfig
    * @return this
    */
   @Override
   public BulkLoaderConfig setRateLimiterConfig(RateLimiterConfig rateLimiterConfig) {
-    super.setRateLimiterConfig(rateLimiterConfig);
+    this.rateLimiterConfig = rateLimiterConfig;
     return this;
   }
 
