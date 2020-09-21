@@ -16,18 +16,36 @@ public class FlowController {
       this.burstFactor = 1;
     }
 
+    /**
+     * set the throughput MB/s, exceed the value will be blocked, default 0 means no limit
+     *
+     * @param megabytes MB/s
+     * @return this
+     */
     public RateLimiterConfig setMegabytes(long megabytes) {
       assert megabytes >= 0 : "megabytes >= 0";
       this.megabytes = megabytes;
       return this;
     }
 
+    /**
+     * set the qps, exceed the value will be blocked, default 0 means no limit
+     *
+     * @param qps
+     * @return
+     */
     public RateLimiterConfig setQps(long qps) {
       assert qps >= 0 : "qps >= 0";
       this.qps = qps;
       return this;
     }
 
+    /**
+     * set the burst factor, the burstRate = baseRate * burstFactor, default 1 means no burst
+     *
+     * @param burstFactor
+     * @return
+     */
     public RateLimiterConfig setBurstFactor(double burstFactor) {
       assert burstFactor >= 1 : "burstFactor >=1";
       this.burstFactor = burstFactor;
