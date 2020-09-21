@@ -17,16 +17,19 @@ public class FlowController {
     }
 
     public RateLimiterConfig setMegabytes(long megabytes) {
+      assert megabytes >= 0 : "megabytes >= 0";
       this.megabytes = megabytes;
       return this;
     }
 
     public RateLimiterConfig setQps(long qps) {
+      assert qps >= 0 : "qps >= 0";
       this.qps = qps;
       return this;
     }
 
     public RateLimiterConfig setBurstFactor(double burstFactor) {
+      assert burstFactor >= 1 : "burstFactor >=1";
       this.burstFactor = burstFactor;
       return this;
     }
