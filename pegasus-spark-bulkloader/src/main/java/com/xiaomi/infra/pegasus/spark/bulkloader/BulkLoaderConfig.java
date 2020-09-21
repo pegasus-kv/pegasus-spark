@@ -105,10 +105,11 @@ public class BulkLoaderConfig extends CommonConfig {
 
   /**
    * whether to delete the previous same path bulkloader data when start load new data, if true, it
-   * may take a long time to delete it firstly, otherwise, it will throw exceptions. detail see
+   * may take a long time to delete it firstly, otherwise, it will throw exception. detail see
    * {@link PegasusRecordRDD#checkExistAndTryDelete(BulkLoaderConfig)}
    *
    * @param autoDeletePreviousData
+   * @return this
    */
   public BulkLoaderConfig enableAutoDeletePreviousData(boolean autoDeletePreviousData) {
     this.autoDeletePreviousData = autoDeletePreviousData;
