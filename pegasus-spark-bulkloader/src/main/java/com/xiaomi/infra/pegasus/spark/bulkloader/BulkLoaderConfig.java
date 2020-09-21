@@ -68,7 +68,7 @@ public class BulkLoaderConfig extends CommonConfig {
   }
 
   /**
-   * set the bulkloader data root path, default is "/pegasus-bulkloader"
+   * set the bulkloader data root path, default is {@link #DEFAULT_DATA_ROOT_PATH}
    *
    * @param dataRootPath data path root
    * @return this
