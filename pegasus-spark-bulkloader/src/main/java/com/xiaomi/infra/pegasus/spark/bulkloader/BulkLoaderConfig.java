@@ -15,7 +15,7 @@ import java.io.Serializable;
  * <DataPathRoot>/<ClusterName>/<TableName>/<PartitionIndex>/<FileIndex>.sst => RocksDB SST File
  */
 public class BulkLoaderConfig extends CommonConfig {
-  private static final String DATA_ROOT_PATH = "/pegasus-bulkloader";
+  private static final String DEFAULT_DATA_ROOT_PATH = "/pegasus-bulkloader";
 
   private AdvancedConfig advancedConfig;
   private String dataRootPath;
@@ -35,7 +35,7 @@ public class BulkLoaderConfig extends CommonConfig {
   }
 
   private void initDefaultConfig() {
-    this.dataRootPath = DATA_ROOT_PATH;
+    this.dataRootPath = DEFAULT_DATA_ROOT_PATH;
     this.advancedConfig = new AdvancedConfig();
     this.autoDeletePreviousData = false;
   }
