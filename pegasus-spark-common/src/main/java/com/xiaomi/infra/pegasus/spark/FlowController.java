@@ -25,13 +25,13 @@ public class FlowController {
       return this;
     }
 
-    public RateLimiterConfig setBurstFactor(double burstFactor) {
-      this.burstFactor = burstFactor;
+    public RateLimiterConfig setQps(double qps) {
+      this.qps = qps;
       return this;
     }
 
-    public RateLimiterConfig setQps(double qps) {
-      this.qps = qps;
+    public RateLimiterConfig setBurstFactor(double burstFactor) {
+      this.burstFactor = burstFactor;
       return this;
     }
 
@@ -47,10 +47,6 @@ public class FlowController {
       return burstFactor;
     }
   }
-
-  private static final Log LOG = LogFactory.getLog(FlowController.class);
-
-  private ScheduledExecutorService scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
 
   private RateLimiter bytesLimiter;
   private RateLimiter qpsLimiter;
