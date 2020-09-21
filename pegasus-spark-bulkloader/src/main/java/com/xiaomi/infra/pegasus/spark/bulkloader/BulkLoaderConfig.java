@@ -15,20 +15,29 @@ import java.io.Serializable;
  * <DataPathRoot>/<ClusterName>/<TableName>/<PartitionIndex>/<FileIndex>.sst => RocksDB SST File
  */
 public class BulkLoaderConfig extends CommonConfig {
-  private AdvancedConfig advancedConfig;
+  private static final String DEFAULT_DATA_ROOT_PATH = "/pegasus-bulkloader";
 
-  private String dataPathRoot = "/pegasus-bulkloader";
+  private AdvancedConfig advancedConfig;
+  private String dataRootPath;
+  private boolean autoDeletePreviousData;
+
   private int tableId;
   private int tablePartitionCount;
 
   public BulkLoaderConfig(HDFSConfig hdfsConfig, String clusterName, String tableName) {
     super(hdfsConfig, clusterName, tableName);
-    setAdvancedConfig(new AdvancedConfig());
+    initDefaultConfig();
   }
 
   public BulkLoaderConfig(FDSConfig fdsConfig, String clusterName, String tableName) {
     super(fdsConfig, clusterName, tableName);
-    setAdvancedConfig(new AdvancedConfig());
+    initDefaultConfig();
+  }
+
+  private void initDefaultConfig() {
+    this.dataRootPath = DEFAULT_DATA_ROOT_PATH;
+    this.advancedConfig = new AdvancedConfig();
+    this.autoDeletePreviousData = false;
   }
 
   /**
@@ -59,13 +68,13 @@ public class BulkLoaderConfig extends CommonConfig {
   }
 
   /**
-   * set the bulkloader data root path, default is "/pegasus-bulkloader"
+   * set the bulkloader data root path, default is {@link #DEFAULT_DATA_ROOT_PATH}
    *
-   * @param dataPathRoot data path root
+   * @param dataRootPath data root path
    * @return this
    */
-  public BulkLoaderConfig setDataPathRoot(String dataPathRoot) {
-    this.dataPathRoot = dataPathRoot;
+  public BulkLoaderConfig setDataRootPath(String dataRootPath) {
+    this.dataRootPath = dataRootPath;
     return this;
   }
 
@@ -94,8 +103,21 @@ public class BulkLoaderConfig extends CommonConfig {
     return this;
   }
 
-  public String getDataPathRoot() {
-    return dataPathRoot;
+  /**
+   * whether to delete the previous same path bulkloader data when start load new data, if true, it
+   * may take a long time to delete it firstly, otherwise, it will throw exception. detail see
+   * {@link PegasusRecordRDD#checkExistAndTryDelete(BulkLoaderConfig)}
+   *
+   * @param autoDeletePreviousData
+   * @return this
+   */
+  public BulkLoaderConfig enableAutoDeletePreviousData(boolean autoDeletePreviousData) {
+    this.autoDeletePreviousData = autoDeletePreviousData;
+    return this;
+  }
+
+  public String getDataRootPath() {
+    return dataRootPath;
   }
 
   public int getTableId() {
@@ -108,6 +130,10 @@ public class BulkLoaderConfig extends CommonConfig {
 
   public AdvancedConfig getAdvancedConfig() {
     return advancedConfig;
+  }
+
+  public boolean isAutoDeletePreviousData() {
+    return autoDeletePreviousData;
   }
 
   /**
