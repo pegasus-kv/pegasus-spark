@@ -38,7 +38,6 @@ class PegasusRecordRDD(data: RDD[(PegasusKey, PegasusValue)]) {
   // if has older bulkloader data, need delete it
   // TODO(jiashuo) the logic may need be deleted
   private def checkExistAndTryDelete(config: BulkLoaderConfig): Unit = {
-
     val tablePath = config.getRemoteFileSystemURL + "/" +
       config.getDataRootPath + "/" + config.getClusterName + "/" + config.getTableName
     val remoteFileSystem = config.getRemoteFileSystem
