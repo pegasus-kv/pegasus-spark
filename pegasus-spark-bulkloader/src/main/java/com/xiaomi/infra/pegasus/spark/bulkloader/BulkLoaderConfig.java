@@ -90,7 +90,7 @@ public class BulkLoaderConfig extends CommonConfig {
    */
   @Override
   public BulkLoaderConfig setRateLimiterConfig(RateLimiterConfig rateLimiterConfig) {
-    this.rateLimiterConfig = rateLimiterConfig;
+    super.setRateLimiterConfig(rateLimiterConfig);
     return this;
   }
 
