@@ -4,7 +4,7 @@ public interface Config {
 
   enum DataType {
     COLD_BACKUP,
-    ONLINE,
+    ONLINE_DATA,
     INVALID
   }
 

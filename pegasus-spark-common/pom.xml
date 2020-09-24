@@ -104,5 +104,10 @@
       <artifactId>rocksdbjni</artifactId>
       <version>6.6.4-mdh6.6.4-hdfs</version>
     </dependency>
+    <dependency>
+      <groupId>com.xiaomi.infra</groupId>
+      <artifactId>pegasus-client</artifactId>
+      <version>1.11.10-thrift-0.11.0-inlined</version>
+    </dependency>
   </dependencies>
 </project>

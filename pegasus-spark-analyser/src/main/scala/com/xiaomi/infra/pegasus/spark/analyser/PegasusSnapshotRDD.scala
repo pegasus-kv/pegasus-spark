@@ -32,7 +32,7 @@ class PegasusContext(private val sc: SparkContext) extends Serializable {
   */
 class PegasusSnapshotRDD private[analyser] (
     pegasusContext: PegasusContext,
-    snapshotLoader: PegasusLoader,
+    snapshotLoader: PegasusReader,
     @transient sc: SparkContext
 ) extends RDD[PegasusRecord](sc, Nil) {
 

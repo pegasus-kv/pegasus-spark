@@ -16,9 +16,9 @@ import org.rocksdb.RocksDB;
 import org.rocksdb.RocksDBException;
 import org.rocksdb.RocksIterator;
 
-class ColdBackupLoader implements PegasusLoader {
+class ColdBackupReader implements PegasusReader {
 
-  private static final Log LOG = LogFactory.getLog(ColdBackupLoader.class);
+  private static final Log LOG = LogFactory.getLog(ColdBackupReader.class);
 
   private ColdBackupConfig coldBackupConfig;
   private RemoteFileSystem remoteFileSystem;
@@ -27,7 +27,7 @@ class ColdBackupLoader implements PegasusLoader {
 
   private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
-  ColdBackupLoader(ColdBackupConfig config) throws PegasusSparkException {
+  ColdBackupReader(ColdBackupConfig config) throws PegasusSparkException {
     coldBackupConfig = config;
     remoteFileSystem = config.getRemoteFileSystem();
 

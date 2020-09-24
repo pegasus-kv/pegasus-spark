@@ -5,9 +5,9 @@ import com.xiaomi.infra.pegasus.spark.analyser.Config.DataType;
 
 class PegasusLoaderFactory {
 
-  public static PegasusLoader createDataLoader(Config cfg) throws PegasusSparkException {
+  public static PegasusReader createDataLoader(Config cfg) throws PegasusSparkException {
     if (cfg.getDataType() == DataType.COLD_BACKUP) {
-      return new ColdBackupLoader((ColdBackupConfig) cfg);
+      return new ColdBackupReader((ColdBackupConfig) cfg);
     } else {
       // TODO(jiashuo) will support more data type, such as online data
       throw new PegasusSparkException(
