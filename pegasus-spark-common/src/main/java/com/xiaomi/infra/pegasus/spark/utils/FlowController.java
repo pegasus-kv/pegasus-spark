@@ -69,18 +69,17 @@ public class FlowController {
   private RateLimiter qpsLimiter;
 
   public FlowController(int partitionCount, RateLimiterConfig config) {
-    if(config.megabytes > 0) {
+    if (config.megabytes > 0) {
       this.bytesLimiter =
           RateLimiter.create(
               1.0 * (config.megabytes << 20) / partitionCount,
               (config.megabytes << 20) * config.burstFactor / partitionCount);
     }
 
-    if(config.qps > 0) {
+    if (config.qps > 0) {
       this.qpsLimiter =
           RateLimiter.create(
-              1.0 * config.qps / partitionCount,
-              config.qps * config.burstFactor / partitionCount);
+              1.0 * config.qps / partitionCount, config.qps * config.burstFactor / partitionCount);
     }
   }
 
