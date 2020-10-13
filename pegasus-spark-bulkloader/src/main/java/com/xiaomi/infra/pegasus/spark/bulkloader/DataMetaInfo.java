@@ -22,6 +22,6 @@ class DataMetaInfo {
   }
 
   String toJsonString() {
-    return JsonParser.gson.toJson(this);
+    return JsonParser.getGson().toJson(this);
   }
 }

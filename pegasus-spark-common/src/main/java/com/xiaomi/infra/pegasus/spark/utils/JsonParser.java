@@ -4,6 +4,9 @@ import com.google.gson.Gson;
 
 public class JsonParser {
 
-    public static final Gson gson = new Gson();
+    private static final Gson gson = new Gson();
 
+    public static Gson getGson() {
+        return gson;
+    }
 }
