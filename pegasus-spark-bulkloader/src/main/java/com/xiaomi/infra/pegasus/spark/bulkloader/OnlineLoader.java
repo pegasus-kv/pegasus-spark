@@ -41,9 +41,10 @@ public class OnlineLoader {
           for (SetItem setItem : setItems) {
             bytes += setItem.hashKey.length + setItem.sortKey.length + setItem.value.length;
           }
-          flowController.acquireQPS();
+          flowController.acquireQPS(setItems.size());
           flowController.acquireBytes(bytes);
         }
+
         client.batchSet(onlineLoaderConfig.getTableName(), setItems);
         success = true;
       } catch (PException e) {
@@ -51,5 +52,9 @@ public class OnlineLoader {
         Thread.sleep(100);
       }
     }
+  }
+
+  public void close() throws PException {
+    PegasusClientFactory.closeSingletonClient();
   }
 }

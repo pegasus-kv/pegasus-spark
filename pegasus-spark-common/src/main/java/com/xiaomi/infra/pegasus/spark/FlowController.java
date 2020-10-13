@@ -111,4 +111,11 @@ public class FlowController {
     }
     qpsLimiter.acquire();
   }
+
+  public void acquireQPS(int request) {
+    if (qpsLimiter == null) {
+      return;
+    }
+    qpsLimiter.acquire(request);
+  }
 }

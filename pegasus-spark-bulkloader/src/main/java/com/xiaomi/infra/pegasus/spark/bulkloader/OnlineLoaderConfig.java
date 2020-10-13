@@ -2,11 +2,14 @@ package com.xiaomi.infra.pegasus.spark.bulkloader;
 
 import com.xiaomi.infra.pegasus.client.ClientOptions;
 import com.xiaomi.infra.pegasus.spark.FlowController.RateLimiterConfig;
+import java.io.Serializable;
 
-public class OnlineLoaderConfig {
+public class OnlineLoaderConfig implements Serializable {
   private ClientOptions clientOptions;
   private RateLimiterConfig rateLimiterConfig;
+
   private int ttlThreshold;
+  private int batchCount;
   private String clusterName;
   private String tableName;
 
@@ -14,6 +17,9 @@ public class OnlineLoaderConfig {
     this.clientOptions = clientOptions;
     this.clusterName = clusterName;
     this.tableName = tableName;
+
+    this.ttlThreshold = 0;
+    this.batchCount = 10;
   }
 
   public OnlineLoaderConfig setRateLimiterConfig(RateLimiterConfig rateLimiterConfig) {
@@ -23,6 +29,11 @@ public class OnlineLoaderConfig {
 
   public OnlineLoaderConfig setTtlThreshold(int ttlThreshold) {
     this.ttlThreshold = ttlThreshold;
+    return this;
+  }
+
+  public OnlineLoaderConfig setBatchCount(int batchCount) {
+    this.batchCount = batchCount;
     return this;
   }
 
@@ -44,5 +55,9 @@ public class OnlineLoaderConfig {
 
   public String getTableName() {
     return tableName;
+  }
+
+  public int getBatchCount() {
+    return batchCount;
   }
 }
