@@ -1,9 +1,9 @@
 package com.xiaomi.infra.pegasus.spark.analyser;
 
-import com.xiaomi.infra.pegasus.spark.FlowController;
 import com.xiaomi.infra.pegasus.spark.PegasusSparkException;
 import com.xiaomi.infra.pegasus.spark.RemoteFileSystem;
 import com.xiaomi.infra.pegasus.spark.RocksDBOptions;
+import com.xiaomi.infra.pegasus.spark.utils.FlowController;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -52,14 +52,7 @@ class ColdBackupLoader implements PegasusLoader {
     initCheckpointUrls(metaPrefix, partitionCount);
 
     if (config.getRateLimiterConfig() != null) {
-      long qps = config.getRateLimiterConfig().getQps();
-      long megabytes = config.getRateLimiterConfig().getMegabytes();
-      double factor = config.getRateLimiterConfig().getBurstFactor();
-
-      this.flowController =
-          new FlowController(partitionCount, factor)
-              .withMBytesLimiter(megabytes)
-              .withQPSLimiter(qps);
+      this.flowController = new FlowController(partitionCount, config.getRateLimiterConfig());
     }
 
     LOG.info("init fds default config and get the data urls");

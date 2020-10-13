@@ -31,10 +31,6 @@ public abstract class CommonConfig implements Serializable {
     this.tableName = tableName;
   }
 
-  public RateLimiterConfig getRateLimiterConfig() {
-    return rateLimiterConfig;
-  }
-
   public CommonConfig setRateLimiterConfig(RateLimiterConfig rateLimiterConfig) {
     this.rateLimiterConfig = rateLimiterConfig;
     return this;
@@ -58,6 +54,10 @@ public abstract class CommonConfig implements Serializable {
 
   public RemoteFileSystem getRemoteFileSystem() {
     return remoteFileSystem;
+  }
+
+  public RateLimiterConfig getRateLimiterConfig() {
+    return rateLimiterConfig;
   }
 
   public String getRemoteFileSystemURL() {

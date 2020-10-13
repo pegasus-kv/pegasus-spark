@@ -74,14 +74,8 @@ class BulkLoader {
             new RocksDBOptions(config.getRemoteFileSystemURL(), config.getRemoteFileSystemPort()));
 
     if (config.getRateLimiterConfig() != null) {
-      long qps = config.getRateLimiterConfig().getQps();
-      long megabytes = config.getRateLimiterConfig().getMegabytes();
-      double factor = config.getRateLimiterConfig().getBurstFactor();
-
       this.flowController =
-          new FlowController(config.getTablePartitionCount(), factor)
-              .withMBytesLimiter(megabytes)
-              .withQPSLimiter(qps);
+          new FlowController(config.getTablePartitionCount(), config.getRateLimiterConfig());
     }
   }
 

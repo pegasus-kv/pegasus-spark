@@ -13,7 +13,7 @@ public class FlowController {
     public RateLimiterConfig() {
       this.megabytes = 0;
       this.qps = 0;
-      this.burstFactor = 1;
+      this.burstFactor = 1.5;
     }
 
     /**
@@ -41,7 +41,7 @@ public class FlowController {
     }
 
     /**
-     * set the burst factor, the burstRate = baseRate * burstFactor, default 1 means no burst
+     * set the burst factor, the burstRate = baseRate * burstFactor, default is 1.5
      *
      * @param burstFactor
      * @return
@@ -68,34 +68,20 @@ public class FlowController {
   private RateLimiter bytesLimiter;
   private RateLimiter qpsLimiter;
 
-  private int partitionCount;
-  private double burstFactor;
-
-  public FlowController(int partitionCount, double burstFactor) {
-    this.partitionCount = partitionCount;
-    this.burstFactor = burstFactor;
-  }
-
-  public FlowController withMBytesLimiter(long megabytes) {
-    if (megabytes <= 0) {
-      return this;
+  public FlowController(int partitionCount, RateLimiterConfig config) {
+    if(config.megabytes > 0) {
+      this.bytesLimiter =
+          RateLimiter.create(
+              1.0 * (config.megabytes << 20) / partitionCount,
+              (config.megabytes << 20) * config.burstFactor / partitionCount);
     }
 
-    this.bytesLimiter =
-        RateLimiter.create(
-            1.0 * (megabytes << 20) / partitionCount,
-            (megabytes << 20) * burstFactor / partitionCount);
-    return this;
-  }
-
-  public FlowController withQPSLimiter(long qps) {
-    if (qps <= 0) {
-      return this;
+    if(config.qps > 0) {
+      this.qpsLimiter =
+          RateLimiter.create(
+              1.0 * config.qps / partitionCount,
+              config.qps * config.burstFactor / partitionCount);
     }
-
-    this.qpsLimiter =
-        RateLimiter.create(1.0 * qps / partitionCount, qps * burstFactor / partitionCount);
-    return this;
   }
 
   public void acquireBytes(int bytes) {
