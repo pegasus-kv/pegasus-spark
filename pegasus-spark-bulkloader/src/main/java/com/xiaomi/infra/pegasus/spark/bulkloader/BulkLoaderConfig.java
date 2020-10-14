@@ -82,11 +82,11 @@ public class BulkLoaderConfig extends CommonConfig {
   }
 
   /**
-   * set RateLimiter config to control request flow that include `qps` and `bytes` initialized 0
-   * default, which means no limit, detail see {@link
-   * com.xiaomi.infra.pegasus.spark.utils.FlowController} and {@link RateLimiterConfig}
+   * set RateLimiter config to control request flow that include `qpsLimiter` and `bytesLimiter`,
+   * detail see {@link com.xiaomi.infra.pegasus.spark.utils.FlowController} and {@link
+   * RateLimiterConfig}
    *
-   * @param rateLimiterConfig
+   * @param rateLimiterConfig see {@link RateLimiterConfig}
    * @return this
    */
   @Override
