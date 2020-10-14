@@ -1,7 +1,7 @@
 package com.xiaomi.infra.pegasus.spark.bulkloader;
 
 import com.xiaomi.infra.pegasus.client.ClientOptions;
-import com.xiaomi.infra.pegasus.spark.FlowController.RateLimiterConfig;
+import com.xiaomi.infra.pegasus.spark.utils.FlowController.RateLimiterConfig;
 import java.io.Serializable;
 
 public class OnlineLoaderConfig implements Serializable {

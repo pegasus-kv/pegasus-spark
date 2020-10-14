@@ -2,8 +2,8 @@ package com.xiaomi.infra.pegasus.spark.bulkloader;
 
 import com.xiaomi.infra.pegasus.spark.CommonConfig;
 import com.xiaomi.infra.pegasus.spark.FDSConfig;
-import com.xiaomi.infra.pegasus.spark.FlowController.RateLimiterConfig;
 import com.xiaomi.infra.pegasus.spark.HDFSConfig;
+import com.xiaomi.infra.pegasus.spark.utils.FlowController.RateLimiterConfig;
 import java.io.Serializable;
 
 /**
@@ -82,10 +82,11 @@ public class BulkLoaderConfig extends CommonConfig {
   }
 
   /**
-   * set RateLimiter config to control request flow, detail see {@link
-   * com.xiaomi.infra.pegasus.spark.FlowController}
+   * set RateLimiter config to control request flow that include `qpsLimiter` and `bytesLimiter`,
+   * detail see {@link com.xiaomi.infra.pegasus.spark.utils.FlowController} and {@link
+   * RateLimiterConfig}
    *
-   * @param rateLimiterConfig
+   * @param rateLimiterConfig see {@link RateLimiterConfig}
    * @return this
    */
   @Override

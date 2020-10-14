@@ -35,6 +35,8 @@ class PegasusSetItemRDD(resource: RDD[SetItem]) extends Serializable {
               (successCount.toDouble / validData.size).formatted("%.2f") + ")"
           )
         })
+
+      onlineLoader.close()
     })
   }
 
