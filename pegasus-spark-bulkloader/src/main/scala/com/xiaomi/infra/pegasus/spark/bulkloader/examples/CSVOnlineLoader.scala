@@ -9,6 +9,7 @@ import com.xiaomi.infra.pegasus.spark.utils.FlowController.RateLimiterConfig
 import org.apache.spark.{SparkConf, SparkContext}
 
 object CSVOnlineLoader {
+
   def main(args: Array[String]): Unit = {
 
     val conf: SparkConf = new SparkConf()
@@ -30,7 +31,7 @@ object CSVOnlineLoader {
           ClientOptions
             .builder()
             .metaServers(
-              "10.232.52.164:34601,10.232.52.164:34602,10.232.52.164:34603"
+              "127.0.0.1:34601,127.0.0.1:34602,127.0.0.1:34603"
             )
             .operationTimeout(Duration.ofMillis(10000))
             .build(),
