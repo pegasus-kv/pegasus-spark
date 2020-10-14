@@ -15,25 +15,27 @@ class PegasusSetItemRDD(resource: RDD[SetItem]) extends Serializable {
       val onlineLoader = new OnlineLoader(config, resource.getNumPartitions)
       val partitionId = TaskContext.getPartitionId
 
-      val validData = i.filter(p => p.ttlSeconds >= config.getTtlThreshold)
+      var totalCount = 0
+      val validData = i.filter(p => {
+        totalCount += 1
+        if (totalCount % 100000 == 0) {
+          logger.info(
+            "partition(" + partitionId + ") totalCount = " + totalCount
+          )
+        }
+        p.ttlSeconds >= config.getTtlThreshold
+      })
 
-      logger.info(
-        "partition(" + partitionId + ") totalCount = " + i.size + ", validCount = "
-          + validData.size + ", expireCount = " + (i.size - validData.size)
-      )
-
-      var successCount = 0
+      var validCount = 0
       validData
         .sliding(config.getBatchCount, config.getBatchCount)
         .foreach(slice => {
           onlineLoader.load(slice.asJava)
-
-          successCount += slice.size
-
-          logger.info(
-            "partition(" + partitionId + ") successCount = " + successCount + "(" +
-              (successCount.toDouble / validData.size).formatted("%.2f") + ")"
-          )
+          validCount += slice.size
+          if (validCount % 100000 == 0) {
+            logger
+              .info("partition(" + partitionId + ") validCount = " + validCount)
+          }
         })
 
       onlineLoader.close()
