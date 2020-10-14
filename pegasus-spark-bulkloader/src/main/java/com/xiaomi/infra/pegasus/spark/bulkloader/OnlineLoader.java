@@ -27,11 +27,11 @@ public class OnlineLoader {
     int failedCount = 0;
     while (!success) {
       try {
-
         int bytes = 0;
         for (SetItem setItem : setItems) {
           bytes += setItem.hashKey.length + setItem.sortKey.length + setItem.value.length;
         }
+
         flowController.acquireQPS(setItems.size());
         flowController.acquireBytes(bytes);
 
