@@ -25,6 +25,7 @@ public abstract class CommonConfig implements Serializable {
   }
 
   private void initConfig(HDFSConfig config, String clusterName, String tableName) {
+    this.rateLimiterConfig = new RateLimiterConfig();
     this.remoteFileSystemURL = config.getUrl();
     this.remoteFileSystemPort = config.getPort();
     this.clusterName = clusterName;

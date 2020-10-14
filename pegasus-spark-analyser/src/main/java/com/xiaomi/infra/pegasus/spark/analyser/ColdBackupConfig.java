@@ -96,8 +96,9 @@ public class ColdBackupConfig extends CommonConfig implements Config {
   }
 
   /**
-   * set RateLimiter config to control request flow, detail see {@link
-   * com.xiaomi.infra.pegasus.spark.utils.FlowController}
+   * set RateLimiter config to control request flow that include `qps` and `bytes` initialized 0
+   * default, which means no limit, detail see {@link
+   * com.xiaomi.infra.pegasus.spark.utils.FlowController} and {@link RateLimiterConfig}
    *
    * @param rateLimiterConfig
    * @return this

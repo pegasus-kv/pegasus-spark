@@ -51,9 +51,7 @@ class ColdBackupLoader implements PegasusLoader {
     partitionCount = getCount(metaPrefix);
     initCheckpointUrls(metaPrefix, partitionCount);
 
-    if (config.getRateLimiterConfig() != null) {
-      this.flowController = new FlowController(partitionCount, config.getRateLimiterConfig());
-    }
+    flowController = new FlowController(partitionCount, config.getRateLimiterConfig());
 
     LOG.info("init fds default config and get the data urls");
   }
@@ -206,10 +204,12 @@ class ColdBackupLoader implements PegasusLoader {
 
     @Override
     public void next() {
-      if (flowController != null) {
-        flowController.acquireQPS();
-        flowController.acquireBytes(rocksIterator.key().length + rocksIterator.value().length);
-      }
+      // `flowControl` initialized by `RateLimiterConfig` whose `qps` and `bytes` are both 0
+      // default, which means if you don't set custom config value > 0 , it will not limit and
+      // return immediately
+      flowController.acquireQPS();
+      flowController.acquireBytes(rocksIterator.key().length + rocksIterator.value().length);
+
       rocksIterator.next();
     }
 
