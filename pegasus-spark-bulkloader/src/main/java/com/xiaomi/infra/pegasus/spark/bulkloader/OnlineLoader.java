@@ -24,7 +24,6 @@ public class OnlineLoader {
 
   public void load(List<SetItem> setItems) throws InterruptedException {
     boolean success = false;
-    int failedCount = 0;
     while (!success) {
       try {
         int bytes = 0;
@@ -32,13 +31,16 @@ public class OnlineLoader {
           bytes += setItem.hashKey.length + setItem.sortKey.length + setItem.value.length;
         }
 
+        // `flowControl` initialized by `RateLimiterConfig` whose `qps` and `bytes` are both 0
+        // default, which means if you don't set custom config value > 0 , it will not limit and
+        // return immediately
         flowController.acquireQPS(setItems.size());
         flowController.acquireBytes(bytes);
 
         client.batchSet(onlineLoaderConfig.getTableName(), setItems);
         success = true;
       } catch (PException e) {
-        LOG.info("batchSet error(" + failedCount + "):" + e);
+        LOG.info("batchSet error:" + e);
         Thread.sleep(100);
       }
     }
