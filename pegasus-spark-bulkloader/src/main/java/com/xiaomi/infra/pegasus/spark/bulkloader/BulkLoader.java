@@ -1,10 +1,10 @@
 package com.xiaomi.infra.pegasus.spark.bulkloader;
 
-import com.xiaomi.infra.pegasus.spark.FlowController;
 import com.xiaomi.infra.pegasus.spark.PegasusSparkException;
 import com.xiaomi.infra.pegasus.spark.RemoteFileSystem;
 import com.xiaomi.infra.pegasus.spark.RocksDBOptions;
 import com.xiaomi.infra.pegasus.spark.bulkloader.DataMetaInfo.FileInfo;
+import com.xiaomi.infra.pegasus.spark.utils.FlowController;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.util.Iterator;
@@ -72,17 +72,8 @@ class BulkLoader {
     this.sstFileWriterWrapper =
         new SstFileWriterWrapper(
             new RocksDBOptions(config.getRemoteFileSystemURL(), config.getRemoteFileSystemPort()));
-
-    if (config.getRateLimiterConfig() != null) {
-      long qps = config.getRateLimiterConfig().getQps();
-      long megabytes = config.getRateLimiterConfig().getMegabytes();
-      double factor = config.getRateLimiterConfig().getBurstFactor();
-
-      this.flowController =
-          new FlowController(config.getTablePartitionCount(), factor)
-              .withMBytesLimiter(megabytes)
-              .withQPSLimiter(qps);
-    }
+    this.flowController =
+        new FlowController(config.getTablePartitionCount(), config.getRateLimiterConfig());
   }
 
   void start() throws PegasusSparkException {
@@ -135,10 +126,11 @@ class BulkLoader {
         sstFileWriterWrapper.openWithRetry(partitionPath + curSSTFileName);
       }
 
-      if (flowController != null) {
-        flowController.acquireQPS();
-        flowController.acquireBytes(record._1.data().length + record._2.data().length);
-      }
+      // `flowControl` initialized by `RateLimiterConfig` whose `qps` and `bytes` are both 0
+      // default, which means if you don't set custom config value > 0 , it will not limit and
+      // return immediately
+      flowController.acquireQPS();
+      flowController.acquireBytes(record._1.data().length + record._2.data().length);
 
       curFileSize += sstFileWriterWrapper.writeWithRetry(record._1.data(), record._2.data());
     }
