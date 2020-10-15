@@ -136,7 +136,7 @@ public class FlowController {
    *     <p>case1: qpsLimiter = null means no bytes limiter
    *     <p>case2: request acquire is 0
    *     <p>case3: token is enough
-   * @throws IllegalArgumentException if the bytes is negative
+   * @throws IllegalArgumentException if the request is negative
    */
   public double acquireQPS(int request) {
     if (qpsLimiter == null || request == 0) {
