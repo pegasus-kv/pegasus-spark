@@ -18,7 +18,7 @@ public class OnlineLoader {
 
   public OnlineLoader(OnlineLoaderConfig config, int partitionTaskCount) throws PException {
     this.onlineLoaderConfig = config;
-    this.client = PegasusClientFactory.getSingletonClient(config.getClientOptions());
+    this.client = PegasusClientFactory.createClient(config.getClientOptions());
     this.flowController = new FlowController(partitionTaskCount, config.getRateLimiterConfig());
   }
 
@@ -46,7 +46,7 @@ public class OnlineLoader {
     }
   }
 
-  public void close() throws PException {
-    PegasusClientFactory.closeSingletonClient();
+  public void close() {
+    client.close();
   }
 }
