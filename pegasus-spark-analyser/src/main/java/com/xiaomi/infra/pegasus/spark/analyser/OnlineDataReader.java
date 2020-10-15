@@ -28,7 +28,7 @@ public class OnlineDataReader implements PegasusReader {
   }
 
   @Override
-  public int getPartitionCount() throws PException {
+  public int getPartitionCount() {
     return partitionCount;
   }
 
