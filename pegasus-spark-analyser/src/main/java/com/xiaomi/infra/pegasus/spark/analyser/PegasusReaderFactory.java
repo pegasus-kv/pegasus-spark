@@ -3,9 +3,9 @@ package com.xiaomi.infra.pegasus.spark.analyser;
 import com.xiaomi.infra.pegasus.spark.PegasusSparkException;
 import com.xiaomi.infra.pegasus.spark.analyser.Config.DataType;
 
-class PegasusLoaderFactory {
+class PegasusReaderFactory {
 
-  public static PegasusReader createDataLoader(Config cfg) throws PegasusSparkException {
+  public static PegasusReader createDataReader(Config cfg) throws PegasusSparkException {
     if (cfg.getDataType() == DataType.COLD_BACKUP) {
       return new ColdBackupReader((ColdBackupConfig) cfg);
     } else {

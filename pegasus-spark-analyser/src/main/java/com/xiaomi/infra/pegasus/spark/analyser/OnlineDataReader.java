@@ -4,10 +4,8 @@ import com.xiaomi.infra.pegasus.client.PException;
 import com.xiaomi.infra.pegasus.client.PegasusClientFactory;
 import com.xiaomi.infra.pegasus.client.PegasusClientInterface;
 import com.xiaomi.infra.pegasus.client.PegasusScannerInterface;
-import com.xiaomi.infra.pegasus.spark.PegasusSparkException;
 import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
-import org.rocksdb.RocksDBException;
 
 public class OnlineDataReader implements PegasusReader {
   OnlineDataConfig onlineDataConfig;
@@ -35,7 +33,7 @@ public class OnlineDataReader implements PegasusReader {
   }
 
   @Override
-  public PegasusScanner getScanner(int pid) throws PegasusSparkException, RocksDBException {
+  public PegasusScanner getScanner(int pid) {
     return new OnlineDataScanner(scanners.get(pid), client);
   }
 

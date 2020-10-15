@@ -19,7 +19,7 @@ class PegasusContext(private val sc: SparkContext) extends Serializable {
 
     new PegasusSnapshotRDD(
       this,
-      PegasusLoaderFactory.createDataLoader(config),
+      PegasusReaderFactory.createDataReader(config),
       sc
     )
   }
