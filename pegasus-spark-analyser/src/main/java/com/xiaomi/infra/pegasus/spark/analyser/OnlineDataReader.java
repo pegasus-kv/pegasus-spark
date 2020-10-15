@@ -4,27 +4,32 @@ import com.xiaomi.infra.pegasus.client.PException;
 import com.xiaomi.infra.pegasus.client.PegasusClientFactory;
 import com.xiaomi.infra.pegasus.client.PegasusClientInterface;
 import com.xiaomi.infra.pegasus.client.PegasusScannerInterface;
+import com.xiaomi.infra.pegasus.spark.utils.FlowController;
 import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 public class OnlineDataReader implements PegasusReader {
-  OnlineDataConfig onlineDataConfig;
-  PegasusClientInterface client;
-  List<PegasusScannerInterface> scanners;
+  private static final Log LOG = LogFactory.getLog(OnlineDataReader.class);
+
+  private OnlineDataConfig onlineDataConfig;
+  private int partitionCount;
 
   public OnlineDataReader(OnlineDataConfig onlineDataConfig) throws PException {
     this.onlineDataConfig = onlineDataConfig;
-    this.client = PegasusClientFactory.createClient(onlineDataConfig.getClientOptions());
-    this.scanners =
-        client.getUnorderedScanners(
-            onlineDataConfig.getTableName(),
-            onlineDataConfig.getPartitionCount(),
-            onlineDataConfig.getScanOptions());
+    this.partitionCount =
+        PegasusClientFactory.getSingletonClient(onlineDataConfig.getClientOptions())
+            .getUnorderedScanners(
+                onlineDataConfig.getTableName(),
+                onlineDataConfig.getPartitionCount(),
+                onlineDataConfig.getScanOptions())
+            .size();
   }
 
   @Override
-  public int getPartitionCount() {
-    return onlineDataConfig.partitionCount;
+  public int getPartitionCount() throws PException {
+    return partitionCount;
   }
 
   @Override
@@ -33,23 +38,41 @@ public class OnlineDataReader implements PegasusReader {
   }
 
   @Override
-  public PegasusScanner getScanner(int pid) {
-    return new OnlineDataScanner(scanners.get(pid), client);
+  public PegasusScanner getScanner(int pid) throws PException {
+    FlowController flowController =
+        new FlowController(partitionCount, onlineDataConfig.getRateLimiterConfig());
+    PegasusClientInterface client =
+        PegasusClientFactory.createClient(onlineDataConfig.getClientOptions());
+    List<PegasusScannerInterface> scanners =
+        client.getUnorderedScanners(
+            onlineDataConfig.getTableName(),
+            onlineDataConfig.getPartitionCount(),
+            onlineDataConfig.getScanOptions());
+    return new OnlineDataScanner(client, scanners.get(pid), flowController);
   }
 
   static class OnlineDataScanner implements PegasusScanner {
-    PegasusScannerInterface scanner;
-    PegasusClientInterface client;
-    Pair<Pair<byte[], byte[]>, byte[]> result;
+    private static final byte[] EMPTY = "".getBytes();
 
-    public OnlineDataScanner(PegasusScannerInterface scanner, PegasusClientInterface client) {
-      this.scanner = scanner;
+    private PegasusClientInterface client;
+    private PegasusScannerInterface scanner;
+    private FlowController flowController;
+    private Pair<Pair<byte[], byte[]>, byte[]> result;
+
+    public OnlineDataScanner(
+        PegasusClientInterface client,
+        PegasusScannerInterface scanner,
+        FlowController flowController) {
       this.client = client;
+      this.scanner = scanner;
+      this.flowController = flowController;
+      // init result EMPTY is for flowController to get the size at first
+      this.result = Pair.of(Pair.of(EMPTY, EMPTY), EMPTY);
     }
 
     @Override
     public boolean isValid() {
-      return true;
+      return result != null;
     }
 
     @Override
@@ -58,9 +81,18 @@ public class OnlineDataReader implements PegasusReader {
     @Override
     public void next() {
       try {
-        scanner.next();
+        // `flowControl` initialized by `RateLimiterConfig` whose `qps` and `bytes` are both 0
+        // default, which means if you don't set custom config value > 0 , it will not limit and
+        // return immediately
+        flowController.acquireQPS();
+        flowController.acquireBytes(
+            result.getKey().getLeft().length
+                + result.getKey().getRight().length
+                + result.getRight().length);
+
+        result = scanner.next();
       } catch (PException e) {
-        e.printStackTrace();
+        LOG.warn("get the next result error:", e);
       }
     }
 
@@ -72,6 +104,7 @@ public class OnlineDataReader implements PegasusReader {
 
     @Override
     public PegasusRecord restore() {
+      // TODO(jiashuo) PegasusScannerInterface don't return ttl, so expireTime is set 0 by default
       return new PegasusRecord(
           result.getLeft().getKey(), result.getLeft().getKey(), result.getValue(), 0);
     }

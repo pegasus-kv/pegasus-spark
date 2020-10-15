@@ -12,12 +12,11 @@ import org.rocksdb.RocksDB
   * [[PegasusContext]] should be created in the driver, and shared with executors
   * as a serializable field.
   */
-// TODO(jiashuo1) refactor rdd/iterator for adding pegasus online data
 class PegasusContext(private val sc: SparkContext) extends Serializable {
 
-  def pegasusSnapshotRDD(config: Config): PegasusSnapshotRDD = {
+  def pegasusRDD(config: Config): PegasusRDD = {
 
-    new PegasusSnapshotRDD(
+    new PegasusRDD(
       this,
       PegasusReaderFactory.createDataReader(config),
       sc
@@ -30,13 +29,13 @@ class PegasusContext(private val sc: SparkContext) extends Serializable {
   *
   * To construct a PegasusSnapshotRDD, use [[PegasusContext#pegasusSnapshotRDD]].
   */
-class PegasusSnapshotRDD private[analyser] (
+class PegasusRDD private[analyser] (
     pegasusContext: PegasusContext,
     snapshotLoader: PegasusReader,
     @transient sc: SparkContext
 ) extends RDD[PegasusRecord](sc, Nil) {
 
-  private val LOG = LogFactory.getLog(classOf[PegasusSnapshotRDD])
+  private val LOG = LogFactory.getLog(classOf[PegasusRDD])
 
   override def compute(
       split: Partition,
@@ -72,7 +71,7 @@ class PegasusSnapshotRDD private[analyser] (
     * @return a RDD representing a different set of records in which none of each
     *         exists in both `this` and `other`.
     */
-  def diff(other: PegasusSnapshotRDD): RDD[PegasusRecord] = {
+  def diff(other: PegasusRDD): RDD[PegasusRecord] = {
     subtract(other).union(other.subtract(this))
   }
 }
