@@ -23,7 +23,6 @@ class ColdBackupReader implements PegasusReader {
 
   private ColdBackupConfig coldBackupConfig;
   private RemoteFileSystem remoteFileSystem;
-  private FlowController flowController;
   private Map<Integer, String> checkpointUrls = new HashMap<>();
   private final int partitionCount;
 
@@ -51,8 +50,6 @@ class ColdBackupReader implements PegasusReader {
     partitionCount = getCount(metaPrefix);
     initCheckpointUrls(metaPrefix, partitionCount);
 
-    flowController = new FlowController(partitionCount, config.getRateLimiterConfig());
-
     LOG.info("init fds default config and get the data urls");
   }
 
@@ -76,6 +73,8 @@ class ColdBackupReader implements PegasusReader {
 
     RocksDB rocksDB = RocksDB.openReadOnly(rocksDBOptions.options, checkpointUrls.get(pid));
     RocksIterator rocksIterator = rocksDB.newIterator(rocksDBOptions.readOptions);
+    FlowController flowController =
+        new FlowController(partitionCount, coldBackupConfig.getRateLimiterConfig());
     return new ColdBackupScanner(
         coldBackupConfig.getDataVersion(), rocksDBOptions, rocksDB, rocksIterator, flowController);
   }
