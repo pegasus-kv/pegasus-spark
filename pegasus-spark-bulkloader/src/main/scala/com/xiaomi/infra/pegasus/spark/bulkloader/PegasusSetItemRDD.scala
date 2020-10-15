@@ -9,12 +9,13 @@ import scala.collection.JavaConverters._
 class PegasusSetItemRDD(resource: RDD[SetItem]) extends Serializable {
   private val logger = LoggerFactory.getLogger(classOf[PegasusSetItemRDD])
 
-  def saveAsPegasusFile(config: OnlineLoaderConfig): Unit = {
+  def loadIntoPeagsus(config: OnlineLoaderConfig): Unit = {
 
     resource.foreachPartition(i => {
       val onlineLoader = new OnlineLoader(config, resource.getNumPartitions)
       val partitionId = TaskContext.getPartitionId
 
+      // filter the expired record
       var totalCount = 0
       val validData = i.filter(p => {
         totalCount += 1
@@ -26,6 +27,7 @@ class PegasusSetItemRDD(resource: RDD[SetItem]) extends Serializable {
         p.ttlSeconds >= config.getTTLThreshold
       })
 
+      // batch set the data into pegasus
       var validCount = 0
       validData
         .sliding(config.getBatchCount, config.getBatchCount)

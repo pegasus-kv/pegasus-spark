@@ -13,10 +13,12 @@ object CSVOnlineLoader {
   def main(args: Array[String]): Unit = {
 
     val conf: SparkConf = new SparkConf()
-      .setAppName("Convert to Online data into into cluster")
+      .setAppName("Convert to Online data into cluster")
       .setIfMissing("spark.master", "local[1]")
     val sc = new SparkContext(conf)
 
+    // This example only shows how to convert CSV file into Pegasus, actually any data source that
+    // can be converted RDD can be load into pegasus
     sc.textFile("data.csv")
       .map(i => {
         val lines = i.split(",")
@@ -26,7 +28,7 @@ object CSVOnlineLoader {
           lines(2).getBytes()
         )
       })
-      .saveAsPegasusFile(
+      .loadIntoPeagsus(
         new OnlineLoaderConfig(
           ClientOptions
             .builder()
