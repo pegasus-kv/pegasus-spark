@@ -23,7 +23,7 @@ class PegasusSetItemRDD(resource: RDD[SetItem]) extends Serializable {
             "partition(" + partitionId + ") totalCount = " + totalCount
           )
         }
-        p.ttlSeconds >= config.getTtlThreshold
+        p.ttlSeconds >= config.getTTLThreshold
       })
 
       var validCount = 0
