@@ -86,10 +86,15 @@ public class OnlineDataConfig implements Config {
    * detail see {@link com.xiaomi.infra.pegasus.spark.utils.FlowController} and {@link
    * RateLimiterConfig}
    *
+   * <p>Note: full scan read online data usually is a `heavy` operation, avoid to have influence on
+   * cluster, the max qps default set 10k, max bytes set 10M.
+   *
    * @param rateLimiterConfig see {@link RateLimiterConfig}
    * @return this
    */
   public OnlineDataConfig setRateLimiterConfig(RateLimiterConfig rateLimiterConfig) {
+    rateLimiterConfig.setQps(Math.min(rateLimiterConfig.getQps(), 10000));
+    rateLimiterConfig.setMegabytes(Math.min(rateLimiterConfig.getMegabytes(), 10));
     this.rateLimiterConfig = rateLimiterConfig;
     return this;
   }
