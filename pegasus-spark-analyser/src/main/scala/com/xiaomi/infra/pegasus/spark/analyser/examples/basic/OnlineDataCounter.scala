@@ -26,6 +26,8 @@ object OnlineDataCounter {
             .build(),
           "onebox",
           "usertable"
+          // Note: The finalQPS = QPS / partitionCount * parallelism. And `partitionCount`
+          // is usually equal with `parallelism` generally in spark
         ).setRateLimiterConfig(new RateLimiterConfig().setQps(1000))
       )
       .count()
