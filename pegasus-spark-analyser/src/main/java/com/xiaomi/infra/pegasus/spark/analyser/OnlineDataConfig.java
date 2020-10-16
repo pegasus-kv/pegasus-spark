@@ -87,7 +87,7 @@ public class OnlineDataConfig implements Config {
    * RateLimiterConfig}
    *
    * <p>Note: full scan read online data usually is a `heavy` operation, avoid to have influence on
-   * cluster, the max qps default set 10k, max bytes set 10M.
+   * cluster, the max qps default set 10k, max bytes rate set 10M.
    *
    * @param rateLimiterConfig see {@link RateLimiterConfig}
    * @return this
