@@ -4,6 +4,7 @@ import com.xiaomi.infra.pegasus.client.PException;
 import com.xiaomi.infra.pegasus.client.PegasusClientFactory;
 import com.xiaomi.infra.pegasus.client.PegasusClientInterface;
 import com.xiaomi.infra.pegasus.client.PegasusScannerInterface;
+import com.xiaomi.infra.pegasus.spark.PegasusSparkException;
 import com.xiaomi.infra.pegasus.spark.utils.FlowController;
 import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
@@ -38,17 +39,22 @@ public class OnlineDataReader implements PegasusReader {
   }
 
   @Override
-  public PegasusScanner getScanner(int pid) throws PException {
+  public PegasusScanner getScanner(int pid) throws PegasusSparkException {
     FlowController flowController =
         new FlowController(partitionCount, onlineDataConfig.getRateLimiterConfig());
-    PegasusClientInterface client =
-        PegasusClientFactory.createClient(onlineDataConfig.getClientOptions());
-    List<PegasusScannerInterface> scanners =
-        client.getUnorderedScanners(
-            onlineDataConfig.getTableName(),
-            onlineDataConfig.getPartitionCount(),
-            onlineDataConfig.getScanOptions());
-    return new OnlineDataScanner(client, scanners.get(pid), flowController);
+
+    try {
+      PegasusClientInterface client =
+          PegasusClientFactory.createClient(onlineDataConfig.getClientOptions());
+      List<PegasusScannerInterface> scanners =
+          client.getUnorderedScanners(
+              onlineDataConfig.getTableName(),
+              onlineDataConfig.getPartitionCount(),
+              onlineDataConfig.getScanOptions());
+      return new OnlineDataScanner(client, scanners.get(pid), flowController);
+    } catch (PException e) {
+      throw new PegasusSparkException("get pegasus online scanner error:", e);
+    }
   }
 
   static class OnlineDataScanner implements PegasusScanner {

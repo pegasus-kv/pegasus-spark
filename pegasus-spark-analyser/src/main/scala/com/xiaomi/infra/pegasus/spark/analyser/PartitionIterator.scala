@@ -23,10 +23,10 @@ private[analyser] class PartitionIterator private (
   private var name: String = _
   // TODO(wutao1): add metrics for counting the number of iterated records.
 
-  def this(context: TaskContext, snapshotLoader: PegasusReader, pid: Int) {
+  def this(context: TaskContext, pegasusReader: PegasusReader, pid: Int) {
     this(context, pid)
 
-    pegasusScanner = snapshotLoader.getScanner(pid)
+    pegasusScanner = pegasusReader.getScanner(pid)
     pegasusScanner.seekToFirst()
     assert(pegasusScanner.isValid)
     pegasusScanner.next() // skip the first record

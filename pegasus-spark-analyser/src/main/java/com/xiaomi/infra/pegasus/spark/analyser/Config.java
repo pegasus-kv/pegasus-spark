@@ -7,7 +7,6 @@ public interface Config extends Serializable {
   enum DataType {
     COLD_BACKUP,
     ONLINE_DATA,
-    INVALID
   }
 
   DataType getDataType();

@@ -64,19 +64,27 @@ class ColdBackupReader implements PegasusReader {
   }
 
   @Override
-  public PegasusScanner getScanner(int pid) throws PegasusSparkException, RocksDBException {
+  public PegasusScanner getScanner(int pid) throws PegasusSparkException {
     RocksDBOptions rocksDBOptions =
         new RocksDBOptions(
             coldBackupConfig.getRemoteFileSystemURL(), coldBackupConfig.getRemoteFileSystemPort());
     rocksDBOptions.options.setMaxOpenFiles(coldBackupConfig.getFileOpenCount());
     rocksDBOptions.readOptions.setReadaheadSize(coldBackupConfig.getReadAheadSize());
-
-    RocksDB rocksDB = RocksDB.openReadOnly(rocksDBOptions.options, checkpointUrls.get(pid));
-    RocksIterator rocksIterator = rocksDB.newIterator(rocksDBOptions.readOptions);
     FlowController flowController =
         new FlowController(partitionCount, coldBackupConfig.getRateLimiterConfig());
-    return new ColdBackupScanner(
-        coldBackupConfig.getDataVersion(), rocksDBOptions, rocksDB, rocksIterator, flowController);
+
+    try {
+      RocksDB rocksDB = RocksDB.openReadOnly(rocksDBOptions.options, checkpointUrls.get(pid));
+      RocksIterator rocksIterator = rocksDB.newIterator(rocksDBOptions.readOptions);
+      return new ColdBackupScanner(
+          coldBackupConfig.getDataVersion(),
+          rocksDBOptions,
+          rocksDB,
+          rocksIterator,
+          flowController);
+    } catch (RocksDBException e) {
+      throw new PegasusSparkException("get pegasus cold backup data scanner error:", e);
+    }
   }
 
   private void initCheckpointUrls(String prefix, int count) throws PegasusSparkException {

@@ -4,10 +4,10 @@ import com.xiaomi.infra.pegasus.spark.utils.JNILibraryLoader
 import org.apache.commons.logging.LogFactory
 import org.apache.spark.rdd.RDD
 import org.apache.spark.{Partition, SparkContext, TaskContext}
-import org.rocksdb.RocksDB
 
 /**
-  * PegasusContext is a serializable container for analysing Pegasus's checkpoint on HDFS.
+  * PegasusContext is a serializable container for analysing Pegasus's data on HDFS/FDS or on
+  * Online Cluster.
   *
   * [[PegasusContext]] should be created in the driver, and shared with executors
   * as a serializable field.
@@ -25,13 +25,14 @@ class PegasusContext(private val sc: SparkContext) extends Serializable {
 }
 
 /**
-  * A RDD backed by a FDS snapshot of Pegasus.
+  * A RDD backed by pegasus data, v1.1.0 to be released will support snapshot data in HDFS/FDS and
+  * pegasus cluster online data
   *
-  * To construct a PegasusSnapshotRDD, use [[PegasusContext#pegasusSnapshotRDD]].
+  * To construct a PegasusRDD, use [[PegasusContext#pegasusSnapshotRDD]].
   */
 class PegasusRDD private[analyser] (
     pegasusContext: PegasusContext,
-    snapshotLoader: PegasusReader,
+    pegasusReader: PegasusReader,
     @transient sc: SparkContext
 ) extends RDD[PegasusRecord](sc, Nil) {
 
@@ -47,27 +48,27 @@ class PegasusRDD private[analyser] (
     LOG.info(
       "Create iterator for \"%s\" \"%s\" [pid: %d]"
         .format(
-          snapshotLoader.getConfig.getClusterName,
-          snapshotLoader.getConfig.getTableName,
+          pegasusReader.getConfig.getClusterName,
+          pegasusReader.getConfig.getTableName,
           split.index
         )
     )
-    new PartitionIterator(context, snapshotLoader, split.index)
+    new PartitionIterator(context, pegasusReader, split.index)
   }
 
   override protected def getPartitions: Array[Partition] = {
-    val indexes = Array.range(0, snapshotLoader.getPartitionCount)
+    val indexes = Array.range(0, pegasusReader.getPartitionCount)
     indexes.map(i => {
       new PegasusPartition(i)
     })
   }
 
   def getPartitionCount: Int = {
-    snapshotLoader.getPartitionCount
+    pegasusReader.getPartitionCount
   }
 
   /**
-    * @param other the other PegasusSnapshotRDD with which to diff against
+    * @param other the other PegasusRDD with which to diff against
     * @return a RDD representing a different set of records in which none of each
     *         exists in both `this` and `other`.
     */
