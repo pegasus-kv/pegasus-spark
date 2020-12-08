@@ -4,11 +4,17 @@ import java.io.Serializable;
 
 public class HDFSConfig implements Serializable {
   private String url;
-  private String Port;
+  private String port;
 
   public HDFSConfig(String url, String Port) {
     this.url = url;
-    this.Port = Port;
+    this.port = Port;
+  }
+
+  // The default config will use fs.defaultFS value in the core-site.xml
+  public HDFSConfig() {
+    this.url = "default";
+    this.port = "0";
   }
 
   public void setUrl(String url) {
@@ -16,7 +22,7 @@ public class HDFSConfig implements Serializable {
   }
 
   public void setPort(String Port) {
-    this.Port = Port;
+    this.port = Port;
   }
 
   public String getUrl() {
@@ -24,6 +30,6 @@ public class HDFSConfig implements Serializable {
   }
 
   public String getPort() {
-    return Port;
+    return port;
   }
 }
