@@ -11,9 +11,8 @@ public class HDFSConfig implements Serializable {
     this.port = Port;
   }
 
-  // The default config will use fs.defaultFS value in the core-site.xml
-  public HDFSConfig() {
-    this.url = "default";
+  public HDFSConfig(String url) {
+    this.url = url;
     this.port = "0";
   }
 
