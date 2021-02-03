@@ -15,6 +15,7 @@ class PegasusSingleItemRDD(resource: RDD[SetItem]) extends Serializable {
     resource.foreachPartition(i => {
       val onlineLoader = new OnlineLoader(config, partitionCount)
       val partitionId = TaskContext.getPartitionId
+
       var currentCount = 0
       i.sliding(config.getBatchCount, config.getBatchCount)
         .foreach(slice => {
