@@ -33,6 +33,7 @@ class PegasusSingleItemRDD(resource: RDD[SetItem]) extends Serializable {
   }
 }
 
+// TODO(jiashuo1) the code is repeated with `PegasusSingleItemRDD` which may need be refactored
 class PegasusMultiItemRDD(resource: RDD[HashKeyData]) extends Serializable {
   private val logger = LoggerFactory.getLogger(classOf[PegasusMultiItemRDD])
 
