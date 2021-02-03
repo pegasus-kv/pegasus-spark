@@ -20,19 +20,20 @@ object CSVOnlineLoader {
     // This example only shows how to convert CSV file into Pegasus, actually any data source that
     // can be converted RDD can be load into pegasus
     sc.textFile("data.csv")
-      /** if resource data format is : one hashkey=>multi value, such as Hbase format, you need create multiSetItems within one hashKey**/
-      /**.map(i => {
-        val lines = i.split(",")
-        val multiSetItems = new HashKeyData(lines(0).getBytes())
-        val values:Array[String] = lines(1).split("|")
-        for(pair <- values) {
-          val sortKey = pair.split("@")(0).getBytes()
-          val value = pair.split("@")(1).getBytes()
-          val ttl = 0
-          multiSetItems.addData(sortKey, value)
-        }
-        multiSetItems
-      })**/
+      /** if resource data format is : one hashkey=>multi value, such as Hbase format, you need create multiSetItems within one hashKey* */
+      /** .map(i => {
+        *        val lines = i.split(",")
+        *        val multiSetItems = new HashKeyData(lines(0).getBytes())
+        *        val values:Array[String] = lines(1).split("|")
+        *        for(pair <- values) {
+        *          val sortKey = pair.split("@")(0).getBytes()
+        *          val value = pair.split("@")(1).getBytes()
+        *          val ttl = 0
+        *          multiSetItems.addData(sortKey, value)
+        *        }
+        *        multiSetItems
+        *      })*
+        */
       .map(i => {
         val lines = i.split(",")
         new SetItem(

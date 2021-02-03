@@ -23,7 +23,9 @@ class PegasusSingleItemRDD(resource: RDD[SetItem]) extends Serializable {
           currentCount += slice.size
           if (currentCount % 100000 == 0) {
             logger
-              .info("partition(" + partitionId + ") currentCount = " + currentCount)
+              .info(
+                "partition(" + partitionId + ") currentCount = " + currentCount
+              )
           }
         })
       onlineLoader.close()
@@ -48,7 +50,9 @@ class PegasusMultiItemRDD(resource: RDD[HashKeyData]) extends Serializable {
           currentCount += slice.size
           if (currentCount % 100000 == 0) {
             logger
-              .info("partition(" + partitionId + ") currentCount = " + currentCount)
+              .info(
+                "partition(" + partitionId + ") currentCount = " + currentCount
+              )
           }
         })
       onlineLoader.close()
