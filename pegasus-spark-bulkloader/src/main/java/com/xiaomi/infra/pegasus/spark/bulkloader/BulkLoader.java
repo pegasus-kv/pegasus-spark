@@ -105,6 +105,7 @@ class BulkLoader {
   // TODO(jiashuo): write data may should keep trying if failed, but not only finite times
   private void createSstFile() throws PegasusSparkException {
     if (!dataResourceIterator.hasNext()) {
+      remoteFileSystem.mkdirs(partitionPath);
       return;
     }
 
