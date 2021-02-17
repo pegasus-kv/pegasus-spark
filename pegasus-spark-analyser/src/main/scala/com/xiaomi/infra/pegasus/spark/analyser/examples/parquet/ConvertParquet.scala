@@ -20,7 +20,7 @@ object ConvertParquet {
     val coldBackupConfig =
       new ColdBackupConfig(new FDSConfig("", "", "", "", ""), "onebox", "temp")
 
-    val rdd = spark.sparkContext.pegasusSnapshotRDD(coldBackupConfig)
+    val rdd = spark.sparkContext.pegasusRDD(coldBackupConfig)
 
     // please make sure data can be converted valid string value
     val dataFrame = spark.createDataFrame(

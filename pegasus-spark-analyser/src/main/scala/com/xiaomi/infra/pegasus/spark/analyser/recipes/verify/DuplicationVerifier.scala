@@ -4,7 +4,6 @@ import com.typesafe.config.{ConfigException, ConfigFactory}
 import com.xiaomi.infra.pegasus.spark.FDSConfig
 import com.xiaomi.infra.pegasus.spark.analyser.{
   ColdBackupConfig,
-  ColdBackupLoader,
   PegasusContext
 }
 import org.apache.commons.logging.LogFactory
@@ -69,8 +68,8 @@ class DuplicationVerifier(opts: DuplicationVerifierOptions) {
       new ColdBackupConfig(fdsConfig, options.cluster1, options.tableName)
 
     val pc = new PegasusContext(sc)
-    val rdd1 = pc.pegasusSnapshotRDD(coldBackupConfig1)
-    val rdd2 = pc.pegasusSnapshotRDD(coldBackupConfig2)
+    val rdd1 = pc.pegasusRDD(coldBackupConfig1)
+    val rdd2 = pc.pegasusRDD(coldBackupConfig2)
     val partitionCount1 = rdd1.getPartitionCount
     val partitionCount2 = rdd2.getPartitionCount
     if (partitionCount1 != partitionCount2) {

@@ -5,7 +5,7 @@ import com.xiaomi.infra.pegasus.spark.analyser.ColdBackupConfig
 import org.apache.spark.{SparkConf, SparkContext}
 import com.xiaomi.infra.pegasus.spark.analyser.CustomImplicits._
 
-object CountData {
+object ColdBackupDataCounter {
 
   def main(args: Array[String]): Unit = {
     val conf: SparkConf = new SparkConf()
@@ -26,7 +26,7 @@ object CountData {
 
     var count = 0
     val sc = new SparkContext(conf)
-      .pegasusSnapshotRDD(coldBackupConfig)
+      .pegasusRDD(coldBackupConfig)
       .map(_ => {
         count = count + 1
         if (count % 10000 == 0) {
