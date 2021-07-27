@@ -12,8 +12,6 @@ import com.xiaomi.infra.pegasus.spark.utils.FlowController.RateLimiterConfig;
  * It's a complete snapshot of the moment.
  */
 public class ColdBackupConfig extends CommonConfig implements Config {
-  private static final DataType dataType = DataType.COLD_BACKUP;
-
   private static final long MB_UNIT = 1024 * 1024L;
 
   private static final int DEFAULT_FILE_OPEN_COUNT = 50;
@@ -41,7 +39,7 @@ public class ColdBackupConfig extends CommonConfig implements Config {
 
   @Override
   public DataType getDataType() {
-    return dataType;
+    return DataType.COLD_BACKUP;
   }
 
   /**

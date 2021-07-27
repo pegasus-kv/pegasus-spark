@@ -1,12 +1,17 @@
 package com.xiaomi.infra.pegasus.spark.analyser;
 
-public interface Config {
+import java.io.Serializable;
+
+public interface Config extends Serializable {
 
   enum DataType {
     COLD_BACKUP,
-    ONLINE,
-    INVALID
+    ONLINE_DATA,
   }
 
   DataType getDataType();
+
+  String getClusterName();
+
+  String getTableName();
 }
